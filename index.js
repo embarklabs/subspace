@@ -3,7 +3,7 @@ const Events = require('events')
 const events = new Events()
 
 const { Observable, fromEvent, interval, Subject } = require('rxjs');
-const { throttle, map, distinctUntilChanged, filter, average, reduce, count} =  require('rxjs/operators');
+const { throttle, map, distinctUntilChanged, filter, average, reduce, count, scan} =  require('rxjs/operators');
 
 var loki = require('lokijs')
 var db = new loki('loki.json')
@@ -56,7 +56,17 @@ function trackEvent(eventName, filterConditions) {
     return sub;
 }
 
-trackEvent('contractEvent', ((x) => x.from === "0x123")).pipe(map(x => x.rating)).subscribe((v) => {
+let myscan = scan((acc, curr) => {
+    acc.push(curr);
+    if (acc.length > 4) {
+        acc.shift();
+    }
+    return acc;
+}, [])
+
+let mymap = map(arr => arr.reduce((acc, current) => acc + current, 0) / arr.length)
+
+trackEvent('contractEvent', ((x) => x.from === "0x123")).pipe(map(x => x.rating), myscan, mymap).subscribe((v) => {
     console.dir("current value is " + v)
 })
 
