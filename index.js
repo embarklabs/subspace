@@ -3,11 +3,23 @@ const Events = require('events')
 const events = new Events()
 
 const { Observable, fromEvent, interval, Subject } = require('rxjs');
-const { throttle, map, distinctUntilChanged, filter, average, reduce, count, scan} =  require('rxjs/operators');
+const { throttle, throttleTime, map, distinctUntilChanged, filter, average, reduce, count, scan} =  require('rxjs/operators');
 
 var loki = require('lokijs')
+//var db = new loki('loki.json', {autosave: true, autoload: true})
 var db = new loki('loki.json')
-var children = db.addCollection('children')
+db.loadDatabase()
+
+let children = db.getCollection('children')
+if (!children) {
+  children = db.addCollection('children')
+  db.saveDatabase()
+}
+
+process.on('exit', function () {
+    db.close()
+});
+
 // var result = children.insert({name: 'foo', legs: 8})
 // console.dir(result)
 // var result2 = children.insert({name: 'bar', legs: 8})
@@ -33,12 +45,28 @@ function emitEvents() {
     }, 1 * 1000)
 }
 
+let dbChanges = fromEvent(events, "updateDB")
+
+dbChanges.pipe(throttle(val => interval(400))).subscribe(() => {
+    console.dir("saving database...")
+    db.saveDatabase((error, result) => {
+        console.dir(error)
+        console.dir(result)
+        console.dir("databased saved")
+    })
+})
+
 function trackEvent(eventName, filterConditions) {
     let eventKey = eventName + "-from0x123";
 
     let sub = new Subject();
 
+    console.dir("-----")
+    console.dir(children.find({'eventKey': eventKey}).length)
+    console.dir("-----")
+
     for (let previous of children.find({'eventKey': eventKey})) {
+        console.dir("checking previous event")
         sub.next(previous)
     }
 
@@ -47,9 +75,13 @@ function trackEvent(eventName, filterConditions) {
         console.dir("------- syncing event");
         e.eventKey = eventKey
         console.dir(e);
-        children.insert(e)
-        sub.next(e)
-        // events.emit(eventKey)
+        if (children.find({'id': e.id}).length > 0) {
+          console.dir("event already synced: " + e.id)
+        } else {
+          children.insert(e)
+          events.emit("updateDB")
+          sub.next(e)
+        }
         console.dir("-------");
     })
 
