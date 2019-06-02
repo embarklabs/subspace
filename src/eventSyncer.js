@@ -1,11 +1,45 @@
 const { Observable, fromEvent, interval, Subject, ReplaySubject } = require('rxjs');
 const { throttle, throttleTime, map, distinctUntilChanged, filter, average, reduce, count, scan } = require('rxjs/operators');
+const loki = require('lokijs')
+//const db = new loki('loki.json', {autosave: true, autoload: true})
 
 class EventSyncer {
 
-  constructor(db, events) {
-    this.db = db;
+  constructor(events) {
     this.events = events;
+  }
+
+  init(cb) {
+    this.db = new loki('phoenix.db', {
+      autoload: true,
+      autoloadCallback: () => {
+        this.databaseInitialize(cb)
+      },
+      autosave: true,
+      autosaveInterval: 2000 // save every four seconds for our example
+    })
+  }
+
+  databaseInitialize(cb) {
+    let children = this.db.getCollection('children')
+    if (!children) {
+      children = this.db.addCollection('children')
+      this.db.saveDatabase()
+    }
+    let tracked = this.db.getCollection('tracked')
+    if (!tracked) {
+      tracked = this.db.addCollection('tracked')
+      this.db.saveDatabase()
+    }
+
+    let dbChanges = fromEvent(this.events, "updateDB")
+
+    dbChanges.pipe(throttle(val => interval(400))).subscribe(() => {
+      console.dir("saving database...")
+      this.db.saveDatabase()
+    })
+
+    cb();
   }
 
   trackEvent(eventName, filterConditions) {
@@ -50,5 +84,9 @@ class EventSyncer {
   }
 
 }
+
+// process.on('exit', function () {
+//   db.close()
+// });
 
 module.exports = EventSyncer;
