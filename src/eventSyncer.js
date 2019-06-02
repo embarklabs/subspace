@@ -62,8 +62,6 @@ class EventSyncer {
       sub.next(previous)
     }
 
-    console.dir("after")
-
     let contractObserver = fromEvent(this.events, eventName)
     contractObserver.pipe(filter((x) => x.id > lastEvent.id)).pipe(filter(filterConditions)).subscribe((e) => {
       console.dir("------- syncing event");
