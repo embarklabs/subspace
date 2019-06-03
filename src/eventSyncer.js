@@ -1,7 +1,6 @@
-const { Observable, fromEvent, interval, Subject, ReplaySubject } = require('rxjs');
-const { throttle, throttleTime, map, distinctUntilChanged, filter, average, reduce, count, scan } = require('rxjs/operators');
+const { fromEvent, interval, ReplaySubject } = require('rxjs');
+const { throttle, filter } = require('rxjs/operators');
 const loki = require('lokijs')
-//const db = new loki('loki.json', {autosave: true, autoload: true})
 
 class EventSyncer {
 
