@@ -42,7 +42,8 @@ class EventSyncer {
   }
 
   trackEvent(eventName, filterConditions) {
-    let eventKey = eventName + "-from0x123";
+    // let eventKey = eventName + "-from0x123";
+    let eventKey = eventName;
 
     let tracked = this.db.getCollection('tracked')
     let lastEvent = tracked.find({ "eventName": eventName })[0]
