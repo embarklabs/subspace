@@ -1,6 +1,17 @@
+const { map, scan } = require('rxjs/operators');
 const Web3 = require('web3');
 
 let web3 = new Web3("ws://localhost:8545");
+
+let myscan = scan((acc, curr) => {
+  acc.push(curr);
+  if (acc.length > 4) {
+    acc.shift();
+  }
+  return acc;
+}, [])
+
+let mymap = map(arr => arr.reduce((acc, current) => acc + current, 0) / arr.length)
 
 async function deployContract() {
   let accounts = await web3.eth.getAccounts();
@@ -74,10 +85,27 @@ async function run() {
 
   // RatingContract.events.getPastEvents('Rating', {fromBlock: 1})
   RatingContract.events.Rating({fromBlock: 1}, (err, event) => {
-    console.dir("new event")
-    console.dir(event)
+    // console.dir("new event")
+    // console.dir(event)
   })
 
+  const EventSyncer = require('../src/eventSyncer.js')
+  const eventSyncer = new EventSyncer(web3);
+
+  eventSyncer.init(() => {
+
+    eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), myscan, mymap).subscribe((v) => {
+    // eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => x.rating)).subscribe((v) => {
+      console.dir("value is ")
+      console.dir(v)
+    });
+
+  });
+
+  // await RatingContract.methods.doRating(1, 5).send({from: accounts[0]})
+  // await RatingContract.methods.doRating(1, 3).send({from: accounts[0]})
+  // await RatingContract.methods.doRating(1, 1).send({from: accounts[0]})
+  // await RatingContract.methods.doRating(1, 5).send({from: accounts[0]})
 }
 
 run()
