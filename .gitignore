@@ -3,3 +3,4 @@ node_modules
 phoenix.db
 TODO
 test.js
+dist
