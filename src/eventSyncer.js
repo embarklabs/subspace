@@ -72,8 +72,22 @@ class EventSyncer {
     // for e.g, it should start fromBlock, from the latest known block (which means it should store block info)
     // it should be able to do events X at the time to avoid slow downs as well as the 10k limit
     contractInstance.events[eventName].apply(contractInstance.events[eventName], [(filterConditions || {fromBlock: 0}), (err, event) => {
-      // let eventObject = event.returnValues;
-      // eventObject.id = event.id;
+      let propsToFilter = [];
+      for (let prop in filterConditions.filter)  {
+        if (Object.keys(event.returnValues).indexOf(prop) >= 0) {
+          propsToFilter.push(prop)
+        }
+      }
+      if (propsToFilter.length === 0) {
+        return this.events.emit("event-" + eventName, event);
+      }
+
+      for (let prop of propsToFilter) {
+        if (filterConditions.filter[prop] !== event.returnValues[prop]) {
+          return;
+        }
+      }
+
       this.events.emit("event-" + eventName, event);
     }])
 
