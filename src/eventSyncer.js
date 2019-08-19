@@ -3,6 +3,10 @@ const { throttle, filter } = require('rxjs/operators');
 const loki = require('lokijs')
 const Events = require('events')
 
+function randomString() {
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}
+
 class EventSyncer {
 
   constructor(web3) {
@@ -45,9 +49,18 @@ class EventSyncer {
   }
 
   // trackEvent(eventName, filterConditions) {
-  trackEvent(contractInstance, eventName, filterConditions) {
+  trackEvent(contractInstance, eventName, filterConditionsOrCb) {
     // let eventKey = eventName + "-from0x123";
     let eventKey = eventName;
+    let namespace = randomString()
+
+
+    let filterConditions, filterConditionsCb;
+    if (typeof filterConditionsOrCb === 'function') {
+      filterConditionsCb = filterConditionsOrCb
+    } else {
+      filterConditions = filterConditionsOrCb
+    }
 
     let tracked = this.db.getCollection('tracked')
     let lastEvent = tracked.find({ "eventName": eventName })[0]
@@ -66,29 +79,35 @@ class EventSyncer {
       sub.next(previous)
     }
 
-    let contractObserver = fromEvent(this.events, "event-" + eventName)
+    let contractObserver = fromEvent(this.events, "event-" + eventName + "-" + namespace)
 
     // TODO: this should be moved to a 'smart' module
     // for e.g, it should start fromBlock, from the latest known block (which means it should store block info)
     // it should be able to do events X at the time to avoid slow downs as well as the 10k limit
     contractInstance.events[eventName].apply(contractInstance.events[eventName], [(filterConditions || {fromBlock: 0}), (err, event) => {
-      let propsToFilter = [];
-      for (let prop in filterConditions.filter)  {
-        if (Object.keys(event.returnValues).indexOf(prop) >= 0) {
-          propsToFilter.push(prop)
+      if (filterConditions) {
+        let propsToFilter = [];
+        for (let prop in filterConditions.filter) {
+          if (Object.keys(event.returnValues).indexOf(prop) >= 0) {
+            propsToFilter.push(prop)
+          }
         }
-      }
-      if (propsToFilter.length === 0) {
-        return this.events.emit("event-" + eventName, event);
-      }
+        if (propsToFilter.length === 0) {
+          return this.events.emit("event-" + eventName + "-" + namespace, event);
+        }
 
-      for (let prop of propsToFilter) {
-        if (filterConditions.filter[prop] !== event.returnValues[prop]) {
+        for (let prop of propsToFilter) {
+          if (filterConditions.filter[prop] !== event.returnValues[prop]) {
+            return;
+          }
+        }
+      } else if (filterConditionsCb) {
+        if (!filterConditionsCb(event.returnValues)) {
           return;
         }
       }
 
-      this.events.emit("event-" + eventName, event);
+      this.events.emit("event-" + eventName + "-" + namespace, event);
     }])
 
     // contractObserver.pipe(filter((x) => x.id > lastEvent.id)).pipe(filter(filterConditions)).subscribe((e) => {
@@ -100,12 +119,15 @@ class EventSyncer {
         console.dir("event already synced: " + e.id)
       } else {
         // TODO: would be nice if trackEvent was smart enough to understand the type of returnValues and do the needed conversions
+        if (e.returnValues['$loki']) { // was already saved / synced
+          console.dir("already synced")
+          return sub.next(e.returnValues)
+        }
         children.insert(e.returnValues)
         tracked.updateWhere(((x) => x.eventName === eventName), ((x) => x.id = e.id))
         this.events.emit("updateDB")
         sub.next(e.returnValues)
       }
-      console.dir("-------");
     })
 
     return sub;
