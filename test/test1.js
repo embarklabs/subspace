@@ -95,11 +95,11 @@ async function run() {
   eventSyncer.init(() => {
 
     // TODO: would be nice if trackEvent was smart enough to understand the type of returnValues and do the needed conversions
-    // eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), myscan, mymap).subscribe((v) => {
-    // // eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => x.rating)).subscribe((v) => {
-    //   console.dir("value is ")
-    //   console.dir(v)
-    // });
+    eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), myscan, mymap).subscribe((v) => {
+    // eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => x.rating)).subscribe((v) => {
+      console.dir("value is ")
+      console.dir(v)
+    });
 
     var max = scan((acc, curr) => {
       if (curr > acc) return curr;
