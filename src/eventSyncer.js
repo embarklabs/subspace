@@ -164,6 +164,7 @@ class EventSyncer {
       }])
     })
 
+    // TODO: add distinctUntilChanged
     return sub;
   }
 
