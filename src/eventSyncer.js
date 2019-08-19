@@ -49,10 +49,18 @@ class EventSyncer {
   }
 
   // trackEvent(eventName, filterConditions) {
-  trackEvent(contractInstance, eventName, filterConditions) {
+  trackEvent(contractInstance, eventName, filterConditionsOrCb) {
     // let eventKey = eventName + "-from0x123";
     let eventKey = eventName;
     let namespace = randomString()
+
+
+    let filterConditions, filterConditionsCb;
+    if (typeof filterConditionsOrCb === 'function') {
+      filterConditionsCb = filterConditionsOrCb
+    } else {
+      filterConditions = filterConditionsOrCb
+    }
 
     let tracked = this.db.getCollection('tracked')
     let lastEvent = tracked.find({ "eventName": eventName })[0]
@@ -92,6 +100,10 @@ class EventSyncer {
           if (filterConditions.filter[prop] !== event.returnValues[prop]) {
             return;
           }
+        }
+      } else if (filterConditionsCb) {
+        if (!filterConditionsCb(event.returnValues)) {
+          return;
         }
       }
 
