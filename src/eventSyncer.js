@@ -133,6 +133,40 @@ class EventSyncer {
     return sub;
   }
 
+  trackProperty(contractInstance, propName, filterConditionsOrCb) {
+    // let eventKey = propName + "-from0x123";
+    let eventKey = propName;
+    let namespace = randomString()
+
+    let filterConditions, filterConditionsCb;
+    if (typeof filterConditionsOrCb === 'function') {
+      filterConditionsCb = filterConditionsOrCb
+    } else {
+      filterConditions = filterConditionsOrCb
+    }
+
+    let tracked = this.db.getCollection('tracked')
+
+    let sub = new ReplaySubject();
+
+    let children = this.db.getCollection('children')
+
+    // TODO: use call args from user
+    let method = contractInstance.methods[propName].apply(contractInstance.methods[propName], [])
+
+    method.call.apply(method.call, [(filterConditions || {}), (err, result) => {
+      sub.next(result)
+    }])
+
+    var subscription = this.web3.eth.subscribe('newBlockHeaders', function (error, result) {
+      method.call.apply(method.call, [(filterConditions || {}), (err, result) => {
+        sub.next(result)
+      }])
+    })
+
+    return sub;
+  }
+
 }
 
 // process.on('exit', function () {
