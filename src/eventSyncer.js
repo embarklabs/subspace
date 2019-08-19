@@ -1,11 +1,14 @@
 const { fromEvent, interval, ReplaySubject } = require('rxjs');
 const { throttle, filter } = require('rxjs/operators');
 const loki = require('lokijs')
+const Events = require('events')
 
 class EventSyncer {
 
-  constructor(events) {
-    this.events = events;
+  constructor(web3) {
+    // this.events = events;
+    this.events = new Events;
+    this.web3 = web3;
   }
 
   init(cb) {
@@ -41,8 +44,10 @@ class EventSyncer {
     cb();
   }
 
-  trackEvent(eventName, filterConditions) {
-    let eventKey = eventName + "-from0x123";
+  // trackEvent(eventName, filterConditions) {
+  trackEvent(contractInstance, eventName, filterConditions) {
+    // let eventKey = eventName + "-from0x123";
+    let eventKey = eventName;
 
     let tracked = this.db.getCollection('tracked')
     let lastEvent = tracked.find({ "eventName": eventName })[0]
@@ -61,18 +66,30 @@ class EventSyncer {
       sub.next(previous)
     }
 
-    let contractObserver = fromEvent(this.events, eventName)
-    contractObserver.pipe(filter((x) => x.id > lastEvent.id)).pipe(filter(filterConditions)).subscribe((e) => {
+    let contractObserver = fromEvent(this.events, "event-" + eventName)
+
+    // TODO: this should be moved to a 'smart' module
+    // for e.g, it should start fromBlock, from the latest known block (which means it should store block info)
+    // it should be able to do events X at the time to avoid slow downs as well as the 10k limit
+    contractInstance.events[eventName].apply(contractInstance.events[eventName], [(filterConditions || {fromBlock: 0}), (err, event) => {
+      // let eventObject = event.returnValues;
+      // eventObject.id = event.id;
+      this.events.emit("event-" + eventName, event);
+    }])
+
+    // contractObserver.pipe(filter((x) => x.id > lastEvent.id)).pipe(filter(filterConditions)).subscribe((e) => {
+    contractObserver.pipe().subscribe((e) => {
       console.dir("------- syncing event");
       e.eventKey = eventKey
-      console.dir(e);
+      // console.dir(e);
       if (children.find({ 'id': e.id }).length > 0) {
         console.dir("event already synced: " + e.id)
       } else {
-        children.insert(e)
+        // TODO: would be nice if trackEvent was smart enough to understand the type of returnValues and do the needed conversions
+        children.insert(e.returnValues)
         tracked.updateWhere(((x) => x.eventName === eventName), ((x) => x.id = e.id))
         this.events.emit("updateDB")
-        sub.next(e)
+        sub.next(e.returnValues)
       }
       console.dir("-------");
     })
