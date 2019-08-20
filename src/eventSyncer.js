@@ -1,6 +1,7 @@
 const { fromEvent, interval, ReplaySubject } = require('rxjs');
 const { throttle, distinctUntilChanged } = require('rxjs/operators');
 const { randomString } = require('./utils.js');
+
 const Database = require('./database.js');
 const Events = require('events');
 const Web3 = require('web3');
