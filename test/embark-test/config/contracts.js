@@ -57,7 +57,13 @@ module.exports = {
     // filteredFields: [],
 
     contracts: {
-
+      "Ranking": {
+        onDeploy:  async (dependencies) => {
+          await dependencies.contracts.Ranking.methods.rate('0xcafecafecafecafecafecafecafecafecafecafe', 4).send({from: dependencies.web3.eth.defaultAccount}),
+          await dependencies.contracts.Ranking.methods.rate('0x0001020304050607080900010203040506070809', 1).send({from: dependencies.web3.eth.defaultAccount}),
+          await dependencies.contracts.Ranking.methods.rate('0x0000000100000001000000010000000100000001', 3).send({from: dependencies.web3.eth.defaultAccount})
+        }
+      }
     }
   },
 
