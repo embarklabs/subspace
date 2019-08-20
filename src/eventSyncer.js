@@ -1,5 +1,5 @@
 const { fromEvent, interval, ReplaySubject } = require('rxjs');
-const { throttle, filter } = require('rxjs/operators');
+const { throttle, filter, distinctUntilChanged } = require('rxjs/operators');
 const loki = require('lokijs')
 const Events = require('events')
 
@@ -164,8 +164,7 @@ class EventSyncer {
       }])
     })
 
-    // TODO: add distinctUntilChanged
-    return sub;
+    return sub.pipe(distinctUntilChanged());
   }
 
 }
