@@ -1,53 +1,29 @@
 const { fromEvent, interval, ReplaySubject } = require('rxjs');
 const { throttle, distinctUntilChanged } = require('rxjs/operators');
 const { randomString } = require('./utils.js');
-const loki = require('lokijs');
+const Database = require('./database.js');
 const Events = require('events');
+const Web3 = require('web3');
 
 class EventSyncer {
 
-  // TODO: pass provider instead of web3 object
-  constructor(web3) {
-    this.events = new Events;
-    this.web3 = web3;
+  constructor(provider, dbFilename) {
+    this.events = new Events();
+    this.web3 = new Web3(provider);
+    this.dbFilename = dbFilename || 'phoenix.db';
   }
 
-  // TODO: pass config on where to save database
-  init(cb) {
-    this.db = new loki('phoenix.db', {
-      autoload: true,
-      autoloadCallback: () => {
-        this.databaseInitialize(cb)
-      },
-      autosave: true,
-      autosaveInterval: 2000
+  init() {
+    return new Promise((resolve, reject) => {
+      this._db = new Database(this.dbFilename, this.events, resolve);
+      this.db = this._db.db;
     })
   }
 
-  databaseInitialize(cb) {
-    let children = this.db.getCollection('children')
-    if (!children) {
-      children = this.db.addCollection('children')
-      this.db.saveDatabase()
-    }
-    let tracked = this.db.getCollection('tracked')
-    if (!tracked) {
-      tracked = this.db.addCollection('tracked')
-      this.db.saveDatabase()
-    }
-
-    let dbChanges = fromEvent(this.events, "updateDB")
-    dbChanges.pipe(throttle(val => interval(400))).subscribe(() => {
-      this.db.saveDatabase()
-    })
-
-    cb();
-  }
-
+  // TODO: get contract abi/address instead
   trackEvent(contractInstance, eventName, filterConditionsOrCb) {
     // let eventKey = eventName + "-from0x123";
     let eventKey = eventName;
-    let namespace = randomString()
 
     let filterConditions, filterConditionsCb;
     if (typeof filterConditionsOrCb === 'function') {
@@ -56,21 +32,15 @@ class EventSyncer {
       filterConditions = filterConditionsOrCb
     }
 
-    let tracked = this.db.getCollection('tracked')
-    let lastEvent = tracked.find({ "eventName": eventName })[0]
-    if (!lastEvent || lastEvent.length <= 0) {
-      tracked.insert({ "eventName": eventName, id: 0 })
-      lastEvent = tracked.find({ "eventName": eventName })[0]
-    }
+    // TODO: should use this to resume events tracking
+    // let lastEvent = this._db.getLastKnownEvent(eventName)
 
     let sub = new ReplaySubject();
 
-    let children = this.db.getCollection('children')
-    for (let previous of children.find({ 'eventKey': eventKey })) {
-      sub.next(previous)
-    }
+    this._db.getEventsFor(eventKey).forEach(sub.next);
 
-    let contractObserver = fromEvent(this.events, "event-" + eventName + "-" + namespace)
+    let eventbusKey = "event-" + eventName + "-" + randomString();
+    let contractObserver = fromEvent(this.events, eventbusKey)
 
     // TODO: this should be moved to a 'smart' module
     // for e.g, it should start fromBlock, from the latest known block (which means it should store block info)
@@ -83,30 +53,24 @@ class EventSyncer {
             propsToFilter.push(prop)
           }
         }
-        if (propsToFilter.length === 0) {
-          return this.events.emit("event-" + eventName + "-" + namespace, event);
-        }
-
         for (let prop of propsToFilter) {
           if (filterConditions.filter[prop] !== event.returnValues[prop]) return;
         }
-      } else if (filterConditionsCb) {
-        if (!filterConditionsCb(event.returnValues)) {
-          return;
-        }
+      } else if (filterConditionsCb && !filterConditionsCb(event.returnValues)) {
+        return;
       }
 
-      this.events.emit("event-" + eventName + "-" + namespace, event);
+      this.events.emit(eventbusKey, event);
     }])
 
     // TODO: would be nice if trackEvent was smart enough to understand the type of returnValues and do the needed conversions
     contractObserver.pipe().subscribe((e) => {
       e.eventKey = eventKey
-      if (children.find({ 'id': e.id }).length > 0) return;
+      if (this._db.eventExists(e.id)) return;
       if (e.returnValues['$loki']) return sub.next(e.returnValues)
 
-      children.insert(e.returnValues)
-      tracked.updateWhere(((x) => x.eventName === eventName), ((x) => x.id = e.id))
+      this._db.recordEvent(e.returnValues);
+      this._db.updateEventId(eventName, e.id)
       this.events.emit("updateDB")
       sub.next(e.returnValues)
     })
@@ -125,7 +89,7 @@ class EventSyncer {
       sub.next(result)
     }])
 
-    this.web3.eth.subscribe('newBlockHeaders', function (error, result) {
+    this.web3.eth.subscribe('newBlockHeaders', (error, result) => {
       method.call.apply(method.call, [({}), (err, result) => {
         sub.next(result)
       }])
