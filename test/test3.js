@@ -5,9 +5,6 @@ let web3 = new Web3("ws://localhost:8545");
 
 let myscan = scan((acc, curr) => {
   acc.push(curr);
-  if (acc.length > 4) {
-    acc.shift();
-  }
   return acc;
 }, [])
 
