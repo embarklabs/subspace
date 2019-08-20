@@ -151,6 +151,12 @@ async function run() {
     await SimpleStorageContract.methods.set(100).send({ from: accounts[0], gas: 4700000 })
     console.dir("set 200")
     await SimpleStorageContract.methods.set2(200).send({ from: accounts[0] })
+    console.dir("set 200")
+    await SimpleStorageContract.methods.set2(200).send({ from: accounts[0] })
+    console.dir("set 300")
+    await SimpleStorageContract.methods.set(300).send({ from: accounts[0] })
+    console.dir("set 300")
+    await SimpleStorageContract.methods.set(300).send({ from: accounts[0] })
     console.dir("set 300")
     await SimpleStorageContract.methods.set(300).send({ from: accounts[0] })
 
