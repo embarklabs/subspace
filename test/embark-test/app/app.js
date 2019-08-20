@@ -29,8 +29,7 @@ const observables = {};
 
 class App extends React.Component {
   state = {
-    ready: false,
-    observable: null
+    ready: false
   }
 
   componentDidMount(){
@@ -66,7 +65,7 @@ class App extends React.Component {
     }
 
     render() {
-        const {ready, observable} = this.state;
+        const {ready} = this.state;
         if(!ready) return <span>Loading...</span>;
         return <EnhancedRankItem votes={observables.votes} onUpvote={this.upvote} onDownvote={this.downvote} />;
     }
