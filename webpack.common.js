@@ -3,6 +3,7 @@ const path = require('path');
 const webConfig = {
   target: 'web',
   entry: path.join(__dirname, "src/index.js"),
+  externals: ['electron'],
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: 'browser.js',
@@ -17,6 +18,7 @@ const webConfig = {
 
 const nodeConfig = {
   target: "node",
+  externals: ['electron'],
   entry: path.join(__dirname, "src/eventSyncer.js"),
   output: {
     path: path.resolve(__dirname, "dist"),

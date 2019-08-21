@@ -5,9 +5,6 @@ let web3 = new Web3("ws://localhost:8545");
 
 let myscan = scan((acc, curr) => {
   acc.push(curr);
-  if (acc.length > 4) {
-    acc.shift();
-  }
   return acc;
 }, [])
 
@@ -171,23 +168,21 @@ async function run() {
   // })
 
   const EventSyncer = require('../src/eventSyncer.js')
-  const eventSyncer = new EventSyncer(web3);
+  const eventSyncer = new EventSyncer(web3.currentProvider);
 
-  eventSyncer.init(() => {
+  await eventSyncer.init();
 
-    // eventSyncer.trackEvent(EscrowContract, 'Created', ((x) => true)).pipe().subscribe((v) => {
-    // eventSyncer.trackEvent(EscrowContract, 'Created', {filter: {buyer: accounts[0]}, fromBlock: 1}).pipe().subscribe((v) => {
-    // eventSyncer.trackEvent(EscrowContract, 'Rating', ((x) => true)).pipe(map(x => x.rating)).subscribe((v) => {
-      // console.dir("value is ")
-      // console.dir(v)
-    // });
+  // eventSyncer.trackEvent(EscrowContract, 'Created', ((x) => true)).pipe().subscribe((v) => {
+  // eventSyncer.trackEvent(EscrowContract, 'Created', {filter: {buyer: accounts[0]}, fromBlock: 1}).pipe().subscribe((v) => {
+  // eventSyncer.trackEvent(EscrowContract, 'Rating', ((x) => true)).pipe(map(x => x.rating)).subscribe((v) => {
+  // console.dir("value is ")
+  // console.dir(v)
+  // });
 
-    eventSyncer.trackProperty(SimpleStorageContract, 'get', ((x) => true)).pipe().subscribe((v) => {
-      console.dir("value is ")
-      console.dir(v)
-    })
-
-  });
+  eventSyncer.trackProperty(SimpleStorageContract, 'get', ((x) => true)).pipe().subscribe((v) => {
+    console.dir("value is ")
+    console.dir(v)
+  })
 
 }
 

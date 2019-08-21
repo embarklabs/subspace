@@ -5,9 +5,6 @@ let web3 = new Web3("ws://localhost:8545");
 
 let myscan = scan((acc, curr) => {
   acc.push(curr);
-  if (acc.length > 4) {
-    acc.shift();
-  }
   return acc;
 }, [])
 
@@ -90,35 +87,34 @@ async function run() {
   })
 
   const EventSyncer = require('../src/eventSyncer.js')
-  const eventSyncer = new EventSyncer(web3);
+  const eventSyncer = new EventSyncer(web3.currentProvider);
 
-  eventSyncer.init(() => {
+  await eventSyncer.init()
 
-    // TODO: would be nice if trackEvent was smart enough to understand the type of returnValues and do the needed conversions
-    // eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), myscan, mymap).subscribe((v) => {
+  // TODO: would be nice if trackEvent was smart enough to understand the type of returnValues and do the needed conversions
+  // eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), myscan, mymap).subscribe((v) => {
 
-    // eventSyncer.trackEvent(RatingContract, 'Rating').pipe(map(x => parseInt(x.rating)), myscan, mymap).subscribe((v) => {
-    // eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => x.rating)).subscribe((v) => {
+  // eventSyncer.trackEvent(RatingContract, 'Rating').pipe(map(x => parseInt(x.rating)), myscan, mymap).subscribe((v) => {
+  // eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => x.rating)).subscribe((v) => {
 
-    eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), myscan, mymap).subscribe((v) => {
-      console.dir("value is ")
-      console.dir(v)
-    });
-
-    var max = scan((acc, curr) => {
-      if (curr > acc) return curr;
-      return acc;
-    }, [])
-
-    // eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), max, distinctUntilChanged()).subscribe((v) => {
-    // eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), last()).subscribe((v) => {
-
-    eventSyncer.trackEvent(RatingContract, 'Rating').pipe(map(x => parseInt(x.rating)), max, distinctUntilChanged()).subscribe((v) => {
-      console.dir("max known rating is")
-      console.dir(v)
-    });
-
+  eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), myscan, mymap).subscribe((v) => {
+    console.dir("value is ")
+    console.dir(v)
   });
+
+  var max = scan((acc, curr) => {
+    if (curr > acc) return curr;
+    return acc;
+  }, [])
+
+  // eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), max, distinctUntilChanged()).subscribe((v) => {
+  // eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), last()).subscribe((v) => {
+
+  eventSyncer.trackEvent(RatingContract, 'Rating').pipe(map(x => parseInt(x.rating)), max, distinctUntilChanged()).subscribe((v) => {
+    console.dir("max known rating is")
+    console.dir(v)
+  });
+
 
   // await RatingContract.methods.doRating(1, 5).send({from: accounts[0]})
   // await RatingContract.methods.doRating(1, 3).send({from: accounts[0]})
