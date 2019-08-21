@@ -90,6 +90,10 @@ async function run() {
 
   await eventSyncer.init()
 
+  setInterval(async () => {
+    await EscrowContract.methods.createEscrow(1, accounts[0], accounts[1]).send({from: accounts[0]})
+  }, 1 * 1000)
+
 
   const typeDefs = `
   type Escrow {
@@ -130,17 +134,4 @@ stream.subscribe(res => console.log(res));
 }
 
 run()
-
-
-
-
-
-
-
-
-
-
-
-
-
 
