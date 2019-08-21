@@ -21,15 +21,26 @@ of({a: 1, b:2, e: 1}, {a: 0, c: 1, b:3}, {a: 0, d: 1, b:1})
   .subscribe((v) => console.log(v));
 */
 
-function $average() {
-  return pipe(
-    reduce((accum, curr) => ({
-      sum: accum.sum + curr,
-      count: accum.count + 1
-    }), { sum: 0, count: 0 }),
-    map(o => o.sum / o.count)
-  );
-}
+function $average(cb) {
+    return pipe(
+      reduce((accum, curr) => {
+        let currentValue;
+        if (typeof cb === 'string' || cb instanceof String){
+          currentValue = curr[cb];
+        } else if(typeof cb === "function") {
+          currentValue = cb(curr);
+        } else {
+          currentValue = curr;
+        }
+  
+        return {
+          sum: accum.sum + currentValue,
+          count: accum.count + 1
+        }
+      }, { sum: 0, count: 0 }),
+      map(o => o.sum / o.count)
+    );
+  }
 
 /*
 of(10, 3, 4)
