@@ -11,6 +11,7 @@
   "devDependencies": {},
   "dependencies": {
     "@nozbe/with-observables": "^1.0.5",
+    "embark": "^4.1.0",
     "phoenix": "../../",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",

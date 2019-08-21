@@ -4,8 +4,7 @@ import { map, scan} from 'rxjs/operators';
 import Web3 from 'web3';
 import withObservables from '@nozbe/with-observables'
 
-const  web3 = new Web3("ws://localhost:8545");
-
+const web3 = new Web3("ws://localhost:8545");
 
 const Escrow = ({escrow}) => {
   console.log("Received new escrow property", escrow);
@@ -16,7 +15,6 @@ const Escrow = ({escrow}) => {
 const enhance = withObservables(['escrow'], ({ escrow }) => ({ escrow }));
 
 const EnhancedEscrow = enhance(Escrow)
-
 
 class App extends React.Component {
 
@@ -39,18 +37,14 @@ class App extends React.Component {
       await this.EscrowContract.methods.createEscrow(1, accounts[1], accounts[0]).send({from: accounts[0]})
       await this.EscrowContract.methods.createEscrow(1, accounts[0], accounts[2]).send({from: accounts[0]})
 
-      const eventSyncer = new Phoenix(web3);
-    
-      eventSyncer.init(() => {
-        const replayObj = eventSyncer.trackEvent(this.EscrowContract, 'Created', {filter: {buyer: accounts[0]}, fromBlock: 1});
-        this.setState({
-          escrow: replayObj.asObservable()
-        });
+      const eventSyncer = new Phoenix(web3.currentProvider);
+
+      await eventSyncer.init();
+      const replayObj = eventSyncer.trackEvent(this.EscrowContract, 'Created', {filter: {buyer: accounts[0]}, fromBlock: 1});
+      this.setState({
+        escrow: replayObj.asObservable()
       });
-
-
     })();
-
   }
 
   createTrx = async () => {

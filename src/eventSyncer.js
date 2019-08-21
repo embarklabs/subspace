@@ -4,13 +4,13 @@ const { randomString } = require('./utils.js');
 
 const Database = require('./database.js');
 const Events = require('events');
-const Web3 = require('web3');
+const Web3Eth = require('web3-eth');
 
 class EventSyncer {
 
   constructor(provider, dbFilename) {
     this.events = new Events();
-    this.web3 = new Web3(provider);
+    this.web3 = new Web3Eth(provider);
     this.dbFilename = dbFilename || 'phoenix.db';
   }
 
