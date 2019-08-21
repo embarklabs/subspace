@@ -1,0 +1,23 @@
+{
+  "contracts": ["contracts/**"],
+  "app": {
+    "app.js": ["app/app.js"],
+    "index.html": "app/index.html"
+  },
+  "buildDir": "dist/",
+  "config": "config/",
+  "versions": {
+    "web3": "1.2.1",
+    "solc": "0.5.0",
+    "ipfs-api": "17.2.4"
+  },
+  "plugins": {
+  },
+  "options": {
+    "solc": {
+      "optimize": true,
+      "optimize-runs": 200
+    }
+  },
+  "generationDir": "embarkArtifacts"
+}
