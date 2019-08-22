@@ -12,7 +12,6 @@ const webConfig = {
   },
   node: {
     fs: 'empty',
-    process: false
   }
 };
 

@@ -1,7 +1,7 @@
 const { map, scan, last, distinctUntilChanged } = require('rxjs/operators');
-const Web3 = require('web3');
+const Web3Eth = require('web3-eth');
 
-let web3 = new Web3("ws://localhost:8545");
+let eth = new Web3Eth("ws://localhost:8545");
 
 let myscan = scan((acc, curr) => {
   acc.push(curr);
@@ -11,7 +11,7 @@ let myscan = scan((acc, curr) => {
 let mymap = map(arr => arr.reduce((acc, current) => acc + current, 0) / arr.length)
 
 async function deployContract() {
-  let accounts = await web3.eth.getAccounts();
+  let accounts = await eth.getAccounts();
 
   // pragma solidity ^0.5.0;
   // contract SimpleStorage {
@@ -114,7 +114,7 @@ async function deployContract() {
     }
   ]
 
-  var contract = new web3.eth.Contract(abi)
+  var contract = new eth.Contract(abi)
   let instance = await contract.deploy({
     data: '0x608060405234801561001057600080fd5b506040516020806102018339810180604052602081101561003057600080fd5b810190808051906020019092919050505080600081905550506101a9806100586000396000f3fe60806040526004361061005c576000357c0100000000000000000000000000000000000000000000000000000000900480632a1afcd91461006157806360fe47b11461008c5780636d4ce63c146100c7578063ce01e1ec146100f2575b600080fd5b34801561006d57600080fd5b5061007661012d565b6040518082815260200191505060405180910390f35b34801561009857600080fd5b506100c5600480360360208110156100af57600080fd5b8101908080359060200190929190505050610133565b005b3480156100d357600080fd5b506100dc61013d565b6040518082815260200191505060405180910390f35b3480156100fe57600080fd5b5061012b6004803603602081101561011557600080fd5b8101908080359060200190929190505050610146565b005b60005481565b8060008190555050565b60008054905090565b80600081905550807f63a242a632efe33c0e210e04e4173612a17efa4f16aa4890bc7e46caece80de060405160405180910390a25056fea165627a7a7230582063160eb16dc361092a85ced1a773eed0b63738b83bea1e1c51cf066fa90e135d0029',
     arguments: [100]
@@ -126,7 +126,7 @@ async function deployContract() {
 }
 
 async function run() {
-  let accounts = await web3.eth.getAccounts();
+  let accounts = await eth.getAccounts();
   var SimpleStorageContract = await deployContract()
   console.dir(SimpleStorageContract)
   console.dir(SimpleStorageContract.options.address)
@@ -168,7 +168,7 @@ async function run() {
   // })
 
   const EventSyncer = require('../src/eventSyncer.js')
-  const eventSyncer = new EventSyncer(web3.currentProvider);
+  const eventSyncer = new EventSyncer(eth.currentProvider);
 
   await eventSyncer.init();
 

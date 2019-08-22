@@ -1,5 +1,5 @@
 const { of, pipe }  = require('rxjs');
-const { map, pluck, reduce } = require('rxjs/operators');
+const { map, pluck, scan } = require('rxjs/operators');
 
 function $takeProps() {
   const args = Object.values(arguments);
@@ -23,7 +23,7 @@ of({a: 1, b:2, e: 1}, {a: 0, c: 1, b:3}, {a: 0, d: 1, b:1})
 
 function $average(cb) {
     return pipe(
-      reduce((accum, curr) => {
+      scan((accum, curr) => {
         let currentValue;
         if (typeof cb === 'string' || cb instanceof String){
           currentValue = curr[cb];
