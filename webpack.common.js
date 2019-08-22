@@ -1,8 +1,8 @@
 const path = require('path');
 
-const webConfig = {
+const web = {
   target: 'web',
-  entry: path.join(__dirname, "src/index.js"),
+  entry: path.join(__dirname, "dist/index.js"),
   externals: ['electron'],
   output: {
     path: path.resolve(__dirname, "dist"),
@@ -12,13 +12,16 @@ const webConfig = {
   },
   node: {
     fs: 'empty',
+  },
+  optimization: {
+    usedExports: true
   }
 };
 
-const nodeConfig = {
+const node = {
   target: "node",
   externals: ['electron'],
-  entry: path.join(__dirname, "src/eventSyncer.js"),
+  entry: path.join(__dirname, "dist/eventSyncer.js"),
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "node.js",
@@ -27,4 +30,7 @@ const nodeConfig = {
   }
 };
 
-module.exports = [nodeConfig, webConfig];
+module.exports = {
+  node,
+  web
+};
