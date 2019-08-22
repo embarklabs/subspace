@@ -2,6 +2,32 @@ const { fromEvent, interval, ReplaySubject } = require('rxjs');
 const { throttle, distinctUntilChanged } = require('rxjs/operators');
 const loki = require('lokijs');
 
+const getENV = function () {
+  if (typeof global !== 'undefined' && (global.android || global.NSObject)) {
+     // If no adapter assume nativescript which needs adapter to be passed manually
+     return 'NATIVESCRIPT'; //nativescript
+  }
+
+  if (typeof window === 'undefined') {
+    return 'NODEJS';
+  } 
+
+  // TODO: LokiJS determines it's running in a browser if process is undefined, 
+  // yet we need webpack shim for process in a different package.
+  // this code ignores is the same getENV from loki except for the check for node webkit
+
+  if (typeof document !== 'undefined') {
+    if (document.URL.indexOf('http://') === -1 && document.URL.indexOf('https://') === -1) {
+      return 'CORDOVA';
+    }
+    return 'BROWSER';
+  }
+ 
+  return 'CORDOVA';
+};
+
+
+
 class Database {
 
   constructor(dbFilename, events, cb) {
@@ -11,9 +37,7 @@ class Database {
         this.databaseInitialize(cb)
       },
       autosave: true,
-      // LokiJS determines it's running in a browser if process is undefined, yet we need webpack shim for process in a different package.
-      // TODO: create a more robust getENV
-      env: "BROWSER",
+      env: getENV(),
       autosaveInterval: 2000
     })
     this.events = events;
