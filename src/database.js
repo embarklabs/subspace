@@ -11,6 +11,9 @@ class Database {
         this.databaseInitialize(cb)
       },
       autosave: true,
+      // LokiJS determines it's running in a browser if process is undefined, yet we need webpack shim for process in a different package.
+      // TODO: create a more robust getENV
+      env: "BROWSER",
       autosaveInterval: 2000
     })
     this.events = events;
