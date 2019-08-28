@@ -3,15 +3,13 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import * as serviceWorker from "./serviceWorker";
 import gql from "graphql-tag";
-import { ApolloLink } from "apollo-link";
 import { ApolloClient } from "apollo-client";
 import { ApolloProvider, Query } from "react-apollo";
 import { InMemoryCache } from "apollo-cache-inmemory";
 import Phoenix from "phoenix";
 import Web3 from "web3";
 import { makeExecutableSchema } from "graphql-tools";
-import { rxjs } from "apollo-link-rxjs";
-import { graphql } from "reactive-graphql";
+import PhoenixRxLink from "./phoenix-rx-link";
 
 const web3 = new Web3("ws://localhost:8545");
 
@@ -78,19 +76,12 @@ class App extends React.Component {
         resolvers
       });
 
-      // TODO: extract to separate script
-
-      const graphQLRXJSLink = new ApolloLink(operation => {
-        return graphql(schema, operation.query); // TODO: test with variables in query
-      });
-
-      const rxjsLink = rxjs({}); // TODO: This supports onOperation and onResult. Read more about those in npm package README
-
-      // Pass your GraphQL endpoint to uri
       const client = new ApolloClient({
-        addTypename: false,
-        cache: new InMemoryCache({ addTypename: false }), // TODO: If addTypename is true, the query will fail
-        link: ApolloLink.from([rxjsLink, graphQLRXJSLink])
+        // If addTypename:true, the query will fail due to __typename
+        // being added to the schema. reactive-graphql does not
+        // support __typename at this moment.
+        cache: new InMemoryCache({ addTypename: false }),
+        link: PhoenixRxLink(schema)
       });
 
       this.setState({ client });
@@ -102,13 +93,13 @@ class App extends React.Component {
 
     return (
       <ApolloProvider client={this.state.client}>
-        <div>
-          <button onClick={this.createTrx}>Create Trx</button>
-        </div>
         <Query query={MY_QUERY}>
           {({ loading, error, data }) => {
             if (loading) return <div>Loading...</div>;
-            if (error) return <div>Error :(</div>;
+            if (error) {
+              console.error(error);
+              return <div>Error :(</div>;
+            }
             return (
               <p>The data returned by the query: {JSON.stringify(data)}</p>
             );
