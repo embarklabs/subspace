@@ -15,43 +15,30 @@ async function deployContract() {
 
   // pragma solidity ^0.5.0;
   // contract SimpleStorage {
-  //   uint public storedData;
+  //   mapping(uint => uint) storeMap;
   //   event Test(uint indexed value);
-  //   constructor(uint initialValue) public {
-  //     storedData = initialValue;
+  //   constructor() public {
   //   }
-  //   function set(uint x) public {
-  //     storedData = x;
+    
+  //   function set(uint x, uint y) public {
+  //     storeMap[x] = y;
   //   }
-  //   function set2(uint x) public {
-  //     storedData = x;
-  //     emit Test(x);
-  //   }
-  //   function get() public view returns (uint retVal) {
-  //     return storedData;
+
+  //   function get(uint x) public view returns (uint, address) {
+  //     return (storeMap[x], msg.sender);
   //   }
   // }
 
   let abi = [
     {
-      "constant": true,
-      "inputs": [],
-      "name": "storedData",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "constant": false,
       "inputs": [
         {
           "name": "x",
+          "type": "uint256"
+        },
+        {
+          "name": "y",
           "type": "uint256"
         }
       ],
@@ -63,12 +50,21 @@ async function deployContract() {
     },
     {
       "constant": true,
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "x",
+          "type": "uint256"
+        }
+      ],
       "name": "get",
       "outputs": [
         {
-          "name": "retVal",
+          "name": "",
           "type": "uint256"
+        },
+        {
+          "name": "",
+          "type": "address"
         }
       ],
       "payable": false,
@@ -76,26 +72,7 @@ async function deployContract() {
       "type": "function"
     },
     {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "x",
-          "type": "uint256"
-        }
-      ],
-      "name": "set2",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "name": "initialValue",
-          "type": "uint256"
-        }
-      ],
+      "inputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "constructor"
@@ -116,8 +93,8 @@ async function deployContract() {
 
   var contract = new eth.Contract(abi)
   let instance = await contract.deploy({
-    data: '0x608060405234801561001057600080fd5b506040516020806102018339810180604052602081101561003057600080fd5b810190808051906020019092919050505080600081905550506101a9806100586000396000f3fe60806040526004361061005c576000357c0100000000000000000000000000000000000000000000000000000000900480632a1afcd91461006157806360fe47b11461008c5780636d4ce63c146100c7578063ce01e1ec146100f2575b600080fd5b34801561006d57600080fd5b5061007661012d565b6040518082815260200191505060405180910390f35b34801561009857600080fd5b506100c5600480360360208110156100af57600080fd5b8101908080359060200190929190505050610133565b005b3480156100d357600080fd5b506100dc61013d565b6040518082815260200191505060405180910390f35b3480156100fe57600080fd5b5061012b6004803603602081101561011557600080fd5b8101908080359060200190929190505050610146565b005b60005481565b8060008190555050565b60008054905090565b80600081905550807f63a242a632efe33c0e210e04e4173612a17efa4f16aa4890bc7e46caece80de060405160405180910390a25056fea165627a7a7230582063160eb16dc361092a85ced1a773eed0b63738b83bea1e1c51cf066fa90e135d0029',
-    arguments: [100]
+    data: '0x608060405234801561001057600080fd5b5061017c806100206000396000f3fe608060405260043610610046576000357c0100000000000000000000000000000000000000000000000000000000900480631ab06ee51461004b5780639507d39a14610090575b600080fd5b34801561005757600080fd5b5061008e6004803603604081101561006e57600080fd5b810190808035906020019092919080359060200190929190505050610112565b005b34801561009c57600080fd5b506100c9600480360360208110156100b357600080fd5b810190808035906020019092919050505061012d565b604051808381526020018273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019250505060405180910390f35b80600080848152602001908152602001600020819055505050565b60008060008084815260200190815260200160002054338090509150915091509156fea165627a7a7230582054f962728d2f5acbfde67516616e1b90e3aca5df27a213cbbabc16387d9af7d90029',
+    arguments: []
   }).send({
     from: accounts[0],
     gas: '4700000'
@@ -130,55 +107,21 @@ async function run() {
   var SimpleStorageContract = await deployContract()
   console.dir(SimpleStorageContract.options.address)
 
-  // var subscription = web3.eth.subscribe('logs', {
-  //   address: SimpleStorageContract.options.address
-  //   // topics: ['0x12345...']
-  // }, function (error, result) {
-  //   console.dir("----------")
-  //   console.dir(error)
-  //   console.dir(result)
-  // });
-
-  // subscription.on('data', console.log)
-  // subscription.on('changed', console.log)
-
   setTimeout(async () => {
-    console.dir("set 100")
-    await SimpleStorageContract.methods.set(100).send({ from: accounts[0], gas: 4700000 })
-    console.dir("set 200")
-    await SimpleStorageContract.methods.set2(200).send({ from: accounts[0] })
-    console.dir("set 200")
-    await SimpleStorageContract.methods.set2(200).send({ from: accounts[0] })
-    console.dir("set 300")
-    await SimpleStorageContract.methods.set(300).send({ from: accounts[0] })
-    console.dir("set 300")
-    await SimpleStorageContract.methods.set(300).send({ from: accounts[0] })
-    console.dir("set 300")
-    await SimpleStorageContract.methods.set(300).send({ from: accounts[0] })
-
-    let value = await SimpleStorageContract.methods.get().call()
-    console.dir(value)
-  }, 3000)
-
-  // EscrowContract.events.getPastEvents('Rating', {fromBlock: 1})
-  // EscrowContract.events.Created({fromBlock: 1}, (err, event) => {
-    // console.dir("new event")
-    // console.dir(event)
-  // })
+    await SimpleStorageContract.methods.set(0, 100).send({ from: accounts[0], gas: 4700000 })
+    await SimpleStorageContract.methods.set(2, 200).send({ from: accounts[0] })
+    await SimpleStorageContract.methods.set(1, 200).send({ from: accounts[0] })
+    await SimpleStorageContract.methods.set(0, 300).send({ from: accounts[0] })
+    await SimpleStorageContract.methods.set(2, 300).send({ from: accounts[0] })
+    await SimpleStorageContract.methods.set(0, 300).send({ from: accounts[0] })
+  }, 2000)
 
   const EventSyncer = require('../src/eventSyncer.js')
   const eventSyncer = new EventSyncer(eth.currentProvider);
 
   await eventSyncer.init();
 
-  // eventSyncer.trackEvent(EscrowContract, 'Created', ((x) => true)).pipe().subscribe((v) => {
-  // eventSyncer.trackEvent(EscrowContract, 'Created', {filter: {buyer: accounts[0]}, fromBlock: 1}).pipe().subscribe((v) => {
-  // eventSyncer.trackEvent(EscrowContract, 'Rating', ((x) => true)).pipe(map(x => x.rating)).subscribe((v) => {
-  // console.dir("value is ")
-  // console.dir(v)
-  // });
-
-  eventSyncer.trackProperty(SimpleStorageContract, 'get', ((x) => true)).pipe().subscribe((v) => {
+  eventSyncer.trackProperty(SimpleStorageContract, 'get', [2], {from: "0x0000000000000000000000000000000000000012"} ).pipe().subscribe((v) => {
     console.dir("value is ")
     console.dir(v)
   })

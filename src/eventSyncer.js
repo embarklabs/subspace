@@ -1,6 +1,7 @@
 const { fromEvent, interval, ReplaySubject } = require('rxjs');
 const { throttle, distinctUntilChanged } = require('rxjs/operators');
 const { randomString } = require('./utils.js');
+const equal = require('fast-deep-equal');
 
 const Database = require('./database.js');
 const Events = require('events');
@@ -80,22 +81,21 @@ class EventSyncer {
   }
 
   // TODO: should save value in database
-  trackProperty(contractInstance, propName, methodArgs, callArgs) {
+  trackProperty(contractInstance, propName, methodArgs = [], callArgs = {}) {
     let sub = new ReplaySubject();
 
-    // TODO: use call args from user
-    let method = contractInstance.methods[propName].apply(contractInstance.methods[propName], [])
-    method.call.apply(method.call, [{}, (err, result) => {
+    let method = contractInstance.methods[propName].apply(contractInstance.methods[propName], methodArgs)
+    method.call.apply(method.call, [callArgs, (err, result) => {
       sub.next(result)
     }])
 
     this.web3.subscribe('newBlockHeaders', (error, result) => {
-      method.call.apply(method.call, [({}), (err, result) => {
+      method.call.apply(method.call, [callArgs, (err, result) => {
         sub.next(result)
       }])
     })
 
-    return sub.pipe(distinctUntilChanged());
+    return sub.pipe(distinctUntilChanged((a, b) => equal(a, b)));
   }
 
 }
