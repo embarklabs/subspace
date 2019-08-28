@@ -7,39 +7,51 @@ function observe(WrappedComponent) {
         observedValues: {},
         subscriptions: {}
       }
-  
-      componentDidMount() {
-        Object.keys(this.props).forEach(prop => {
-          if(isObservable(this.props[prop])){
-            const subscription = this.props[prop].subscribe(
-              value => {
-                this.setState({
-                  observedValues: {
-                    ...this.state.observedValues,
-                    [prop]: value
-                  }
-                });
-              },
-              err => {
-                // TODO: pass the error to the wrapped component
-                console.err(err);
-              }
-            );
-    
+
+      subscribeToProp = prop => {
+        if(!isObservable(this.props[prop])) return;
+
+        const subscription = this.props[prop].subscribe(
+          value => {
             this.setState({
-              subscriptions: {
-                ...this.state.subscriptions,
-                [prop]: subscription
+              observedValues: {
+                ...this.state.observedValues,
+                [prop]: value
               }
             });
+          },
+          err => {
+            // TODO: pass the error to the wrapped component
+            console.err(err);
+          }
+        );
+
+        this.setState({
+          subscriptions: {
+            ...this.state.subscriptions,
+            [prop]: subscription
           }
         });
+      }
+  
+      componentDidMount() {
+        Object.keys(this.props).forEach(this.subscribeToProp);
       }
   
       componentWillUnmount() {
         this.state.subscriptions.forEach(subscription => {
           subscription.unsubscribe();
         });
+      }
+
+      componentDidUpdate(prevProps) {
+        Object.keys(prevProps).forEach(prop => {
+          if(!prevProps[prop] && this.props[prop]){
+            this.subscribeToProp(prop);
+          }
+        });
+
+        // TODO: check if prevProps and currProps are different, and unsubscribe from prevProp
       }
   
       render() {

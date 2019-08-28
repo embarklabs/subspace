@@ -3,6 +3,7 @@ import observe from "./observe";
 
 const Escrow = props => {
   const { escrow, myCustomProperty } = props;
+  if(!escrow) return <p>Loading...</p>;
   return (
     <ul>
       <li>

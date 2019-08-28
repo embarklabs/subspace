@@ -48,7 +48,7 @@ class App extends React.Component {
     return (
       <div>
         <button onClick={this.createTrx}>Create Trx</button>
-        {escrowObservable && <EscrowObservator escrow={escrowObservable} myCustomProperty="Test" />}
+        <EscrowObservator escrow={escrowObservable} myCustomProperty="Test" />
       </div>
     );
   }
