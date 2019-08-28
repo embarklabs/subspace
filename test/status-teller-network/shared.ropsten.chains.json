@@ -1,0 +1,62 @@
+{
+  "0x41941023680923e0fe4d74a34bdac8141f2540e3ae90623718e47d66d1ca4a2d": {
+    "contracts": {
+      "0x3043b04ad856d169c8f0b0509c0bc63192dc7edd92d6933c58708298a0e381be": {
+        "name": "ENSRegistry",
+        "address": "0x112234455c3a32fd11230c42e7bccd4a84e02010"
+      },
+      "0x4af953c2758aa8edcbcbeef13926c1cf17e7c29aea055ec99022260ca7c3d0c7": {
+        "name": "KyberNetworkProxy",
+        "address": "0x818E6FECD516Ecc3849DAf6845e3EC868087B755"
+      },
+      "0x72ef506bf1c7f442f2d4c5bfc97ba6061d9fb1bbbc345adbe7eb18ee583b9329": {
+        "name": "SNT",
+        "address": "0xc55cf4b03948d7ebc8b9e8bad92643703811d162"
+      },
+      "0x4f96b534860cd72e9388b7373c14f4d9bdc201a81bdccdc1b2922865de029497": {
+        "name": "RelayHub",
+        "address": "0x1349584869A1C7b8dc8AE0e93D8c15F5BB3B4B87"
+      },
+      "0x68dfb5ad82a1f92f56b313d36ed2f79376c88b2f37d58d2846e66491282eaf13": {
+        "name": "KyberFeeBurner",
+        "address": "0xb009e41d5c7daC38e02fCDb6ebb97f53ed6A950c"
+      },
+      "0x084dcee6b38fbfeacf8371e068678793efc36cf8a9a1d83427e70ef8613852d3": {
+        "name": "EscrowProxy",
+        "address": "0x06Ea1813Aa7CFf6D3eF109Be941C469F0c3e6cc6"
+      },
+      "0x33ce98f7b733f04dce6121e52d066acaedb6ca1e83be5ccc73d20391c02537f5": {
+        "name": "MetadataStoreProxy",
+        "address": "0xB7d1bC73F6220E214CFE2bE795462637f67d2023"
+      },
+      "0x9d4080fcd5bf7499bba97bd8c330b11cc064c604c2aa6cc79aef7ec7783f354b": {
+        "name": "SellerLicenseProxy",
+        "address": "0xB84b30c98BA8ff2A7f5DB3a14b438863FaBdDDDf"
+      },
+      "0xf7748af69578cd769431eec4a0daa1e13b6a51968170bcf37fd93a60edd5b249": {
+        "name": "SellerLicense",
+        "address": "0xbDEBeE4F6F4c64540309a8fE827891ea70177539"
+      },
+      "0xdc769c37e39d0464d5178e6c94a8d95bde8de0328f9ff694ab059c1ccf004fc6": {
+        "name": "ArbitrationLicense",
+        "address": "0x1315b1bC9532c08c44B5C4Ddc5F9c6A1831D272f"
+      },
+      "0xb61ac3f971c25164c5cf00fe4616c8c9ad0759848d62c9fb803bdb4914af19eb": {
+        "name": "ArbitrationLicenseProxy",
+        "address": "0x79647AD1d4bAFBbDb326A096A113aFc92158b03d"
+      },
+      "0x90be19004e959c27194e39559cbc7461b427237b7feec7de5166fae42877463a": {
+        "name": "EscrowRelay",
+        "address": "0x04d54b422DC59b8A539F4C2745b62649bb7541Ee"
+      },
+      "0xc605b00d6ddfbced735137ff16dc632d76770a1d1a2f3c68420de840c4b31e28": {
+        "name": "MetadataStore",
+        "address": "0x8bA9762695CAf7828DaFB279781f4574a5e7CAa0"
+      },
+      "0xa5d7276422517e35c151dad3d6eb01fbbde1e0594927ef876d7df8a9b5518bf2": {
+        "name": "Escrow",
+        "address": "0x11b32dA9418d82292dB926d32E558d62337Fd855"
+      }
+    }
+  }
+}
