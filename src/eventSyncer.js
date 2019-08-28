@@ -85,12 +85,11 @@ class EventSyncer {
 
     // TODO: use call args from user
     let method = contractInstance.methods[propName].apply(contractInstance.methods[propName], [])
-
     method.call.apply(method.call, [{}, (err, result) => {
       sub.next(result)
     }])
 
-    this.web3.eth.subscribe('newBlockHeaders', (error, result) => {
+    this.web3.subscribe('newBlockHeaders', (error, result) => {
       method.call.apply(method.call, [({}), (err, result) => {
         sub.next(result)
       }])

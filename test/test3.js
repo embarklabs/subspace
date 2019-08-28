@@ -128,7 +128,6 @@ async function deployContract() {
 async function run() {
   let accounts = await eth.getAccounts();
   var SimpleStorageContract = await deployContract()
-  console.dir(SimpleStorageContract)
   console.dir(SimpleStorageContract.options.address)
 
   // var subscription = web3.eth.subscribe('logs', {
