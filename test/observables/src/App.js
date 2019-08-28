@@ -1,65 +1,56 @@
-import React from 'react';
-import Phoenix from 'phoenix';
-import { map, scan} from 'rxjs/operators';
-import Web3 from 'web3';
-import withObservables from '@nozbe/with-observables'
+import React from "react";
+import Phoenix from "phoenix";
+import Web3 from "web3";
+import EscrowObservator from "./EscrowObservator";
 
 const web3 = new Web3("ws://localhost:8545");
 
-const Escrow = ({escrow}) => {
-  console.log("Received new escrow property", escrow);
-  return <ul><li>{escrow.buyer} {escrow.seller} - <b>EscrowID:{escrow.escrowId}</b></li></ul>;
-  //return <ul>{props.escrows.map((el, i) => <li key={i}>{el.buyer} {el.seller} {el.escrowId}</li>)}</ul>
-};
-
-const enhance = withObservables(['escrow'], ({ escrow }) => ({ escrow }));
-
-const EnhancedEscrow = enhance(Escrow)
-
 class App extends React.Component {
-
   state = {
-    escrow: null
-  }
+    escrowObservable: null
+  };
 
-  constructor(props){
+  constructor(props) {
     super(props);
     this.EscrowContract = null;
   }
 
-  componentDidMount(){
-    (async ()  => {
+  componentDidMount() {
+    (async () => {
       let accounts = await web3.eth.getAccounts();
       this.EscrowContract = await deployContract();
 
-      await this.EscrowContract.methods.createEscrow(1, accounts[0], accounts[1]).send({from: accounts[0]})
-      await this.EscrowContract.methods.createEscrow(1, accounts[1], accounts[2]).send({from: accounts[0]})
-      await this.EscrowContract.methods.createEscrow(1, accounts[1], accounts[0]).send({from: accounts[0]})
-      await this.EscrowContract.methods.createEscrow(1, accounts[0], accounts[2]).send({from: accounts[0]})
+      await this.EscrowContract.methods.createEscrow(1, accounts[0], accounts[1]).send({ from: accounts[0] });
+      await this.EscrowContract.methods.createEscrow(1, accounts[1], accounts[2]).send({ from: accounts[0] });
+      await this.EscrowContract.methods.createEscrow(1, accounts[1], accounts[0]).send({ from: accounts[0] });
+      await this.EscrowContract.methods.createEscrow(1, accounts[0], accounts[2]).send({ from: accounts[0] });
 
       const eventSyncer = new Phoenix(web3.currentProvider);
-
       await eventSyncer.init();
-      const replayObj = eventSyncer.trackEvent(this.EscrowContract, 'Created', {filter: {buyer: accounts[0]}, fromBlock: 1});
+
       this.setState({
-        escrow: replayObj.asObservable()
+        escrowObservable: eventSyncer.trackEvent(this.EscrowContract, "Created", { filter: { buyer: accounts[0] }, fromBlock: 1 })
       });
+
     })();
   }
 
   createTrx = async () => {
     let accounts = await web3.eth.getAccounts();
-    await this.EscrowContract.methods.createEscrow(Date.now(), accounts[0], accounts[1]).send({from: accounts[0]})
+    await this.EscrowContract.methods
+      .createEscrow(Date.now(), accounts[0], accounts[1])
+      .send({ from: accounts[0] });
+  };
 
-  }
+  render() {
+    const {escrowObservable} = this.state;
 
-  render(){
-    if(!this.state.escrow) return null;
-
-    return <div>
-      <button onClick={this.createTrx}>Create Trx</button>
-      {this.state.escrow && <EnhancedEscrow escrow={this.state.escrow} /> }
-    </div>;
+    return (
+      <div>
+        <button onClick={this.createTrx}>Create Trx</button>
+        <EscrowObservator escrow={escrowObservable} myCustomProperty="Test" />
+      </div>
+    );
   }
 }
 
