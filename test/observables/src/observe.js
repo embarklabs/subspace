@@ -55,7 +55,15 @@ function observe(WrappedComponent) {
       }
   
       render() {
-        return <WrappedComponent {...this.props} {...this.state.observedValues} />;
+        const props = Object.keys(this.props).reduce((accum, curr) => {
+          if(!isObservable(this.props[curr])){
+            accum[curr] = this.props[curr];
+            return accum;
+          }
+          return accum;
+        }, {});
+
+        return <WrappedComponent {...props} {...this.state.observedValues} />;
       }
     };
   }
