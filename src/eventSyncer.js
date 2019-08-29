@@ -6,7 +6,7 @@ const equal = require('fast-deep-equal');
 const Database = require('./database.js');
 const Events = require('events');
 const Web3Eth = require('web3-eth');
-
+const toBN = require('number-to-bn');
 class EventSyncer {
 
   constructor(provider, options = {}) {
@@ -143,6 +143,8 @@ class EventSyncer {
   trackBalance(address, erc20Address) {
     const sub = new ReplaySubject();
 
+    // TODO: validate address?
+
     let callFn;
     if(!erc20Address){
       callFn = () => {
@@ -156,7 +158,19 @@ class EventSyncer {
         }]);
       };
     } else {
-      // TODO: track erc20
+      callFn = () => {
+        const fn  = this.web3.call;
+                  //  balanceOf
+        const data = "0x70a08231" + "000000000000000000000000" + erc20Address.substring(2); 
+        console.log(data);
+        fn.apply(fn, [{to: erc20Address, data}, (err, result) => {
+          if(err) {
+            sub.error(err);
+            return;
+          }
+          sub.next(toBN(result).toNumber());
+        }]);
+      };
     }
 
     callFn();
