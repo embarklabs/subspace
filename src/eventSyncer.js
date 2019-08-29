@@ -9,15 +9,19 @@ const Web3Eth = require('web3-eth');
 
 class EventSyncer {
 
-  constructor(provider, dbFilename) {
+  constructor(provider, options, ) {
     this.events = new Events();
     this.web3 = new Web3Eth(provider);
-    this.dbFilename = dbFilename || 'phoenix.db';
+    this.intervalTracker = [];
+
+    this.options = {};
+    this.options.callInterval = options.callInterval || 0;
+    this.options.dbFilename = options.dbFilename || 'phoenix.db';
   }
 
   init() {
     return new Promise((resolve, reject) => {
-      this._db = new Database(this.dbFilename, this.events, resolve);
+      this._db = new Database(this.options.dbFilename, this.events, resolve);
       this.db = this._db.db;
     })
   }
@@ -82,20 +86,39 @@ class EventSyncer {
 
   // TODO: should save value in database
   trackProperty(contractInstance, propName, methodArgs = [], callArgs = {}) {
-    let sub = new ReplaySubject();
+    const sub = new ReplaySubject();
 
-    let method = contractInstance.methods[propName].apply(contractInstance.methods[propName], methodArgs)
-    method.call.apply(method.call, [callArgs, (err, result) => {
-      sub.next(result)
-    }])
-
-    this.web3.subscribe('newBlockHeaders', (error, result) => {
+    const method = contractInstance.methods[propName].apply(contractInstance.methods[propName], methodArgs)
+    const callContractMethod = () => {
       method.call.apply(method.call, [callArgs, (err, result) => {
-        sub.next(result)
-      }])
-    })
+        if(err) {
+          sub.error(err);
+          return;
+        }
+        sub.next(result);
+      }]);
+    };
+    
+    callContractMethod();
 
+    if(this.options.callInterval > 0){
+      this.intervalTracker.push(setInterval(callContractMethod, this.options.callInterval));
+    } else {
+      this.web3.subscribe('newBlockHeaders', (err, result) => {
+        if(err) {
+          sub.error(err);
+          return;
+        }
+        callContractMethod();
+      })
+    }
+    
     return sub.pipe(distinctUntilChanged((a, b) => equal(a, b)));
+  }
+
+  clear(){
+    this.intervalTracker.forEach(clearInterval);
+    this.intervalTracker = [];
   }
 
 }
