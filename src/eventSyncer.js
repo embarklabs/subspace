@@ -168,7 +168,7 @@ class EventSyncer {
             sub.error(err);
             return;
           }
-          sub.next(toBN(result).toNumber());
+          sub.next(toBN(result).toString(10));
         }]);
       };
     }
