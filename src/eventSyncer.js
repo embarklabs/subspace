@@ -19,7 +19,7 @@ class EventSyncer {
     
     this.newBlocksSubscription = null;
     this.intervalTracker = null;
-    this.callMethods = [];
+    this.callables = [];
   }
 
   init() {
@@ -96,7 +96,7 @@ class EventSyncer {
         return;
       }
       
-      this.callMethods.forEach(fn => {
+      this.callables.forEach(fn => {
         fn();
       });
     });
@@ -106,7 +106,7 @@ class EventSyncer {
     if(this.intervalTracker != null || this.options.callInterval === 0) return;
 
     this.intervalTracker = setInterval(() => {
-      this.callMethods.forEach(fn => {
+      this.callables.forEach(fn => {
         fn();
       });
     }, this.options.callInterval);
@@ -134,7 +134,37 @@ class EventSyncer {
     this._initNewBlocksSubscription();
     this._initCallInterval();
     
-    this.callMethods.push(callContractMethod);
+    this.callables.push(callContractMethod);
+
+    return sub.pipe(distinctUntilChanged((a, b) => equal(a, b)));
+  }
+
+  // TODO: should save value in database (?)
+  trackBalance(address, erc20Address) {
+    const sub = new ReplaySubject();
+
+    let callFn;
+    if(!erc20Address){
+      callFn = () => {
+        const fn  = this.web3.getBalance;
+        fn.apply(fn, [address, (err, balance) => {
+          if(err) {
+            sub.error(err);
+            return;
+          }
+          sub.next(balance);
+        }]);
+      };
+    } else {
+      // TODO: track erc20
+    }
+
+    callFn();
+
+    this._initNewBlocksSubscription();
+    this._initCallInterval();
+    
+    this.callables.push(callFn);
 
     return sub.pipe(distinctUntilChanged((a, b) => equal(a, b)));
   }
@@ -143,7 +173,7 @@ class EventSyncer {
     clearInterval(this.intervalTracker);
     this.newBlocksSubscription.unsubscribe();
     this.intervalTracker = null;
-    this.callMethods = [];
+    this.callables = [];
   }
 
 }
