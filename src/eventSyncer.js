@@ -9,14 +9,17 @@ const Web3Eth = require('web3-eth');
 
 class EventSyncer {
 
-  constructor(provider, options, ) {
+  constructor(provider, options = {}) {
     this.events = new Events();
     this.web3 = new Web3Eth(provider);
-    this.intervalTracker = [];
 
     this.options = {};
     this.options.callInterval = options.callInterval || 0;
     this.options.dbFilename = options.dbFilename || 'phoenix.db';
+    
+    this.newBlocksSubscription = null;
+    this.intervalTracker = null;
+    this.callMethods = [];
   }
 
   init() {
@@ -84,8 +87,35 @@ class EventSyncer {
     return sub;
   }
 
+  _initNewBlocksSubscription() {
+    if(this.newBlocksSubscription != null || this.options.callInterval !== 0) return;
+
+    this.newBlocksSubscription = this.web3.subscribe('newBlockHeaders', (err, result) => {
+      if(err) {
+        sub.error(err);
+        return;
+      }
+      
+      this.callMethods.forEach(fn => {
+        fn();
+      });
+    });
+  }
+
+  _initCallInterval() {
+    if(this.intervalTracker != null || this.options.callInterval === 0) return;
+
+    this.intervalTracker = setInterval(() => {
+      this.callMethods.forEach(fn => {
+        fn();
+      });
+    }, this.options.callInterval);
+
+  }
+
   // TODO: should save value in database
   trackProperty(contractInstance, propName, methodArgs = [], callArgs = {}) {
+
     const sub = new ReplaySubject();
 
     const method = contractInstance.methods[propName].apply(contractInstance.methods[propName], methodArgs)
@@ -101,24 +131,19 @@ class EventSyncer {
     
     callContractMethod();
 
-    if(this.options.callInterval > 0){
-      this.intervalTracker.push(setInterval(callContractMethod, this.options.callInterval));
-    } else {
-      this.web3.subscribe('newBlockHeaders', (err, result) => {
-        if(err) {
-          sub.error(err);
-          return;
-        }
-        callContractMethod();
-      })
-    }
+    this._initNewBlocksSubscription();
+    this._initCallInterval();
     
+    this.callMethods.push(callContractMethod);
+
     return sub.pipe(distinctUntilChanged((a, b) => equal(a, b)));
   }
 
   clear(){
-    this.intervalTracker.forEach(clearInterval);
-    this.intervalTracker = [];
+    clearInterval(this.intervalTracker);
+    this.newBlocksSubscription.unsubscribe();
+    this.intervalTracker = null;
+    this.callMethods = [];
   }
 
 }
