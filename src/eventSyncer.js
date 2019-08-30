@@ -6,6 +6,7 @@ const equal = require('fast-deep-equal');
 const Database = require('./database.js');
 const Events = require('events');
 const Web3Eth = require('web3-eth');
+const stripHexPrefix = require('strip-hex-prefix');
 const toBN = require('number-to-bn');
 class EventSyncer {
 
@@ -161,7 +162,7 @@ class EventSyncer {
       callFn = () => {
         const fn  = this.web3.call;
                   //  balanceOf
-        const data = "0x70a08231" + "000000000000000000000000" + erc20Address.substring(2); 
+        const data = "0x70a08231" + "000000000000000000000000" + stripHexPrefix(erc20Address); 
         fn.apply(fn, [{to: erc20Address, data}, (err, result) => {
           if(err) {
             sub.error(err);
