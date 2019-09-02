@@ -183,7 +183,7 @@ class EventSyncer {
     return sub.pipe(distinctUntilChanged((a, b) => equal(a, b)));
   }
 
-  clear(){
+  clean(){
     clearInterval(this.intervalTracker);
     this.newBlocksSubscription.unsubscribe();
     this.intervalTracker = null;
