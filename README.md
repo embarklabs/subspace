@@ -2,8 +2,11 @@ Phoenix
 ===
 
 
+
 ## Overview
 Phoenix is a framework agnostic JS library that embraces reactive programming with RxJS, by observing asynchronous changes in Smart Contracts, and providing methods to track and subscribe to events, changes to the state of contracts and address balances, and react to these changes and events via callbacks.
+
+
 
 ## How it works?
 ... INSERT DIAGRAM HERE ...
@@ -20,13 +23,18 @@ npm install --save phoenix
 
 ## Usage
 
-### Import into Web3 dApp
+### Import into a dApp
 ```js
-import Phoenix from 'phoenix';
+// ESM (might require babel / browserify)
+import Phoenix from 'phoenix';  
+
+// CommonJS
+const Phoenix = require('phoenix'); 
 ```
 
+
 ### Initializing the library
-In order for Phoenix to be able to interact with the EVM, it requires a valid websockets or IPC Web3 provider.
+To interact with the EVM, Phoenix requires a valid websockets Web3 provider.
 
 ```js
 const eventSyncer = new Phoenix(web3.currentProvider);
@@ -41,7 +49,7 @@ In addition to the provider, `Phoenix` also accepts an `options` object with set
 Phoenix provides tracking functions for contract state, events and balances. These functions return RxJS Observables which you can subscribe to, and obtain and transform the observed data via operators.
 
 
-#### trackProperty(contractObject, functionName [, functionArgs] [, callOptions]).
+#### `trackProperty(contractObject, functionName [, functionArgs] [, callOptions])`
 Reacts to contract state changes. Using this method, you can track changes to the contract state, by specifying the view function and arguments to call and query the contract. 
 ```js
 const contractObject = ...; // A web3.eth.Contract object initialized with an address and ABI.
@@ -55,7 +63,7 @@ This can be used as well to track public state variables, since they implicity c
 
 
 
-#### trackEvent(contractObject, eventName [, options]).
+#### `trackEvent(contractObject, eventName [, options])`
 Reacts to contract events. This method can help track events and obtain its returned values.
 ```js
 const contractObject = ...; // A web3.eth.Contract object initialized with an address and ABI.
@@ -68,7 +76,7 @@ eventSyncer.trackEvent(contractObject, eventName, options)
 
 
 
-#### trackBalance(address [, tokenAddress]).
+#### `trackBalance(address [, tokenAddress])`
 Reacts to changes in the balance of addresses. This method can help track changes in both ETH and ERC20 token balances for each mined block or time interval depending on the `callInterval` configured.
 
 
@@ -124,51 +132,101 @@ eventSyncer.clean();
 
 Phoenix does not force you to change the architecture of your dApps, making it easy to integrate in existing projects. Here are some pointers on how to integrate Phoenix with various frontend frameworks:
 
-# TODO
-
 #### Usage with React
+The `observe` HOC is provided to enhance a presentational component to react to any phoenix event. This HOC subscribes/unsubscribes automatically to any observable it receives via `props`.
 
-```
+```js
+/* global web3 */
 import React from "react";
-import observe from "./observe";
-const EscrowObservator = observe(Escrow);
-const Escrow = props => {
-  const { escrow, myCustomProperty } = props;
-  if(!escrow) return <p>Loading...</p>;
-  return (
-    <ul>
-      <li>
-        {escrow.buyer} {escrow.seller} - <b>EscrowID:{escrow.escrowId}</b>{" "}
-        <small>{myCustomProperty}</small>
-      </li>
-    </ul>
-  );
+import ReactDOM from 'react-dom';
+import Phoenix from "phoenix";
+import {observe} from "phoenix/react";
+import SimpleStorageContract from "./SimpleStorageContract"; // web3.eth.Contract object
+
+
+
+const MyComponent = ({eventData}) => {
+  if(!eventData)
+    return <p>Loading...</p>;
+  
+  return <p>{eventData.someReturnedValue}</p>
 };
-export default observe(Escrow);
 
- componentDidMount() {
-    (async () => {
-      const eventSyncer = new Phoenix(web3.currentProvider);
-      await eventSyncer.init();
+const MyComponentObserver = observe(MyComponent); // MyComponent will now observe any observable props!
 
-      this.setState({
-        escrowObservable: eventSyncer.trackEvent(this.EscrowContract, "Created", { filter: { buyer: web3.eth.defaultAccount }, fromBlock: 1 })
-      });
 
-    })();
+
+class App extends React.Component {
+  state = {
+    myEventObservable: null
   }
 
+  componentDidMount() {
+    const eventSyncer = new Phoenix(web3.currentProvider);
+    eventSyncer.init()
+      .then(
+        const myEventObservable = eventSyncer.trackEvent(SimpleStorageContract, "MyEvent", {}, fromBlock: 1 });
+        this.setState({ myEventObservable });
+      );
+  }
 
   render() {
-    const {escrowObservable} = this.state;
-
-    return (
-      <div>
-        <EscrowObservator escrow={escrowObservable} myCustomProperty="Test" />
-      </div>
-    );
+    return <MyComponentObserver eventData={this.state.myEventObservable} />;
   }
+}
+
+ReactDOM.render(<App />, document.getElementById('root'));
 ```
+
+
+
+#### Usage with Redux
+Observables can be used with `redux`. The subscription can dispatch actions using if it has access to the redux store:
+
+```js
+// This example assumes it has access redux store, and the reducer 
+// and middleware have been configured correctly, and phoenix has 
+// been initialized.
+
+const store = ... //
+
+const myAction = eventData => ({type: 'MY_ACTION', eventData});
+
+const myObservable = eventSyncer.trackEvent(SimpleStorageContract, "MyEvent", { filter: {}, fromBlock: 1});
+
+myObservable.subscribe(eventData => {
+  store.dispatch(myAction(eventData));
+});
+```
+
+
+
+# TODO
+
+
+##### redux observable
+```
+const rootEpic = action$ =>
+  action$.pipe(
+    ofType("INIT"),
+    mergeMap(action =>
+      eventSyncer
+        .trackEvent(EscrowContract, "Created", {
+          filter: { buyer: web3.eth.defaultAccount },
+          fromBlock: 1
+        })
+        .pipe(map(eventData => created(eventData)))
+    )
+  );
+
+const epicMiddleware = createEpicMiddleware();
+
+const store = createStore(reducer, applyMiddleware(epicMiddleware));
+
+epicMiddleware.run(rootEpic);
+```
+
+
 
 #### Usage with Graphql
 ```
@@ -220,38 +278,6 @@ this.setState({
 
 
 
-#### Usage with Redux
-```
-eventSyncer
-    .trackEvent(EscrowContract, "Created", {
-      filter: { buyer: accounts[0] },
-      fromBlock: 1
-    })
-    .subscribe(eventData => {
-      store.dispatch(created(eventData));
-    });
-```
-##### redux observable
-```
-const rootEpic = action$ =>
-  action$.pipe(
-    ofType("INIT"),
-    mergeMap(action =>
-      eventSyncer
-        .trackEvent(EscrowContract, "Created", {
-          filter: { buyer: web3.eth.defaultAccount },
-          fromBlock: 1
-        })
-        .pipe(map(eventData => created(eventData)))
-    )
-  );
-
-const epicMiddleware = createEpicMiddleware();
-
-const store = createStore(reducer, applyMiddleware(epicMiddleware));
-
-epicMiddleware.run(rootEpic);
-```
 
 #### Usage with Apollo Client
 ```
