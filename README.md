@@ -5,10 +5,10 @@ Phoenix
 ## Overview
 Phoenix is a framework agnostic JS library that embraces reactive programming with RxJS, by observing asynchronous changes in Smart Contracts, and providing methods to track and subscribe to events, changes to the state of contracts and address balances, and react to these changes and events via callbacks.
 
-
-
 ## How it works?
-.....
+... INSERT DIAGRAM HERE ...
+... Explain functionality ...
+All the tracked information is stored in a local database (or localStorage in the case of web applications), meaning the user can resume data synchronization starting from the last block synchronized locally.
 
 
 
@@ -26,28 +26,28 @@ import Phoenix from 'phoenix';
 ```
 
 ### Initializing the library
-In order for phoenix to be able to interact with the EVM, it requires a valid web3 provider. Websockets or IPC providers are recommended.
+In order for Phoenix to be able to interact with the EVM, it requires a valid websockets or IPC Web3 provider.
 
 ```js
 const eventSyncer = new Phoenix(web3.currentProvider);
 await eventSyncer.init();
 ```
 
-`Phoenix` accepts an `options` object with additional settings that can change its behavior:
+In addition to the provider, `Phoenix` also accepts an `options` object with settings that can change its behavior:
 - `dbFilename` - Name of the database where the information will be stored (default 'phoenix.db')
 - `callInterval` - Interval of time in milliseconds to query a contract/address to determine changes in state or balance (default: obtain data every block).
 
 ### Reacting to data changes
-Phoenix provides 3 tracking functions for contract state, events and balances. These functions return RxJS Observables which you can subscribe to, and obtain and transform the observed data via operators.
+Phoenix provides tracking functions for contract state, events and balances. These functions return RxJS Observables which you can subscribe to, and obtain and transform the observed data via operators.
 
 
 #### trackProperty(contractObject, functionName [, functionArgs] [, callOptions]).
-React to contract state changes. Using this method, you can track changes to the contract state, by specifying the vie function and arguments to query the contract with. 
+Reacts to contract state changes. Using this method, you can track changes to the contract state, by specifying the view function and arguments to call and query the contract. 
 ```js
 const contractObject = ...; // A web3.eth.Contract object initialized with an address and ABI.
 const functionName = "..."; // string containing the name of the contract's constant/view function to track.
-const functionArgs = []; // array containing the arguments of the function to track
-const callOptions = {from: web3.eth.defaultAccount}; // Options used for calling. Only `from`, `gas` and `gasPrice` are accepted.
+const functionArgs = []; // array containing the arguments of the function to track. Optional
+const callOptions = {from: web3.eth.defaultAccount}; //  Options used for calling. Only `from`, `gas` and `gasPrice` are accepted. Optional
 eventSyncer.trackProperty(contractObject, functionName, functionArgs, callOptions)
   .subscribe(value => console.dir)
 ```
@@ -56,12 +56,12 @@ This can be used as well to track public state variables, since they implicity c
 
 
 #### trackEvent(contractObject, eventName [, options]).
-React to contract events. This method can help track changes in both ETH and ERC20 token balances for each mined block or time interval depending on the `callInterval` configured.
-
+Reacts to contract events. This method can help track events and obtain its returned values.
 ```js
 const contractObject = ...; // A web3.eth.Contract object initialized with an address and ABI.
 const eventName = "..."; // string containing the name of the event to track.
-const options = { filter: { }, fromBlock: 1 }; // options used to query the events.
+const options = { filter: { }, fromBlock: 1 }; // options used to query the events. Optional
+
 eventSyncer.trackEvent(contractObject, eventName, options)
   .subscribe(eventData => console.dir);
 ```
@@ -69,12 +69,13 @@ eventSyncer.trackEvent(contractObject, eventName, options)
 
 
 #### trackBalance(address [, tokenAddress]).
-React to changes in the balance of addresses. This method can help track changes in both ETH and ERC20 token balances for each mined block or time interval depending on the `callInterval` configured.
+Reacts to changes in the balance of addresses. This method can help track changes in both ETH and ERC20 token balances for each mined block or time interval depending on the `callInterval` configured.
 
 
 ```js
 // Tracking ETH balance
 const address = "0x0001020304050607080900010203040506070809";
+
 eventSyncer
   .trackBalance(address)
   .subscribe((balance) => {
@@ -121,7 +122,7 @@ eventSyncer.clean();
 
 ### Integrations
 
-Phoenix does not force you to change the architecture of your dapps, making it easy to integrate in existing projects. Here are some pointers on how to integrate Phoenix with various frontend frameworks:
+Phoenix does not force you to change the architecture of your dApps, making it easy to integrate in existing projects. Here are some pointers on how to integrate Phoenix with various frontend frameworks:
 
 # TODO
 
