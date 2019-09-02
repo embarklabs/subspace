@@ -77,8 +77,7 @@ eventSyncer.trackEvent(contractObject, eventName, options)
 
 
 #### `trackBalance(address [, tokenAddress])`
-Reacts to changes in the balance of addresses. This method can help track changes in both ETH and ERC20 token balances for each mined block or time interval depending on the `callInterval` configured.
-
+Reacts to changes in the balance of addresses. This method can help track changes in both ETH and ERC20 token balances for each mined block or time interval depending on the `callInterval` configured. Balances are returned as a string containing the vaue in wei.
 
 ```js
 // Tracking ETH balance
@@ -113,8 +112,6 @@ Subscriptions can be disposed by executing the method `unsubscribe()` liberating
 const subscription = eventSyncer.trackBalance(address, tokenAddress).subscribe(value => { /* Do something */ });
 
 // ...
-// ...
-// ...
 
 subscription.unsubscribe();
 ```
@@ -128,11 +125,11 @@ eventSyncer.clean();
 
 
 
-### Integrations
+### Integrations with 3rd party libraries
 
 Phoenix does not force you to change the architecture of your dApps, making it easy to integrate in existing projects. Here are some pointers on how to integrate Phoenix with various frontend frameworks:
 
-#### Usage with React
+#### Usage with `react`
 The `observe` HOC is provided to enhance a presentational component to react to any phoenix event. This HOC subscribes/unsubscribes automatically to any observable it receives via `props`.
 
 ```js
@@ -180,7 +177,7 @@ ReactDOM.render(<App />, document.getElementById('root'));
 
 
 
-#### Usage with Redux
+#### Usage with `redux`
 Observables can be used with `redux`. The subscription can dispatch actions using if it has access to the redux store:
 
 ```js
@@ -201,30 +198,38 @@ myObservable.subscribe(eventData => {
 
 
 
-# TODO
+#### Usage with `redux-observable`
+Phoenix can be configured in epics created with [redux-observables](https://redux-observable.js.org/). It's recommended to compose these epics by using [mergeMap](https://www.learnrxjs.io/operators/transformation/mergemap.html) or [switchMap](https://www.learnrxjs.io/operators/transformation/switchmap.html) operators
 
+```js
+import {mergeMap, map} from 'rxjs/operators';
 
-##### redux observable
-```
 const rootEpic = action$ =>
   action$.pipe(
-    ofType("INIT"),
+    ofType("INIT"),  // Execute when the action type is 'INIT'
     mergeMap(action =>
       eventSyncer
-        .trackEvent(EscrowContract, "Created", {
-          filter: { buyer: web3.eth.defaultAccount },
-          fromBlock: 1
-        })
-        .pipe(map(eventData => created(eventData)))
+        .trackEvent(MyContract, "MyEventName", { filter: {}, fromBlock: 1})
+        .pipe(
+          map(eventData => myAction(eventData)) // Trigger redux action: MY_ACTION
+        )
     )
   );
 
+
+
+// Read more about epics here: https://redux-observable.js.org/docs/basics/Epics.html
+const rootReducer = (state = {}, action) => { /* TODO */ };
+
 const epicMiddleware = createEpicMiddleware();
 
-const store = createStore(reducer, applyMiddleware(epicMiddleware));
+const store = createStore(rootReducer, applyMiddleware(epicMiddleware));
 
 epicMiddleware.run(rootEpic);
 ```
+
+
+# TODO
 
 
 
