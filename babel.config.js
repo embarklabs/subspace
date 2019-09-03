@@ -3,7 +3,9 @@
 module.exports = function (api) {
     const node = {
       ignore: [],
-      plugins: [],
+      "plugins": [
+        "@babel/plugin-proposal-class-properties"
+      ],
       presets: [
         [
           '@babel/preset-env', {
