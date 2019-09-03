@@ -1,6 +1,3 @@
-const EventSyncer = require('./eventSyncer.js');
-
-EventSyncer.operators = require('./operators');
-EventSyncer.reactObserver = require('./observe');
-
-module.exports = EventSyncer;
+export {default} from './eventSyncer.js';
+export * from './operators';
+export {default as reactObserver} from  './observe';

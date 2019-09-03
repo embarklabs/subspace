@@ -1,4 +1,5 @@
 const path = require("path");
+const AddModuleExportsPlugin = require('add-module-exports-webpack-plugin');
 
 const externals = {
   react: {
@@ -14,7 +15,7 @@ const externals = {
     root: "ReactDOM"
   },
   electron: "electron",
-  "web3-eth": "web3-eth"
+  // "web3-eth": "web3-eth"  TODO: uncomment to not pack web3-eth
 };
 
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
@@ -22,7 +23,20 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
 
 const web = {
   target: "web",
-  entry: path.join(__dirname, "dist/index.js"),
+  entry: path.join(__dirname, "src/index.js"),
+  module: {
+    rules: [
+      {
+        test: /\.js/,
+        exclude: /(node_modules)/,
+        use: [
+          {
+            loader: "babel-loader"
+          }
+        ]
+      }
+    ]
+  },
   externals,
   output: {
     path: path.resolve(__dirname, "dist"),
@@ -34,21 +48,44 @@ const web = {
     fs: "empty"
   },
   optimization: {
-    usedExports: true
+    usedExports: true,
+    sideEffects: true
   },
-  // plugins: [new BundleAnalyzerPlugin()]
+  plugins: [
+    // new BundleAnalyzerPlugin()
+  ]
 };
 
 const node = {
   target: "node",
   externals,
-  entry: path.join(__dirname, "dist/eventSyncer.js"),
+  entry: path.join(__dirname, "src/index.js"),
+  module: {
+    rules: [
+      {
+        test: /\.js/,
+        exclude: /(node_modules)/,
+        use: [
+          {
+            loader: "babel-loader"
+          }
+        ]
+      }
+    ]
+  },
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "node.js",
     library: "phoenix",
     libraryTarget: "commonjs2"
-  }
+  },
+  optimization: {
+    usedExports: true,
+    sideEffects: true
+  },
+  plugins: [
+    new AddModuleExportsPlugin()
+  ]
 };
 
 module.exports = {

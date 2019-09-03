@@ -1,14 +1,15 @@
-const { fromEvent, interval, ReplaySubject } = require('rxjs');
-const { throttle, distinctUntilChanged } = require('rxjs/operators');
-const { randomString } = require('./utils.js');
-const equal = require('fast-deep-equal');
+import { fromEvent, interval, ReplaySubject } from 'rxjs';
+import { throttle, distinctUntilChanged } from 'rxjs/operators';
+import { randomString } from './utils.js';
+import equal from 'fast-deep-equal';
 
-const Database = require('./database.js');
-const Events = require('events');
-const Web3Eth = require('web3-eth');
-const stripHexPrefix = require('strip-hex-prefix');
-const toBN = require('number-to-bn');
-class EventSyncer {
+import Database  from './database.js';
+import Events from 'events';
+import Web3Eth from 'web3-eth';
+import stripHexPrefix from 'strip-hex-prefix';
+import toBN from 'number-to-bn';
+
+export default class EventSyncer {
 
   constructor(provider, options = {}) {
     this.events = new Events();
@@ -192,4 +193,3 @@ class EventSyncer {
 
 }
 
-module.exports = EventSyncer;

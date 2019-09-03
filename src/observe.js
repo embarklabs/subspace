@@ -68,4 +68,4 @@ function observe(WrappedComponent) {
     };
   }
 
-module.exports = observe;
+export default observe;

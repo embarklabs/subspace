@@ -1,7 +1,7 @@
-const { of, pipe }  = require('rxjs');
-const { map, pluck, scan } = require('rxjs/operators');
+import { of, pipe }  from 'rxjs';
+import { map, pluck, scan } from 'rxjs/operators';
 
-function $takeProps() {
+export function $takeProps() {
   const args = Object.values(arguments);
   return pipe(
     map(v => {
@@ -21,7 +21,7 @@ of({a: 1, b:2, e: 1}, {a: 0, c: 1, b:3}, {a: 0, d: 1, b:1})
   .subscribe((v) => console.log(v));
 */
 
-function $average(cb) {
+export function $average(cb) {
     return pipe(
       scan((accum, curr) => {
         let currentValue;
@@ -47,9 +47,3 @@ of(10, 3, 4)
   .pipe($average())
   .subscribe((v) => console.log(v));
 */
-
-
-module.exports = {
-    $takeProps,
-    $average
-};

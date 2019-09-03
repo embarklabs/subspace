@@ -1,6 +1,6 @@
-const { fromEvent, interval, ReplaySubject } = require('rxjs');
-const { throttle, distinctUntilChanged } = require('rxjs/operators');
-const loki = require('lokijs');
+import { fromEvent, interval, ReplaySubject } from 'rxjs';
+import { throttle, distinctUntilChanged } from 'rxjs/operators';
+import loki from 'lokijs';
 
 const getENV = function () {
   if (typeof global !== 'undefined' && (global.android || global.NSObject)) {
@@ -95,4 +95,4 @@ class Database {
 
 }
 
-module.exports = Database;
+export default Database;
