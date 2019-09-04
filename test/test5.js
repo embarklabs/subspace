@@ -55,7 +55,7 @@ async function run() {
   console.dir(DummyERC20Token.options.address)
 
 
-  const EventSyncer = require('../src/eventSyncer.js')
+  const EventSyncer = require('../dist/node.js');
   const eventSyncer = new EventSyncer(eth.currentProvider);
 
   await eventSyncer.init();

@@ -26,7 +26,7 @@ async function run() {
     // console.dir(event)
   })
 
-  const EventSyncer = require('../src/eventSyncer.js')
+  const EventSyncer = require('../dist/node.js');
   const eventSyncer = new EventSyncer(eth.currentProvider);
 
   await eventSyncer.init()

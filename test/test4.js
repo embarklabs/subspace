@@ -12,7 +12,7 @@ async function run() {
     await eth.sendTransaction({from: accounts[2], to: accounts[0], value: "232433434"});
   }, 3000);
 
-  const EventSyncer = require('../src/eventSyncer.js')
+  const EventSyncer = require('../dist/node.js');
   const eventSyncer = new EventSyncer(eth.currentProvider);
 
   await eventSyncer.init();

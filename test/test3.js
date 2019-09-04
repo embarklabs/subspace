@@ -116,7 +116,7 @@ async function run() {
     await SimpleStorageContract.methods.set(0, 300).send({ from: accounts[0] })
   }, 2000)
 
-  const EventSyncer = require('../src/eventSyncer.js')
+  const EventSyncer = require('../dist/node.js');
   const eventSyncer = new EventSyncer(eth.currentProvider);
 
   await eventSyncer.init();

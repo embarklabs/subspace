@@ -63,7 +63,7 @@ function observe(WrappedComponent) {
           return accum;
         }, {});
 
-        return <WrappedComponent {...props} {...this.state.observedValues} />;
+        return React.createElement(WrappedComponent, {...props, ...this.state.observedValues});
       }
     };
   }
