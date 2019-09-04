@@ -56,6 +56,17 @@ const web = {
   ]
 };
 
+const react = {
+  ...web,
+  entry: path.join(__dirname, "src/react/index.js"),
+  output: {
+    path: path.resolve(__dirname, "react"),
+    filename: "index.js",
+    library: "phoenix-react",
+    libraryTarget: "umd"
+  }
+};
+
 const node = {
   target: "node",
   externals,
@@ -90,5 +101,6 @@ const node = {
 
 module.exports = {
   node,
-  web
+  web,
+  react
 };

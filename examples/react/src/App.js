@@ -1,7 +1,7 @@
 import React from "react";
 import Phoenix from "phoenix";
 import Web3 from "web3";
-import EscrowObservator from "./EscrowObservator";
+import MyComponentObserver from "./MyComponentObserver";
 
 const web3 = new Web3("ws://localhost:8545");
 
@@ -48,7 +48,7 @@ class App extends React.Component {
     return (
       <div>
         <button onClick={this.createTrx}>Create Trx</button>
-        <EscrowObservator escrow={escrowObservable} myCustomProperty="Test" />
+        <MyComponentObserver escrow={escrowObservable} myCustomProperty="Test" />
       </div>
     );
   }

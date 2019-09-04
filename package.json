@@ -12,10 +12,10 @@
     "babel:node:src": "cross-env BABEL_ENV=node babel src --copy-files --extensions \".js\" --out-dir dist",
     "webpack:dev": "webpack --config webpack.dev.js",
     "webpack:prod": "webpack --config webpack.prod.js",
-    "build:dev": "npm-run-all webpack:dev",
-    "build:prod": "npm-run-all babel:node webpack:prod",
+    "build:dev": "npm-run-all clean webpack:dev",
+    "build:prod": "npm-run-all clean webpack:prod",
     "build": "npm-run-all build:dev",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist; rimraf react"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.5",

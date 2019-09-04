@@ -1,6 +1,7 @@
-node_modules
-.vscode
+node_modules/
+.vscode/
 phoenix.db
 TODO
 test.js
-dist
+/dist/
+/react/

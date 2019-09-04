@@ -1,7 +1,7 @@
 import React from "react";
-import {reactObserver as observe} from "phoenix";
+import {observe} from "phoenix/react";
 
-const Escrow = props => {
+const MyComponent = props => {
   const { escrow, myCustomProperty } = props;
   if(!escrow) return <p>Loading...</p>;
   return (
@@ -13,6 +13,5 @@ const Escrow = props => {
     </ul>
   );
 };
-const EscrowObservator = observe(Escrow);
 
-export default EscrowObservator;
+export default observe(MyComponent);
