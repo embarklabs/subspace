@@ -1,9 +1,9 @@
 import React from "react";
 import Phoenix from "phoenix";
-import { web3, MyContract, onWeb3Available } from "./ethService";
 import { scan } from 'rxjs/operators';
-
 import MyComponentObserver from "./MyComponentObserver";
+import web3 from './web3';
+import MyContract from './MyContract';
 
 let MyContractInstance;
 
@@ -12,23 +12,20 @@ class App extends React.Component {
     myEventObservable$: null
   };
 
-  componentDidMount() {
-    // Verify if web3 connection is available
-    onWeb3Available(async () => {
-      MyContractInstance = await MyContract.deploy().send({ from: web3.eth.defaultAccount });
+  async componentDidMount() {
+    MyContractInstance = await MyContract.getInstance(); //
 
-      const eventSyncer = new Phoenix(web3.currentProvider);
-      eventSyncer.init().then(() => {
-        const myEventObservable$ = eventSyncer.trackEvent(MyContractInstance, "MyEvent", {filter: {}, fromBlock: 1 });
+    const eventSyncer = new Phoenix(web3.currentProvider);
+    await eventSyncer.init();
+    
+    const myEventObservable$ = eventSyncer.trackEvent(MyContractInstance, "MyEvent", {filter: {}, fromBlock: 1 });
 
-        // If you want to return all the events in an array, you can pipe the scan operator to the observable
-        // const myEventObservable$ = eventSyncer.trackEvent(MyContractInstance, "MyEvent", {filter: {}, fromBlock: 1 })
-        //                                      .pipe(scan((accum, val) => [...accum, val], []));
-        // Your observable component would receive the eventData as an array instead of an object
+    // If you want to return all the events in an array, you can pipe the scan operator to the observable
+    // const myEventObservable$ = eventSyncer.trackEvent(MyContractInstance, "MyEvent", {filter: {}, fromBlock: 1 })
+    //                                      .pipe(scan((accum, val) => [...accum, val], []));
+    // Your observable component would receive the eventData as an array instead of an object
 
-        this.setState({ myEventObservable$ });
-      });
-    });
+    this.setState({ myEventObservable$ });
   }
 
   createTrx = () => {
