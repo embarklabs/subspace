@@ -1,28 +1,12 @@
 /* global web3 */
 import React from 'react';
-import ReactDOM from 'react-dom';
 import EmbarkJS from 'Embark/EmbarkJS';
-import Ranking from '../embarkArtifacts/contracts/Ranking';
-
 import Phoenix from 'phoenix';
-import withObservables from '@nozbe/with-observables'
-
-const { scan, map } = require('rxjs/operators');
-import { of } from 'rxjs';
+import Ranking from '../embarkArtifacts/contracts/Ranking';
+import { scan, map } from 'rxjs/operators';
+import RankItem from './RankItem';
 
 const phoenix = new Phoenix(web3.currentProvider);
-
-const RankItem = ({items, onUpvote, onDownvote}) => {
-  return items.map((item, i) => <div key={i} className="item">
-    <b>{i+1}</b> - {item.addr}<br />
-    Upvotes: {item.upvotes} - Downvotes: {item.downvotes}<br />
-    <button onClick={onUpvote(item.addr)}>Upvote</button> | <button onClick={onDownvote(item.addr)}>Downvote</button>
-    </div>);
-};
-
-
-const enhance = withObservables(['items'], ({ items }) => ({items: items || of({ /* default empty object */ })}));
-const EnhancedRankItem = enhance(RankItem)
 
 const observables = {};
 
@@ -32,7 +16,6 @@ class App extends React.Component {
   }
 
   componentDidMount(){
-    //(async ()  => {
       EmbarkJS.onReady(async (err) => {
         if(err){
           console.error(err);
@@ -63,7 +46,6 @@ class App extends React.Component {
 
         this.setState({ready: true});
       });
-    //})();
   }
 
   upvote = address => () => {
@@ -77,9 +59,8 @@ class App extends React.Component {
   render() {
     const {ready} = this.state;
     if(!ready) return <span>Loading...</span>;
-    return <EnhancedRankItem items={observables.items} onUpvote={this.upvote} onDownvote={this.downvote} />;
+    return <RankItem items={observables.items} onUpvote={this.upvote} onDownvote={this.downvote} />;
   }
 }
 
-ReactDOM.render(<App />, document.getElementById('content'));
-
+export default App;

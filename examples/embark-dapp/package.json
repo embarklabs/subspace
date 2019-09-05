@@ -1,5 +1,5 @@
 {
-  "name": "embark-test",
+  "name": "embark-dapp",
   "version": "0.0.1",
   "description": "",
   "scripts": {
@@ -10,8 +10,8 @@
   "license": "MIT",
   "devDependencies": {},
   "dependencies": {
-    "@nozbe/with-observables": "^1.0.5",
     "embark": "^4.1.0",
+    "phoenix": "../..",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "rxjs": "^6.5.2",

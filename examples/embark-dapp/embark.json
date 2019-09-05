@@ -1,7 +1,7 @@
 {
   "contracts": ["contracts/**"],
   "app": {
-    "app.js": ["app/app.js"],
+    "app.js": ["app/index.js"],
     "index.html": "app/index.html"
   },
   "buildDir": "dist/",
