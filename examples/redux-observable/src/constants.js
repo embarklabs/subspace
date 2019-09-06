@@ -1,0 +1,6 @@
+export const INIT_PHOENIX = "INIT_PHOENIX";
+export const DEPLOY_CONTRACT = "DEPLOY_CONTRACT";
+export const PHOENIX_READY = "PHOENIX_READY";
+export const MY_ACTION = "MY_ACTION";
+export const DUMMY_TRANSACTION = "DUMMY_TRANSACTION";
+
