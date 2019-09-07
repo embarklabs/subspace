@@ -1,8 +1,7 @@
-import { fromEvent, interval, ReplaySubject } from 'rxjs';
-import { throttle, distinctUntilChanged } from 'rxjs/operators';
-import { randomString } from './utils.js';
+import { fromEvent, ReplaySubject } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 import equal from 'fast-deep-equal';
-
+import hash from 'object-hash';
 import Database  from './database.js';
 import Events from 'events';
 import Web3Eth from 'web3-eth';
@@ -33,60 +32,119 @@ export default class EventSyncer {
 
   // TODO: get contract abi/address instead
   trackEvent(contractInstance, eventName, filterConditionsOrCb) {
-    // let eventKey = eventName + "-from0x123";
-    let eventKey = eventName;
+    let eventKey = eventName + '-' + hash(filterConditionsOrCb);
 
-    let filterConditions, filterConditionsCb;
+    let filterConditions = {fromBlock: 0, toBlock: "latest"};
+    let filterConditionsCb;
     if (typeof filterConditionsOrCb === 'function') {
       filterConditionsCb = filterConditionsOrCb
     } else {
-      filterConditions = filterConditionsOrCb
+      filterConditions = Object.assign(filterConditions, filterConditionsOrCb);
     }
-
-    // TODO: should use this to resume events tracking
-    // let lastEvent = this._db.getLastKnownEvent(eventName)
+    let eventSummary = this._db.getLastKnownEvent(eventKey);
 
     let sub = new ReplaySubject();
+    let contractObserver = fromEvent(this.events, eventKey)
 
-    this._db.getEventsFor(eventKey).forEach(sub.next);
+    contractObserver.subscribe((e) => {
+      if(!e) return;
+      
+      // TODO: would be nice if trackEvent was smart enough to understand the type of returnValues and do the needed conversions
 
-    let eventbusKey = "event-" + eventName + "-" + randomString();
-    let contractObserver = fromEvent(this.events, eventbusKey)
-
-    // TODO: this should be moved to a 'smart' module
-    // for e.g, it should start fromBlock, from the latest known block (which means it should store block info)
-    // it should be able to do events X at the time to avoid slow downs as well as the 10k limit
-    contractInstance.events[eventName].apply(contractInstance.events[eventName], [(filterConditions || {fromBlock: 0}), (err, event) => {
-      if (filterConditions) {
-        let propsToFilter = [];
-        for (let prop in filterConditions.filter) {
-          if (Object.keys(event.returnValues).indexOf(prop) >= 0) {
-            propsToFilter.push(prop)
-          }
-        }
-        for (let prop of propsToFilter) {
-          if (filterConditions.filter[prop] !== event.returnValues[prop]) return;
-        }
-      } else if (filterConditionsCb && !filterConditionsCb(event.returnValues)) {
-        return;
+      const eventData = {
+        id: hash({eventName, blockNumber: e.blockNumber, transactionIndex: e.transactionIndex, logIndex: e.logIndex}),
+        returnValues: {...e.returnValues},
+        blockNumber: e.blockNumber, 
+        transactionIndex: e.transactionIndex, 
+        logIndex: e.logIndex
       }
 
-      this.events.emit(eventbusKey, event);
-    }])
+      sub.next({blockNumber: e.blockNumber, ...e.returnValues});
 
-    // TODO: would be nice if trackEvent was smart enough to understand the type of returnValues and do the needed conversions
-    contractObserver.pipe().subscribe((e) => {
-      e.eventKey = eventKey
-      if (this._db.eventExists(e.id)) return;
-      if (e.returnValues['$loki']) return sub.next(e.returnValues)
+      if (this._db.eventExists(eventKey, eventData.id)) return;
 
-      this._db.recordEvent(e.returnValues);
-      this._db.updateEventId(eventName, e.id)
-      this.events.emit("updateDB")
-      sub.next(e.returnValues)
-    })
+      this._db.recordEvent(eventKey, eventData);
+
+      this.events.emit("updateDB");
+    });
+
+
+    // TODO: this should be moved to a 'smart' module
+    // it should be able to do events X at the time to avoid slow downs as well as the 10k limit
+
+    // TODO: filter subscriptions with fromBlock and toBlock
+
+    const firstKnownBlock = eventSummary.firstKnownBlock !== undefined ? eventSummary.firstKnownBlock : 0;
+    const lastKnownBlock = eventSummary.lastKnownBlock !== undefined ? eventSummary.lastKnownBlock : 0;
+
+    if(firstKnownBlock == 0 || (firstKnownBlock > 0 && firstKnownBlock <= filterConditions.fromBlock)){
+      if(filterConditions.toBlock === 'latest'){
+          // emit DB Events [fromBlock, lastKnownBlock]
+          this._serveOldEvents(eventKey, filterConditions.fromBlock, lastKnownBlock, filterConditions, filterConditionsCb);
+
+          // create a event subscription [lastKnownBlock + 1, ...] 
+          let filters = Object.assign({}, filterConditions, {fromBlock: filterConditions.fromBlock > lastKnownBlock ? filterConditions.fromBlock : lastKnownBlock + 1});
+          this._subscribe(contractInstance.events[eventName], filters, filterConditionsCb, eventKey);
+      } else if(filterConditions.toBlock <= lastKnownBlock){
+          // emit DB Events [fromBlock, toBlock]
+          this._serveOldEvents(eventKey, filterConditions.fromBlock, filterConditions.toBlock, filterConditions, filterConditionsCb);
+      } else {
+        // emit DB Events [fromBlock, lastKnownBlock]
+        this._serveOldEvents(eventKey, filterConditions.fromBlock, lastKnownBlock, filterConditions, filterConditionsCb);
+
+        // create a past event subscription [lastKnownBlock + 1, toBlock]
+        let filters = Object.assign({}, filterConditions, {fromBlock: filterConditions.fromBlock > lastKnownBlock ? filterConditions.fromBlock : lastKnownBlock + 1});
+        this._pastLogs(contractInstance, eventName, filters, filterConditionsCb, eventKey);
+      }
+    } else if(firstKnownBlock > 0) {
+        // create a past event subscription [ firstKnownBlock > fromBlock ? fromBlock : 0, firstKnownBlock - 1]
+        let fromBlock = firstKnownBlock > filterConditions.fromBlock ? filterConditions.fromBlock : 0;
+        let filters = Object.assign({}, filterConditions, {fromBlock, toBlock: firstKnownBlock - 1});
+        this._pastLogs(contractInstance, eventName, filters, filterConditionsCb, eventKey);
+
+        if(filterConditions.toBlock === 'latest'){
+          // emit DB Events [firstKnownBlock, lastKnownBlock]
+          this._serveOldEvents(eventKey, firstKnownBlock, lastKnownBlock, filterConditions, filterConditionsCb);
+
+          // create a subscription [lastKnownBlock + 1, ...]
+          const filters = Object.assign({}, filterConditions, {fromBlock: lastKnownBlock + 1});
+          this._subscribe(contractInstance.events[eventName], filters, filterConditionsCb, eventKey);
+      } else if(filterConditions.toBlock <= lastKnownBlock){
+          // emit DB Events [fromBlock, toBlock]
+          this._serveOldEvents(eventKey, filterConditions.fromBlock, filterConditions.toBlock, filterConditions, filterConditionsCb);
+      } else {
+        // emit DB Events [fromBlock, lastKnownBlock]
+        this._serveOldEvents(eventKey, filterConditions.fromBlock, lastKnownBlock, filterConditions, filterConditionsCb);
+
+        // create a past event subscription [lastKnownBlock + 1, toBlock]
+        let filters = Object.assign({}, filterConditions, {fromBlock: lastKnownBlock + 1, toBlock: filterConditions.toBlock});
+        this._pastLogs(contractInstance, eventName, filters, filterConditionsCb, eventKey);
+      }
+    }
 
     return sub;
+  }
+
+
+  _serveOldEvents(eventKey, firstKnownBlock, lastKnownBlock, filterConditions, filterConditionsCb) {
+    const oldLogs = this._db.getEventsFor(eventKey).filter(x => x.blockNumber >= firstKnownBlock && x.blockNumber <= lastKnownBlock);
+    oldLogs.forEach(ev => {
+      eventCallback(this.events, filterConditions, filterConditionsCb, eventKey)(null, ev);
+    });
+  }
+
+  _pastLogs(contract, eventName, filterConditions, filterConditionsCb, eventbusKey) {
+    contract.getPastEvents.apply(contract, [eventName, filterConditions, (err, events) => {
+        events.forEach(ev => {
+          eventCallback(this.events, filterConditions, filterConditionsCb, eventbusKey)(err, ev);
+        });
+    } ]);
+  }
+
+
+
+  _subscribe(event, filterConditions, filterConditionsCb, eventbusKey) {
+    event.apply(event, [filterConditions, eventCallback(this.events, filterConditions, filterConditionsCb, eventbusKey) ]);
   }
 
   _initNewBlocksSubscription() {
@@ -115,7 +173,7 @@ export default class EventSyncer {
 
   }
 
-  // TODO: should save value in database
+  // TODO: should save value in database?
   trackProperty(contractInstance, propName, methodArgs = [], callArgs = {}) {
 
     const sub = new ReplaySubject();
@@ -193,3 +251,26 @@ export default class EventSyncer {
 
 }
 
+
+
+const eventCallback = (emitter, filterConditions, filterConditionsCb, eventbusKey) => (err, ev) => {
+  if(err) return;
+
+  if (filterConditions) {
+    let propsToFilter = [];
+    for (let prop in filterConditions.filter) {
+      if (Object.keys(eval.returnValues).indexOf(prop) >= 0) {
+        propsToFilter.push(prop);
+      }
+    }
+    for (let prop of propsToFilter) {
+      if (filterConditions.filter[prop] !== ev.returnValues[prop])
+        return;
+    }
+  }
+  else if (filterConditionsCb && !filterConditionsCb(ev.returnValues)) {
+    return;
+  }
+
+  emitter.emit(eventbusKey, ev);
+}
