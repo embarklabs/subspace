@@ -1,2 +1,2 @@
-export {default} from './eventSyncer.js';
+export {default} from './subspace';
 export * from './operators';
