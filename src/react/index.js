@@ -8,6 +8,14 @@ export function observe(WrappedComponent) {
         subscriptions: {}
       }
 
+      unsubscribe = prop => {
+        const subscriptions = {...this.state.subscriptions};
+        if(subscriptions[prop]) subscriptions[prop].unsubscribe();
+        delete subscriptions[prop];
+
+        this.setState({subscriptions});
+      }
+
       subscribeToProp = prop => {
         if(!isObservable(this.props[prop])) return;
 
@@ -47,6 +55,9 @@ export function observe(WrappedComponent) {
       componentDidUpdate(prevProps) {
         Object.keys(prevProps).forEach(prop => {
           if(!prevProps[prop] && this.props[prop]){
+            this.subscribeToProp(prop);
+          } else if(prevProps[prop] !== this.props[prop]){
+            this.unsubscribe(prop);
             this.subscribeToProp(prop);
           }
         });
