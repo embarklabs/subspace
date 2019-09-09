@@ -1,5 +1,4 @@
-import { fromEvent, interval, ReplaySubject } from 'rxjs';
-import { throttle, distinctUntilChanged } from 'rxjs/operators';
+import { fromEvent } from 'rxjs';
 import loki from 'lokijs';
 
 const getENV = function () {
@@ -49,47 +48,47 @@ class Database {
       children = this.db.addCollection('children')
       this.db.saveDatabase()
     }
-    let tracked = this.db.getCollection('tracked')
-    if (!tracked) {
-      tracked = this.db.addCollection('tracked')
-      this.db.saveDatabase()
-    }
 
     let dbChanges = fromEvent(this.events, "updateDB")
-    dbChanges.pipe(throttle(val => interval(400))).subscribe(() => {
+    dbChanges.subscribe(() => {
       this.db.saveDatabase()
     })
 
     cb();
   }
 
-  getLastKnownEvent(eventName) {
-    let tracked = this.db.getCollection('tracked');
-    let lastEvent = tracked.find({ "eventName": eventName })[0];
-    if (!lastEvent || lastEvent.length <= 0) {
-      tracked.insert({ "eventName": eventName, id: 0 });
-      lastEvent = tracked.find({ "eventName": eventName })[0];
+  getLastKnownEvent(eventKey) {
+    const collection = this.db.getCollection(eventKey);
+
+    let firstKnownBlock = 0;
+    let lastKnownBlock = 0;
+
+    if(collection && collection.count()){
+      firstKnownBlock = collection.min('blockNumber');
+      lastKnownBlock = collection.max('blockNumber'); 
+    } else {
+      this.db.addCollection(eventKey);
     }
-    return lastEvent;
+    
+    return {
+      firstKnownBlock, 
+      lastKnownBlock
+    };
   }
 
-  updateEventId(eventName, eventId) {
-    let tracked = this.db.getCollection('tracked');
-    tracked.updateWhere(((x) => x.eventName === eventName), ((x) => x.id = eventId));
-  }
 
   getEventsFor(eventKey) {
-    let children = this.db.getCollection('children');
-    return children.find({ 'eventKey': eventKey });
+    let children = this.db.getCollection(eventKey);
+    return children.find();
   }
 
-  eventExists(eventId) {
-    let children = this.db.getCollection('children');
+  eventExists(eventKey, eventId) {
+    let children = this.db.getCollection(eventKey);
     return (children.find({ 'id': eventId }).length > 0);
   }
 
-  recordEvent(values) {
-    let children = this.db.getCollection('children');
+  recordEvent(eventKey, values) {
+    let children = this.db.getCollection(eventKey);
     children.insert(values);
   }
 

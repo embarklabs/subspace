@@ -118,7 +118,8 @@ async function deployRatingContract(eth) {
     }
   ]
 
-  var contract = new eth.Contract(abi)
+  var contract = new eth.Contract(abi);
+
   let instance = await contract.deploy({
     data: '0x608060405234801561001057600080fd5b5060e78061001f6000396000f3fe6080604052600436106039576000357c010000000000000000000000000000000000000000000000000000000090048063f60781a914603e575b600080fd5b348015604957600080fd5b50607d60048036036040811015605e57600080fd5b810190808035906020019092919080359060200190929190505050607f565b005b817ffdefdf8d82459f7b1eb157e5c44cbe6ee73d8ddd387511fe3622a3ee663b4697826040518082815260200191505060405180910390a2505056fea165627a7a7230582067833697a0e2bccb8bd624c0b06b2183641addb24f7931d8ec3979982bb663790029',
     arguments: []
@@ -128,9 +129,24 @@ async function deployRatingContract(eth) {
   })
   return instance
 }
+
+
+const mine = (web3) => {
+  return new Promise((resolve, reject) => {
+    web3.currentProvider.send({
+      jsonrpc: '2.0',
+      method: 'evm_mine',
+      id: new Date().getTime()
+    }, (err, result) => {
+      if (err) { return reject(err) }
+      return resolve(result)
+    })
+  })
+}
   
   module.exports = {
       deployEscrowContract,
-      deployRatingContract
+      deployRatingContract,
+      mine
   };
   
