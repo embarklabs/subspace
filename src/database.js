@@ -60,8 +60,8 @@ class Database {
   getLastKnownEvent(eventKey) {
     const collection = this.db.getCollection(eventKey);
 
-    let firstKnownBlock = undefined;
-    let lastKnownBlock = undefined;
+    let firstKnownBlock = 0;
+    let lastKnownBlock = 0;
 
     if(collection && collection.count()){
       firstKnownBlock = collection.min('blockNumber');

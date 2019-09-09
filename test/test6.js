@@ -2,6 +2,7 @@ const Web3Eth = require('web3-eth');
 const {deployRatingContract, mine} = require('./utils-web3');
 const ganache = require("ganache-core");
 
+console.log("The following error is emitted by ganache - https://github.com/trufflesuite/ganache-core/issues/267")
 let eth = new Web3Eth(ganache.provider());
 
 async function run() {
