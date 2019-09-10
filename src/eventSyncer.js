@@ -6,6 +6,8 @@ class EventSyncer {
     this.events = events;
     this.web3 = web3;
     this.db = db;
+
+    this.subscriptions = [];
   }
 
   track(contractInstance, eventName, filterConditionsOrCb){
@@ -46,13 +48,22 @@ class EventSyncer {
       this.events.emit("updateDB");
     });
 
-    this._retrieveEvents(eventKey, 
-                         eventSummary.firstKnownBlock,
-                         eventSummary.lastKnownBlock,
-                         filterConditions,
-                         filterConditionsCb,
-                         contractInstance,
-                         eventName);
+    const eth_subscribe = this._retrieveEvents(eventKey, 
+                                           eventSummary.firstKnownBlock,
+                                           eventSummary.lastKnownBlock,
+                                           filterConditions,
+                                           filterConditionsCb,
+                                           contractInstance,
+                                           eventName);
+
+    const og_subscribe = sub.subscribe;
+    sub.subscribe = (next, error, complete) => {
+      const s = og_subscribe.apply(sub, [next, error, complete]);
+      s.add(() => { // Removing web3js subscription when rxJS unsubscribe is executed
+        if(eth_subscribe) eth_subscribe.unsubscribe();
+      });
+      return s;
+    }
 
     return sub;
   }
@@ -60,7 +71,6 @@ class EventSyncer {
   _retrieveEvents(eventKey, firstKnownBlock, lastKnownBlock, filterConditions, filterConditionsCb, contractInstance, eventName) {
     // TODO: this should be moved to a 'smart' module
     // it should be able to do events X at the time to avoid slow downs as well as the 10k limit
-    // TODO: filter subscriptions with fromBlock and toBlock
     
     if (firstKnownBlock == 0 || (firstKnownBlock > 0 && firstKnownBlock <= filterConditions.fromBlock)) {
       if (filterConditions.toBlock === 'latest') {
@@ -68,7 +78,7 @@ class EventSyncer {
         this._serveDBEvents(eventKey, filterConditions.fromBlock, lastKnownBlock, filterConditions, filterConditionsCb);
         // create a event subscription [lastKnownBlock + 1, ...] 
         let filters = Object.assign({}, filterConditions, { fromBlock: filterConditions.fromBlock > lastKnownBlock ? filterConditions.fromBlock : lastKnownBlock + 1 });
-        this._subscribeToEvent(contractInstance.events[eventName], filters, filterConditionsCb, eventKey);
+        return this._subscribeToEvent(contractInstance.events[eventName], filters, filterConditionsCb, eventKey);
       }
       else if (filterConditions.toBlock <= lastKnownBlock) {
         // emit DB Events [fromBlock, toBlock]
@@ -92,7 +102,7 @@ class EventSyncer {
         this._serveDBEvents(eventKey, firstKnownBlock, lastKnownBlock, filterConditions, filterConditionsCb);
         // create a subscription [lastKnownBlock + 1, ...]
         const filters = Object.assign({}, filterConditions, { fromBlock: lastKnownBlock + 1 });
-        this._subscribeToEvent(contractInstance.events[eventName], filters, filterConditionsCb, eventKey);
+        return this._subscribeToEvent(contractInstance.events[eventName], filters, filterConditionsCb, eventKey);
       }
       else if (filterConditions.toBlock <= lastKnownBlock) {
         // emit DB Events [fromBlock, toBlock]
@@ -126,7 +136,9 @@ class EventSyncer {
   }
     
   _subscribeToEvent(event, filterConditions, filterConditionsCb, eventKey) {
-    event.apply(event, [filterConditions, this._parseEventCBFactory(filterConditions, filterConditionsCb, eventKey) ]); 
+    const s = event.apply(event, [filterConditions, this._parseEventCBFactory(filterConditions, filterConditionsCb, eventKey) ]);
+    this.subscriptions.push(s);
+    return s;
   }
       
   _parseEventCBFactory = (filterConditions, filterConditionsCb, eventKey) => (err, ev) => {
@@ -147,6 +159,12 @@ class EventSyncer {
       return;
     }
     this.events.emit(eventKey, ev);
+  }
+
+  close(){
+    this.subscriptions.forEach(x => {
+      x.unsubscribe();
+    })
   }
 }
 

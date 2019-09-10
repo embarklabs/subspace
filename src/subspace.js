@@ -27,13 +27,14 @@ export default class Subspace {
     return new Promise((resolve, reject) => {
       this._db = new Database(this.options.dbFilename, this.events, resolve);
       this.db = this._db.db;
+      this.eventSyncer = new EventSyncer(this.web3, this.events, this._db);
+
     })
   }
 
   // TODO: get contract abi/address instead
   trackEvent(contractInstance, eventName, filterConditionsOrCb) {
-    const eventSyncer = new EventSyncer(this.web3, this.events, this._db);
-    return eventSyncer.track(contractInstance, eventName, filterConditionsOrCb);
+    return this.eventSyncer.track(contractInstance, eventName, filterConditionsOrCb);
   }
 
   _initNewBlocksSubscription() {
@@ -64,7 +65,6 @@ export default class Subspace {
 
   // TODO: should save value in database?
   trackProperty(contractInstance, propName, methodArgs = [], callArgs = {}) {
-
     const sub = new ReplaySubject();
 
     const method = contractInstance.methods[propName].apply(contractInstance.methods[propName], methodArgs)
@@ -132,9 +132,10 @@ export default class Subspace {
     return sub.pipe(distinctUntilChanged((a, b) => equal(a, b)));
   }
 
-  clean(){
+  close(){
     clearInterval(this.intervalTracker);
-    this.newBlocksSubscription.unsubscribe();
+    if(this.newBlocksSubscription) this.newBlocksSubscription.unsubscribe();
+    this.eventSyncer.close();
     this.intervalTracker = null;
     this.callables = [];
   }
