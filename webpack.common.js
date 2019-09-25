@@ -41,7 +41,7 @@ const web = {
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "browser.js",
-    library: "phoenix",
+    library: "subspace",
     libraryTarget: "umd"
   },
   node: {
@@ -62,7 +62,7 @@ const react = {
   output: {
     path: path.resolve(__dirname, "react"),
     filename: "index.js",
-    library: "phoenix-react",
+    library: "subspace-react",
     libraryTarget: "umd"
   }
 };
@@ -87,7 +87,7 @@ const node = {
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "node.js",
-    library: "phoenix",
+    library: "subspace",
     libraryTarget: "commonjs2"
   },
   optimization: {

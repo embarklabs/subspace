@@ -3,8 +3,8 @@ import { myReducer } from "./reducer";
 import { createEpicMiddleware } from "redux-observable";
 import {
   DEPLOY_CONTRACT,
-  INIT_PHOENIX,
-  PHOENIX_READY,
+  INIT_SUBSPACE,
+  SUBSPACE_READY,
   DUMMY_TRANSACTION
 } from "./constants";
 import { mergeMap, map, mapTo, delay, filter } from "rxjs/operators";
@@ -12,13 +12,13 @@ import MyContract from "./MyContract";
 import { combineEpics } from "redux-observable";
 import { ofType } from "redux-observable";
 import {
-  initPhoenix,
-  phoenixReady,
+  initSubspace,
+  subspaceReady,
   createDummyTransaction,
   myAction
 } from "./actions";
 import web3 from "./web3";
-import Phoenix from "phoenix";
+import Subspace from "phoenix";
 
 let MyContractInstance;
 let eventSyncer;
@@ -31,23 +31,23 @@ const deployContractEpic = action$ =>
     }),
     map(instance => {
       MyContractInstance = instance;
-      return initPhoenix();
+      return initSubspace();
     })
   );
 
-const initPhoenixEpic = action$ =>
+const initSubspaceEpic = action$ =>
   action$.pipe(
-    ofType(INIT_PHOENIX),
+    ofType(INIT_SUBSPACE),
     mergeMap(() => {
-      eventSyncer = new Phoenix(web3.currentProvider);
+      eventSyncer = new Subspace(web3.currentProvider);
       return eventSyncer.init();
     }),
-    mapTo(phoenixReady())
+    mapTo(subspaceReady())
   );
 
 const trackEventEpic = action$ =>
   action$.pipe(
-    ofType(PHOENIX_READY),
+    ofType(SUBSPACE_READY),
     mergeMap(() => {
       createDummyTransaction();
       return eventSyncer
@@ -64,7 +64,7 @@ const dummyTransactionEpic = action$ =>
   action$.pipe(
     filter(
       action =>
-        action.type === PHOENIX_READY || action.type === DUMMY_TRANSACTION
+        action.type === SUBSPACE_READY || action.type === DUMMY_TRANSACTION
     ),
     map(() => {
       MyContractInstance.methods
@@ -78,7 +78,7 @@ const dummyTransactionEpic = action$ =>
   
 const rootEpic = combineEpics(
   deployContractEpic,
-  initPhoenixEpic,
+  initSubspaceEpic,
   trackEventEpic,
   dummyTransactionEpic
 );

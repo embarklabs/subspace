@@ -1,6 +1,6 @@
 import store from './store';
 import web3 from './web3';
-import Phoenix from 'phoenix';
+import Subspace from 'phoenix';
 import { myAction } from './actions';
 import MyContract from './MyContract';
 
@@ -13,7 +13,7 @@ store.subscribe(() => console.log("=====\n", store.getState()))
 const run = async () => {
   const MyContractInstance = await MyContract.getInstance(); //
 
-  const eventSyncer = new Phoenix(web3.currentProvider);
+  const eventSyncer = new Subspace(web3.currentProvider);
   await eventSyncer.init();
     
   eventSyncer.trackEvent(MyContractInstance, "MyEvent", {filter: {}, fromBlock: 1 })

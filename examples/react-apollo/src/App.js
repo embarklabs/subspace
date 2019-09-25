@@ -1,5 +1,5 @@
 import React from "react";
-import Phoenix from "phoenix";
+import Subspace from "phoenix";
 import { graphql } from "reactive-graphql";
 import gql from "graphql-tag";
 import { makeExecutableSchema } from "graphql-tools";
@@ -38,7 +38,7 @@ class App extends React.Component {
   };
 
   async componentDidMount() {
-    const eventSyncer = new Phoenix(web3.currentProvider);
+    const eventSyncer = new Subspace(web3.currentProvider);
     await eventSyncer.init();
 
     MyContractInstance = await MyContract.getInstance();

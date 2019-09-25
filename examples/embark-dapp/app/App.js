@@ -1,12 +1,12 @@
 /* global web3 */
 import React from 'react';
 import EmbarkJS from 'Embark/EmbarkJS';
-import Phoenix from 'phoenix';
+import Subspace from 'phoenix';
 import Ranking from '../embarkArtifacts/contracts/Ranking';
 import { scan, map } from 'rxjs/operators';
 import RankItem from './RankItem';
 
-const phoenix = new Phoenix(web3.currentProvider);
+const subspace = new Subspace(web3.currentProvider);
 
 const observables = {};
 
@@ -22,9 +22,9 @@ class App extends React.Component {
           return;
         }
 
-        await phoenix.init()
+        await subspace.init()
 
-        observables.items = phoenix
+        observables.items = subspace
           .trackEvent(Ranking, 'Rating', {filter: {}, fromBlock: 1})
           .pipe(
             scan((acc, curr) => {

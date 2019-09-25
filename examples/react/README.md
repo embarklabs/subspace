@@ -1,4 +1,4 @@
-phoenix - react example 
+subspace - react example 
 ===
 Simple application using a react observable component to receive a stream of emitted events. This app will deploy a test contract to **Ganache**.
 
@@ -11,9 +11,9 @@ In the parent folder, link the package with `yarn` or `npm`
 ```
 yarn link
 ```
-Then in the current folder link `phoenix`, and install the packages
+Then in the current folder link `subspace`, and install the packages
 ```
-yarn link phoenix
+yarn link subspace
 yarn
 ```
 

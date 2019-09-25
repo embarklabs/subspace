@@ -1,6 +1,6 @@
-phoenix - reactive-graphql example 
+subspace - reactive-graphql example 
 ===
-Simple application that shows how to use graphql queries with Phoenix observables
+Simple application that shows how to use graphql queries with Subspace observables
 
 ## Requirements
 - `ganache-cli`
@@ -11,9 +11,9 @@ In the parent folder, link the package with `yarn` or `npm`
 ```
 yarn link
 ```
-Then in the current folder link `phoenix`, and install the packages
+Then in the current folder link `subspace`, and install the packages
 ```
-yarn link phoenix
+yarn link subspace
 yarn
 ```
 

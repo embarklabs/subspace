@@ -1,4 +1,4 @@
-const Phoenix = require('phoenix');
+const Subspace = require('phoenix');
 const web3 = require('./web3');
 const MyContract = require('./MyContract');
 const { pluck } = require('rxjs/operators');
@@ -7,7 +7,7 @@ const gql = require("graphql-tag");
 const { graphql } = require("reactive-graphql");
 
 const run = (async ()  => {
-  const eventSyncer = new Phoenix(web3.currentProvider);
+  const eventSyncer = new Subspace(web3.currentProvider);
   await eventSyncer.init();
 
   const MyContractInstance = await MyContract.getInstance();

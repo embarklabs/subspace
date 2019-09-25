@@ -1,5 +1,5 @@
 import React from "react";
-import Phoenix from "phoenix";
+import Subspace from "phoenix";
 import web3 from './web3';
 import MyContract from './MyContract';
 import { connect } from "react-redux";
@@ -13,7 +13,7 @@ class App extends React.Component {
   async componentDidMount() {
     MyContractInstance = await MyContract.getInstance();
 
-    const eventSyncer = new Phoenix(web3.currentProvider);
+    const eventSyncer = new Subspace(web3.currentProvider);
     await eventSyncer.init();
     eventSubscription = eventSyncer.trackEvent(MyContractInstance, "MyEvent", { filter: {}, fromBlock: 1 })
                                    .subscribe(this.props.myAction);
