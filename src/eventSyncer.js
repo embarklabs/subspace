@@ -12,7 +12,7 @@ class EventSyncer {
 
   track(contractInstance, eventName, filterConditionsOrCb){
     const isFilterFunction = typeof filterConditionsOrCb === 'function';
-    const eventKey = eventName + '-' + hash(isFilterFunction ? {filterConditionsOrCb} : (filterConditionsOrCb || {}));
+    const eventKey =  hash(Object.assign({address: contractInstance.options.address}, (isFilterFunction ? {filterConditionsOrCb} : (filterConditionsOrCb || {}))));
 
     let filterConditions = {fromBlock: 0, toBlock: "latest"};
     let filterConditionsCb;
@@ -142,8 +142,11 @@ class EventSyncer {
   }
       
   _parseEventCBFactory = (filterConditions, filterConditionsCb, eventKey) => (err, ev) => {
-    if(err) return;
-    
+    if(err) {
+      console.error(err);
+      return;
+    }
+        
     if (filterConditions) {
       let propsToFilter = [];
       for (let prop in filterConditions.filter) {

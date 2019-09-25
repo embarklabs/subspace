@@ -4,3 +4,4 @@ phoenix.db
 examples/
 test/
 .editorconfig
+subspace.db

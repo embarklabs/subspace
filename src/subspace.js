@@ -7,6 +7,7 @@ import Web3Eth from 'web3-eth';
 import stripHexPrefix from 'strip-hex-prefix';
 import toBN from 'number-to-bn';
 import EventSyncer from './eventSyncer';
+import LogSyncer from './logSyncer';
 
 export default class Subspace {
 
@@ -16,7 +17,7 @@ export default class Subspace {
 
     this.options = {};
     this.options.callInterval = options.callInterval || 0;
-    this.options.dbFilename = options.dbFilename || 'phoenix.db';
+    this.options.dbFilename = options.dbFilename || 'subspace.db';
     
     this.newBlocksSubscription = null;
     this.intervalTracker = null;
@@ -28,7 +29,7 @@ export default class Subspace {
       this._db = new Database(this.options.dbFilename, this.events, resolve);
       this.db = this._db.db;
       this.eventSyncer = new EventSyncer(this.web3, this.events, this._db);
-
+      this.logSyncer = new LogSyncer(this.web3, this.events, this._db);
     })
   }
 
@@ -36,6 +37,19 @@ export default class Subspace {
   trackEvent(contractInstance, eventName, filterConditionsOrCb) {
     return this.eventSyncer.track(contractInstance, eventName, filterConditionsOrCb);
   }
+
+  clearDB(collection) {
+    if(collection){
+      // TODO: delete specific collection
+    } else {
+      // TODO: delete everything
+    }
+  }
+
+  trackLogs(options) {
+    return this.logSyncer.track(options);
+  }
+
 
   _initNewBlocksSubscription() {
     if(this.newBlocksSubscription != null || this.options.callInterval !== 0) return;
