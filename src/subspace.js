@@ -4,14 +4,20 @@ import equal from 'fast-deep-equal';
 import Database  from './database.js';
 import Events from 'events';
 import Web3Eth from 'web3-eth';
+import {isAddress} from './utils';
 import stripHexPrefix from 'strip-hex-prefix';
-import toBN from 'number-to-bn';
+import {hexToDec} from 'hex2dec';
 import EventSyncer from './eventSyncer';
 import LogSyncer from './logSyncer';
 
 export default class Subspace {
 
   constructor(provider, options = {}) {
+
+    if(provider.constructor.name !== "WebsocketProvider"){
+      console.warn("subspace: it's recommended to use a websocket provider to react to new events");
+    }
+
     this.events = new Events();
     this.web3 = new Web3Eth(provider);
 
@@ -102,11 +108,11 @@ export default class Subspace {
     return sub.pipe(distinctUntilChanged((a, b) => equal(a, b)));
   }
 
-  // TODO: should save value in database?
   trackBalance(address, erc20Address) {
     const sub = new ReplaySubject();
 
-    // TODO: validate address?
+    if(!isAddress(address)) throw "invalid address"
+    if(erc20Address && !isAddress(erc20Address)) throw "invalid ERC20 contract address"
 
     let callFn;
     if(!erc20Address){
@@ -131,7 +137,7 @@ export default class Subspace {
             sub.error(err);
             return;
           }
-          sub.next(toBN(result).toString(10));
+          sub.next(hexToDec(result));
         }]);
       };
     }

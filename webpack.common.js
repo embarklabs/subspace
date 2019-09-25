@@ -15,7 +15,7 @@ const externals = {
     root: "ReactDOM"
   },
   electron: "electron",
-  // "web3-eth": "web3-eth"  TODO: uncomment to not pack web3-eth
+  "web3-eth": "web3-eth" // TODO: comment to pack web3-eth
 };
 
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
@@ -64,7 +64,8 @@ const react = {
     filename: "index.js",
     library: "subspace-react",
     libraryTarget: "umd"
-  }
+  },
+  plugins: []
 };
 
 const node = {
