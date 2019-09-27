@@ -1,5 +1,5 @@
 import React from "react";
-import Subspace from "phoenix";
+import Subspace from "@status-im/subspace";
 import web3 from './web3';
 import MyContract from './MyContract';
 import { connect } from "react-redux";

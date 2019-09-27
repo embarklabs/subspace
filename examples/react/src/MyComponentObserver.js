@@ -1,5 +1,5 @@
 import React from "react";
-import { observe } from "phoenix/react";
+import { observe } from "@status-im/subspace/react";
 
 const MyComponent = ({ eventData }) => {
   // Handle initial state when no data is available

@@ -1,5 +1,5 @@
 import React from "react";
-import Subspace from "phoenix";
+import Subspace from "@status-im/subspace";
 import { graphql } from "reactive-graphql";
 import gql from "graphql-tag";
 import { makeExecutableSchema } from "graphql-tools";

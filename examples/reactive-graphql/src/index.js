@@ -1,4 +1,4 @@
-const Subspace = require('phoenix');
+const Subspace = require('@status-im/subspace');
 const web3 = require('./web3');
 const MyContract = require('./MyContract');
 const { pluck } = require('rxjs/operators');

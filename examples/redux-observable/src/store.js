@@ -18,7 +18,7 @@ import {
   myAction
 } from "./actions";
 import web3 from "./web3";
-import Subspace from "phoenix";
+import Subspace from "@status-im/subspace";
 
 let MyContractInstance;
 let subspace;

@@ -12,9 +12,9 @@ In the parent folder, link the package with `yarn` or `npm`
 ```
 yarn link
 ```
-Then in the current folder link `subspace`, and install the packages
+Then in the current folder link `@status-im/subspace`, and install the packages
 ```
-yarn link subspace
+yarn link "@status-im/subspace"
 yarn
 ```
 

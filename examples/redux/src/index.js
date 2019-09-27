@@ -1,6 +1,6 @@
 import store from './store';
 import web3 from './web3';
-import Subspace from 'phoenix';
+import Subspace from '@status-im/subspace';
 import { myAction } from './actions';
 import MyContract from './MyContract';
 
