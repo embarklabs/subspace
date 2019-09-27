@@ -1,7 +1,7 @@
 const { makeExecutableSchema } = require("graphql-tools");
 const gql  = require( "graphql-tag");
 const graphql  = require( "reactive-graphql").graphql;
-
+const Subspace = require('../dist/node.js');
 const { map, scan, last, distinctUntilChanged, pluck } = require('rxjs/operators');
 const Web3Eth = require('web3-eth');
 const {$average} = require('../src/operators');
@@ -20,10 +20,9 @@ async function run() {
   await RatingContract.methods.doRating(1, 1).send({from: accounts[0]})
   await RatingContract.methods.doRating(1, 5).send({from: accounts[0]})
 
-  const EventSyncer = require('../src/eventSyncer.js')
-  const eventSyncer = new EventSyncer(eth.currentProvider);
+  const subspace = new Subspace(eth.currentProvider);
 
-  await eventSyncer.init()
+  await subspace.init()
 
   const typeDefs = `
   type Escrow {
@@ -38,12 +37,12 @@ async function run() {
   const resolvers = {
     Escrow: {
       averageRating: (something, params) => {
-        return eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe( $average(x => parseInt(x.rating)))
+        return subspace.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe( $average(x => parseInt(x.rating)))
       }
     },
     Query: {
       escrows: () => {
-        // return eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), $average())
+        // return subspace.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), $average())
       },
       escrow: (something, params) => {
         console.dir(something) // error object?
@@ -72,12 +71,12 @@ async function run() {
 
 
   // TODO: would be nice if trackEvent was smart enough to understand the type of returnValues and do the needed conversions
-  // eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), myscan, mymap).subscribe((v) => {
+  // subspace.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), myscan, mymap).subscribe((v) => {
 
-  // eventSyncer.trackEvent(RatingContract, 'Rating').pipe(map(x => parseInt(x.rating)), myscan, mymap).subscribe((v) => {
-  // eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => x.rating)).subscribe((v) => {
+  // subspace.trackEvent(RatingContract, 'Rating').pipe(map(x => parseInt(x.rating)), myscan, mymap).subscribe((v) => {
+  // subspace.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => x.rating)).subscribe((v) => {
 
-  // eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), myscan, mymap).subscribe((v) => {
+  // subspace.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), myscan, mymap).subscribe((v) => {
   //   console.dir("value is ")
   //   console.dir(v)
   // });
@@ -87,10 +86,10 @@ async function run() {
   //   return acc;
   // }, [])
 
-  // // eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), max, distinctUntilChanged()).subscribe((v) => {
-  // // eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), last()).subscribe((v) => {
+  // // subspace.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), max, distinctUntilChanged()).subscribe((v) => {
+  // // subspace.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), last()).subscribe((v) => {
 
-  // eventSyncer.trackEvent(RatingContract, 'Rating').pipe(map(x => parseInt(x.rating)), max, distinctUntilChanged()).subscribe((v) => {
+  // subspace.trackEvent(RatingContract, 'Rating').pipe(map(x => parseInt(x.rating)), max, distinctUntilChanged()).subscribe((v) => {
   //   console.dir("max known rating is")
   //   console.dir(v)
   // });

@@ -7,8 +7,8 @@ const gql = require("graphql-tag");
 const { graphql } = require("reactive-graphql");
 
 const run = (async ()  => {
-  const eventSyncer = new Subspace(web3.currentProvider);
-  await eventSyncer.init();
+  const subspace = new Subspace(web3.currentProvider);
+  await subspace.init();
 
   const MyContractInstance = await MyContract.getInstance();
 
@@ -31,7 +31,7 @@ const run = (async ()  => {
   const resolvers = {
     Query: {
       myEvents: () => {
-        return eventSyncer.trackEvent(MyContractInstance, 'MyEvent', {filter: {}, fromBlock: 1})
+        return subspace.trackEvent(MyContractInstance, 'MyEvent', {filter: {}, fromBlock: 1})
       }
     }
   };

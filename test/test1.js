@@ -1,6 +1,7 @@
 const { map, scan, last, distinctUntilChanged } = require('rxjs/operators');
 const Web3Eth = require('web3-eth');
 const {deployRatingContract} = require('./utils-web3');
+const Subspace = require('../dist/node.js');
 
 let eth = new Web3Eth("ws://localhost:8545");
 
@@ -26,18 +27,17 @@ async function run() {
     // console.dir(event)
   })
 
-  const EventSyncer = require('../dist/node.js');
-  const eventSyncer = new EventSyncer(eth.currentProvider);
+  const subspace = new Subspace(eth.currentProvider);
 
-  await eventSyncer.init()
+  await subspace.init()
 
   // TODO: would be nice if trackEvent was smart enough to understand the type of returnValues and do the needed conversions
-  // eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), myscan, mymap).subscribe((v) => {
+  // subspace.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), myscan, mymap).subscribe((v) => {
 
-  // eventSyncer.trackEvent(RatingContract, 'Rating').pipe(map(x => parseInt(x.rating)), myscan, mymap).subscribe((v) => {
-  // eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => x.rating)).subscribe((v) => {
+  // subspace.trackEvent(RatingContract, 'Rating').pipe(map(x => parseInt(x.rating)), myscan, mymap).subscribe((v) => {
+  // subspace.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => x.rating)).subscribe((v) => {
 
-  eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), myscan, mymap).subscribe((v) => {
+  subspace.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), myscan, mymap).subscribe((v) => {
     console.dir("value is ")
     console.dir(v)
   });
@@ -47,10 +47,10 @@ async function run() {
     return acc;
   }, [])
 
-  // eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), max, distinctUntilChanged()).subscribe((v) => {
-  // eventSyncer.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), last()).subscribe((v) => {
+  // subspace.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), max, distinctUntilChanged()).subscribe((v) => {
+  // subspace.trackEvent(RatingContract, 'Rating', ((x) => true)).pipe(map(x => parseInt(x.rating)), last()).subscribe((v) => {
 
-  eventSyncer.trackEvent(RatingContract, 'Rating').pipe(map(x => parseInt(x.rating)), max, distinctUntilChanged()).subscribe((v) => {
+  subspace.trackEvent(RatingContract, 'Rating').pipe(map(x => parseInt(x.rating)), max, distinctUntilChanged()).subscribe((v) => {
     console.dir("max known rating is")
     console.dir(v)
   });

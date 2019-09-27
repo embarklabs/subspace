@@ -13,9 +13,9 @@ class App extends React.Component {
   async componentDidMount() {
     MyContractInstance = await MyContract.getInstance();
 
-    const eventSyncer = new Subspace(web3.currentProvider);
-    await eventSyncer.init();
-    eventSubscription = eventSyncer.trackEvent(MyContractInstance, "MyEvent", { filter: {}, fromBlock: 1 })
+    const subspace = new Subspace(web3.currentProvider);
+    await subspace.init();
+    eventSubscription = subspace.trackEvent(MyContractInstance, "MyEvent", { filter: {}, fromBlock: 1 })
                                    .subscribe(this.props.myAction);
   }
 

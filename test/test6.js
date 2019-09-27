@@ -1,5 +1,6 @@
 const Web3Eth = require('web3-eth');
 const {deployRatingContract, mine} = require('./utils-web3');
+const Subspace = require('../dist/node.js');
 const ganache = require("ganache-core");
 
 console.log("The following error is emitted by ganache - https://github.com/trufflesuite/ganache-core/issues/267")
@@ -32,40 +33,38 @@ async function run() {
   await mine(eth);
   await RatingContract.methods.doRating(8, 5).send({from: accounts[0]})
   
-  const EventSyncer = require('../dist/node.js');
-  const eventSyncer = new EventSyncer(eth.currentProvider);
-
-  await eventSyncer.init()
+  const subspace = new Subspace(eth.currentProvider);
+  await subspace.init()
 
   // Testing single block with a event
-  eventSyncer.trackEvent(RatingContract, 'Rating', {fromBlock: 3, toBlock: 3}).subscribe((v) => {
+  subspace.trackEvent(RatingContract, 'Rating', {fromBlock: 3, toBlock: 3}).subscribe((v) => {
     console.log("A", v)
   });
 
   // Testing blocks that have no events in between
-  eventSyncer.trackEvent(RatingContract, 'Rating', {fromBlock: 8, toBlock: 11}).subscribe((v) => {
+  subspace.trackEvent(RatingContract, 'Rating', {fromBlock: 8, toBlock: 11}).subscribe((v) => {
     console.log("B", v)
   });
 
   // Testing blocks that begin with no events
-  eventSyncer.trackEvent(RatingContract, 'Rating', {fromBlock: 12, toBlock: 15}).subscribe((v) => {
+  subspace.trackEvent(RatingContract, 'Rating', {fromBlock: 12, toBlock: 15}).subscribe((v) => {
     console.log("C", v)
   });
 
   // Testing all blocks
-  eventSyncer.trackEvent(RatingContract, 'Rating', {}).subscribe((v) => {
+  subspace.trackEvent(RatingContract, 'Rating', {}).subscribe((v) => {
     console.log("D", v)
   });
 
   // Testing blocks that end in no events
-  eventSyncer.trackEvent(RatingContract, 'Rating', {fromBlock: 14, toBlock: 18}).subscribe((v) => {
+  subspace.trackEvent(RatingContract, 'Rating', {fromBlock: 14, toBlock: 18}).subscribe((v) => {
     console.log("E", v)
   });
 
 
   setTimeout(() => {
     // Testing if events come from the DB instead of a subscription
-    eventSyncer.trackEvent(RatingContract, 'Rating', {fromBlock: 7, toBlock: 11}).subscribe((v) => {
+    subspace.trackEvent(RatingContract, 'Rating', {fromBlock: 7, toBlock: 11}).subscribe((v) => {
       console.log("E", v)
     });
   }, 5000);

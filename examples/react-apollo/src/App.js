@@ -38,15 +38,15 @@ class App extends React.Component {
   };
 
   async componentDidMount() {
-    const eventSyncer = new Subspace(web3.currentProvider);
-    await eventSyncer.init();
+    const subspace = new Subspace(web3.currentProvider);
+    await subspace.init();
 
     MyContractInstance = await MyContract.getInstance();
 
     const resolvers = {
       Query: {
         myEvents: () => {
-          return eventSyncer.trackEvent(MyContractInstance, 'MyEvent', {filter: {}, fromBlock: 1})
+          return subspace.trackEvent(MyContractInstance, 'MyEvent', {filter: {}, fromBlock: 1})
         }
       }
     };

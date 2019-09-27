@@ -30,8 +30,8 @@ const Phoenix = require('phoenix');
 To interact with the EVM, Phoenix requires a valid websockets Web3 provider.
 
 ```js
-const eventSyncer = new Phoenix(web3.currentProvider);
-await eventSyncer.init();
+const subspace = new Phoenix(web3.currentProvider);
+await subspace.init();
 ```
 
 In addition to the provider, `Phoenix` also accepts an `options` object with settings that can change its behavior:
@@ -47,7 +47,7 @@ const contractObject = ...; // A web3.eth.Contract object initialized with an ad
 const functionName = "..."; // string containing the name of the contract's constant/view function to track.
 const functionArgs = []; // array containing the arguments of the function to track. Optional
 const callOptions = {from: web3.eth.defaultAccount}; //  Options used for calling. Only `from`, `gas` and `gasPrice` are accepted. Optional
-eventSyncer.trackProperty(contractObject, functionName, functionArgs, callOptions)
+subspace.trackProperty(contractObject, functionName, functionArgs, callOptions)
   .subscribe(value => console.dir)
 ```
 This can be used as well to track public state variables, since they implicity create a view function when they're declared public. The `functionName` would be the same as the variable name, and `functionArgs` would have a value when the type is a `mapping` or `array` (since these require an index value to query them).
@@ -61,8 +61,8 @@ const contractObject = ...; // A web3.eth.Contract object initialized with an ad
 const eventName = "..."; // string containing the name of the event to track.
 const options = { filter: { }, fromBlock: 1 }; // options used to query the events. Optional
 
-eventSyncer.trackEvent(contractObject, eventName, options)
-  .subscribe(eventData => console.dir);
+subspace.trackEvent(contractObject, eventName, options)
+        .subscribe(eventData => console.dir);
 ```
 
 
@@ -74,7 +74,7 @@ Reacts to changes in the ETH or ERC20 balance of addresses for each mined block 
 // Tracking ETH balance
 const address = "0x0001020304050607080900010203040506070809";
 
-eventSyncer
+subspace
   .trackBalance(address)
   .subscribe((balance) => {
     console.log("ETH balance is ", balance)
@@ -86,10 +86,10 @@ eventSyncer
 const address = "0x0001020304050607080900010203040506070809";
 const tokenAddress = "0x744d70fdbe2ba4cf95131626614a1763df805b9e"; // SNT Address
 
-eventSyncer.trackBalance(address, tokenAddress)
-  .subscribe((balance) => {
-    console.log("Token balance is ", balance)
-  });
+subspace.trackBalance(address, tokenAddress)
+        .subscribe((balance) => {
+          console.log("Token balance is ", balance)
+        });
 ```
 
 
@@ -100,7 +100,7 @@ Subscriptions are triggered each time an observable emits a new value. These sub
 Subscriptions can be disposed by executing the method `unsubscribe()` liberating the resource held by it:
 
 ```js
-const subscription = eventSyncer.trackBalance(address, tokenAddress).subscribe(value => { /* Do something */ });
+const subscription = subspace.trackBalance(address, tokenAddress).subscribe(value => { /* Do something */ });
 
 // ...
 
@@ -108,10 +108,10 @@ subscription.unsubscribe();
 ```
 
 #### Cleanup
-If Phoenix `eventSyncer` is not needed anymore, you need to invoke `clean()` to dispose and perform the cleanup necessary to remove the internal subscriptions and interval timers created by Phoenix during its normal execution.  Any subscription created via the tracking methods must be unsubscribed manually (in the current version).
+If Phoenix `subspace` is not needed anymore, you need to invoke `clean()` to dispose and perform the cleanup necessary to remove the internal subscriptions and interval timers created by Phoenix during its normal execution.  Any subscription created via the tracking methods must be unsubscribed manually (in the current version).
 
 ```
-eventSyncer.clean();
+subspace.clean();
 ```
 
 ## Contribution

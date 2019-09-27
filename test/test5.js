@@ -1,4 +1,5 @@
 const Web3Eth = require('web3-eth');
+const Subspace = require('../dist/node.js');
 
 let eth = new Web3Eth("ws://localhost:8545");
 
@@ -55,11 +56,10 @@ async function run() {
   console.dir(DummyERC20Token.options.address)
 
 
-  const EventSyncer = require('../dist/node.js');
-  const eventSyncer = new EventSyncer(eth.currentProvider);
+  const subspace = new Subspace(eth.currentProvider);
+  await subspace.init();
 
-  await eventSyncer.init();
-  eventSyncer.trackBalance(accounts[0], DummyERC20Token.options.address).pipe().subscribe((balance) => {
+  subspace.trackBalance(accounts[0], DummyERC20Token.options.address).pipe().subscribe((balance) => {
     console.log("balance is ", balance)
   });
 }

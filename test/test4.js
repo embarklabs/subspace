@@ -1,5 +1,6 @@
 const ganache = require("ganache-core");
 const Web3Eth = require('web3-eth');
+const Subspace = require('../dist/node.js');
 
 console.log("The following error is emitted by ganache - https://github.com/trufflesuite/ganache-core/issues/267")
 let eth = new Web3Eth(ganache.provider());
@@ -13,12 +14,11 @@ async function run() {
     await eth.sendTransaction({from: accounts[2], to: accounts[0], value: "232433434"});
   }, 2000);
 
-  const EventSyncer = require('../dist/node.js');
-  const eventSyncer = new EventSyncer(eth.currentProvider);
+  const subspace = new Subspace(eth.currentProvider);
 
-  await eventSyncer.init();
+  await subspace.init();
 
-  eventSyncer.trackBalance(accounts[0]).subscribe((balance) => {
+  subspace.trackBalance(accounts[0]).subscribe((balance) => {
     console.log("accounts[0] balance is ", balance);
   })
 

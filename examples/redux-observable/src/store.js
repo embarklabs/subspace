@@ -21,7 +21,7 @@ import web3 from "./web3";
 import Subspace from "phoenix";
 
 let MyContractInstance;
-let eventSyncer;
+let subspace;
 
 const deployContractEpic = action$ =>
   action$.pipe(
@@ -39,8 +39,8 @@ const initSubspaceEpic = action$ =>
   action$.pipe(
     ofType(INIT_SUBSPACE),
     mergeMap(() => {
-      eventSyncer = new Subspace(web3.currentProvider);
-      return eventSyncer.init();
+      subspace = new Subspace(web3.currentProvider);
+      return subspace.init();
     }),
     mapTo(subspaceReady())
   );
@@ -50,7 +50,7 @@ const trackEventEpic = action$ =>
     ofType(SUBSPACE_READY),
     mergeMap(() => {
       createDummyTransaction();
-      return eventSyncer
+      return subspace
         .trackEvent(MyContractInstance, "MyEvent", { filter: {}, fromBlock: 1 })
         .pipe(
           map(eventData => {

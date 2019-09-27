@@ -1,6 +1,7 @@
 const { makeExecutableSchema } = require("graphql-tools");
 const gql  = require( "graphql-tag");
 const graphql  = require( "reactive-graphql").graphql;
+const Subspace = require('../dist/node.js');
 
 
 const Web3Eth = require('web3-eth');
@@ -18,10 +19,9 @@ async function run() {
   await EscrowContract.methods.createEscrow(1, accounts[1], accounts[0]).send({from: accounts[0]})
   await EscrowContract.methods.createEscrow(1, accounts[0], accounts[2]).send({from: accounts[0]})
 
-  const EventSyncer = require('../src/eventSyncer.js')
-  const eventSyncer = new EventSyncer(eth.currentProvider);
+  const subspace = new Subspace(eth.currentProvider);
 
-  await eventSyncer.init()
+  await subspace.init()
 
   setInterval(async () => {
     await EscrowContract.methods.createEscrow(1, accounts[0], accounts[1]).send({from: accounts[0]})
@@ -41,7 +41,7 @@ async function run() {
 const resolvers = {
   Query: {
     escrows: () => {
-      return eventSyncer.trackEvent(EscrowContract, 'Created', { filter: { buyer: accounts[0] }, fromBlock: 1 })
+      return subspace.trackEvent(EscrowContract, 'Created', { filter: { buyer: accounts[0] }, fromBlock: 1 })
     }
   }
 };

@@ -1,5 +1,6 @@
 const { map, scan, last, distinctUntilChanged } = require('rxjs/operators');
 const Web3Eth = require('web3-eth');
+const Subspace = require('../dist/node.js');
 
 let eth = new Web3Eth("ws://localhost:8545");
 
@@ -116,12 +117,11 @@ async function run() {
     await SimpleStorageContract.methods.set(0, 300).send({ from: accounts[0] })
   }, 2000)
 
-  const EventSyncer = require('../dist/node.js');
-  const eventSyncer = new EventSyncer(eth.currentProvider);
+  const subspace = new Subspace(eth.currentProvider);
 
-  await eventSyncer.init();
+  await subspace.init();
 
-  eventSyncer.trackProperty(SimpleStorageContract, 'get', [2], {from: "0x0000000000000000000000000000000000000012"} ).pipe().subscribe((v) => {
+  subspace.trackProperty(SimpleStorageContract, 'get', [2], {from: "0x0000000000000000000000000000000000000012"} ).pipe().subscribe((v) => {
     console.dir("value is ")
     console.dir(v)
   })

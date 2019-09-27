@@ -13,13 +13,13 @@ store.subscribe(() => console.log("=====\n", store.getState()))
 const run = async () => {
   const MyContractInstance = await MyContract.getInstance(); //
 
-  const eventSyncer = new Subspace(web3.currentProvider);
-  await eventSyncer.init();
+  const subspace = new Subspace(web3.currentProvider);
+  await subspace.init();
     
-  eventSyncer.trackEvent(MyContractInstance, "MyEvent", {filter: {}, fromBlock: 1 })
-             .subscribe(eventData => {
-                store.dispatch(myAction(eventData));
-              });
+  subspace.trackEvent(MyContractInstance, "MyEvent", {filter: {}, fromBlock: 1 })
+          .subscribe(eventData => {
+            store.dispatch(myAction(eventData));
+          });
 
   // Dispatch some actions
   MyContractInstance.methods.myFunction().send({from: web3.eth.defaultAccount});
