@@ -1,6 +1,7 @@
 node_modules/
 .vscode/
 phoenix.db
+subspace.db
 TODO
 test.js
 /dist/

@@ -1,6 +1,7 @@
 node_modules/
 .vscode/
 phoenix.db
+subspace.db
 examples/
 test/
 .editorconfig
