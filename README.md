@@ -124,17 +124,10 @@ To build:
 * `yarn build`
 
 ```js
-const Subspace = require('./src/index.js');
+const Subspace = require('./dist/node.js');
 ```
 
-To build:
-
-* `yarn`
-* `yarn build`
-
-```js
-const Subspace = require('./src/index.js');
-```
+The browser version can be found at `dist/browser.js`
 
 ## License
 MIT
