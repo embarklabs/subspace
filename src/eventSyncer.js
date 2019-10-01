@@ -10,9 +10,11 @@ class EventSyncer {
     this.subscriptions = [];
   }
 
-  track(contractInstance, eventName, filterConditionsOrCb){
+  track(contractInstance, eventName, filterConditionsOrCb, gteBlockNum){
     const isFilterFunction = typeof filterConditionsOrCb === 'function';
     const eventKey =  hash(Object.assign({address: contractInstance.options.address}, (isFilterFunction ? {filterConditionsOrCb} : (filterConditionsOrCb || {}))));
+
+    this.db.deleteNewestBlocks(eventKey, gteBlockNum);
 
     let filterConditions = {fromBlock: 0, toBlock: "latest"};
     let filterConditionsCb;
@@ -29,17 +31,27 @@ class EventSyncer {
 
     contractObserver.subscribe((e) => {
       if(!e) return;
+
+      const id = hash({eventName, blockNumber: e.blockNumber, transactionIndex: e.transactionIndex, logIndex: e.logIndex});
         
       // TODO: would be nice if this was smart enough to understand the type of returnValues and do the needed conversions
       const eventData = {
-        id: hash({eventName, blockNumber: e.blockNumber, transactionIndex: e.transactionIndex, logIndex: e.logIndex}),
+        id,
         returnValues: {...e.returnValues},
         blockNumber: e.blockNumber, 
         transactionIndex: e.transactionIndex, 
-        logIndex: e.logIndex
+        logIndex: e.logIndex,
+        removed: e.removed
       }
 
-      sub.next({blockNumber: e.blockNumber, ...e.returnValues});
+      // TODO: test reorgs
+
+      sub.next(eventData);
+
+      if(e.removed){
+        this.db.deleteEvent(eventKey, id);
+        return;
+      }
 
       if (this.db.eventExists(eventKey, eventData.id)) return;
 
@@ -49,12 +61,12 @@ class EventSyncer {
     });
 
     const eth_subscribe = this._retrieveEvents(eventKey, 
-                                           eventSummary.firstKnownBlock,
-                                           eventSummary.lastKnownBlock,
-                                           filterConditions,
-                                           filterConditionsCb,
-                                           contractInstance,
-                                           eventName);
+      eventSummary.firstKnownBlock,
+      eventSummary.lastKnownBlock,
+      filterConditions,
+      filterConditionsCb,
+      contractInstance,
+      eventName);
 
     const og_subscribe = sub.subscribe;
     sub.subscribe = (next, error, complete) => {
@@ -146,7 +158,7 @@ class EventSyncer {
       console.error(err);
       return;
     }
-        
+
     if (filterConditions) {
       let propsToFilter = [];
       for (let prop in filterConditions.filter) {

@@ -117,8 +117,12 @@ class LogSyncer {
   _getPastEvents(filterConditions, eventKey) {
     const cb = this._parseEventCBFactory(filterConditions, eventKey);
     this.web3.getPastLogs(options, (err, logs) => {
+      if(err) {
+        throw new Error(err);
+      }
+      
       logs.forEach(l => {
-        cb(err, l);
+        cb(null, l);
       })
     });
   }
@@ -131,8 +135,7 @@ class LogSyncer {
       
   _parseEventCBFactory = (filterConditions, eventKey) => (err, ev) => {
     if(err) {
-      console.error(err);
-      return;
+      throw new Error(err);
     }
 
     if (filterConditions) {
