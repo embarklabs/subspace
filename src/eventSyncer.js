@@ -46,8 +46,8 @@ class EventSyncer {
 
       // TODO: test reorgs
 
-      sub.next(eventData);
-
+      sub.next({blockNumber: e.blockNumber, ...e.returnValues});	
+      
       if(e.removed){
         this.db.deleteEvent(eventKey, id);
         return;
