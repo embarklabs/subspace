@@ -1,17 +1,16 @@
-Phoenix
+Subspace
 ===
 
 ## Overview
-Phoenix is a framework agnostic JS library that embraces reactive programming with RxJS, by observing asynchronous changes in Smart Contracts, and providing methods to track and subscribe to events, changes to the state of contracts and address balances, and react to these changes and events via callbacks.
+Subspace is a framework agnostic JS library that embraces reactive programming with RxJS, by observing asynchronous changes in Smart Contracts, and providing methods to track and subscribe to events, changes to the state of contracts and address balances, and react to these changes and events via callbacks.
 
 ### Documentation
 TODO: link here
 
-
 ### Install
-Phoenix can be used in browser, node and native script environments. You can install it through `npm` or `yarn`:
+Subspace can be used in browser, node and native script environments. You can install it through `npm` or `yarn`:
 ```
-npm install --save phoenix
+npm install --save @statusim/subspace
 ```
 
 ### Usage
@@ -19,23 +18,23 @@ npm install --save phoenix
 #### Import into a dApp
 ```js
 // ESM (might require babel / browserify)
-import Phoenix from 'phoenix';  
+import Subspace from '@statusim/subspace';
 
 // CommonJS
-const Phoenix = require('phoenix'); 
+const Subspace = require('@statusim/subspace');
 ```
 
 
 ### Initializing the library
-To interact with the EVM, Phoenix requires a valid websockets Web3 provider.
+To interact with the EVM, Subspace requires a valid websockets Web3 provider.
 
 ```js
-const subspace = new Phoenix(web3.currentProvider);
+const subspace = new Subspace(web3.currentProvider);
 await subspace.init();
 ```
 
-In addition to the provider, `Phoenix` also accepts an `options` object with settings that can change its behavior:
-- `dbFilename` - Name of the database where the information will be stored (default 'phoenix.db')
+In addition to the provider, `Subspace` also accepts an `options` object with settings that can change its behavior:
+- `dbFilename` - Name of the database where the information will be stored (default 'subspace.db')
 - `callInterval` - Interval of time in milliseconds to query a contract/address to determine changes in state or balance (default: obtain data every block).
 
 ### API
@@ -108,7 +107,7 @@ subscription.unsubscribe();
 ```
 
 #### Cleanup
-If Phoenix `subspace` is not needed anymore, you need to invoke `clean()` to dispose and perform the cleanup necessary to remove the internal subscriptions and interval timers created by Phoenix during its normal execution.  Any subscription created via the tracking methods must be unsubscribed manually (in the current version).
+If Subspace `subspace` is not needed anymore, you need to invoke `clean()` to dispose and perform the cleanup necessary to remove the internal subscriptions and interval timers created by Subspace during its normal execution.  Any subscription created via the tracking methods must be unsubscribed manually (in the current version).
 
 ```
 subspace.clean();
@@ -117,7 +116,16 @@ subspace.clean();
 ## Contribution
 Thank you for considering to help out with the source code! We welcome contributions from anyone on the internet, and are grateful for even the smallest of fixes!
 
-If you'd like to contribute to Phoenix, please fork, fix, commit and send a pull request for the maintainers to review and merge into the main code base. If you wish to submit more complex changes though, please check up with the core devs first on #embark-status channel to ensure those changes are in line with the general philosophy of the project and/or get some early feedback which can make both your efforts much lighter as well as our review and merge procedures quick and simple.
+If you'd like to contribute to Subspace, please fork, fix, commit and send a pull request for the maintainers to review and merge into the main code base. If you wish to submit more complex changes though, please check up with the core devs first on #embark-status channel to ensure those changes are in line with the general philosophy of the project and/or get some early feedback which can make both your efforts much lighter as well as our review and merge procedures quick and simple.
+
+To build:
+
+* `yarn`
+* `yarn build`
+
+```js
+const Subspace = require('./src/index.js');
+```
 
 To build:
 
