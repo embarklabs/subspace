@@ -33,28 +33,21 @@ class Database {
     this.db = new loki(dbFilename, {
       autoload: true,
       autoloadCallback: () => {
-        this.databaseInitialize(cb)
+        this.databaseInitialize()
       },
       autosave: true,
       env: getENV(),
       autosaveInterval: 2000
-    })
+    });
+
     this.events = events;
   }
 
   databaseInitialize(cb) {
-    let children = this.db.getCollection('children')
-    if (!children) {
-      children = this.db.addCollection('children')
-      this.db.saveDatabase()
-    }
-
     let dbChanges = fromEvent(this.events, "updateDB")
     dbChanges.subscribe(() => {
       this.db.saveDatabase()
     })
-
-    cb();
   }
 
   getLastKnownEvent(eventKey) {
@@ -71,8 +64,8 @@ class Database {
     }
     
     return {
-      firstKnownBlock, 
-      lastKnownBlock
+      firstKnownBlock: firstKnownBlock || 0, 
+      lastKnownBlock: lastKnownBlock || 0
     };
   }
 
@@ -90,6 +83,18 @@ class Database {
   recordEvent(eventKey, values) {
     let children = this.db.getCollection(eventKey);
     children.insert(values);
+  }
+
+  deleteEvent(eventKey, eventId) {
+    const collection = this.db.getCollection(eventKey);
+    if(collection)
+    collection.chain().find({ 'id': eventId }).remove();
+  }
+
+  deleteNewestBlocks(eventKey, gteBlockNum) {
+    const collection = this.db.getCollection(eventKey);
+    if(collection)
+    collection.chain().find({ 'blockNumber': {'$gte': gteBlockNum}}).remove();
   }
 
 }

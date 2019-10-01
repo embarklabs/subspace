@@ -22,8 +22,10 @@ export default class Subspace {
     this.web3 = new Web3Eth(provider);
 
     this.options = {};
+    this.options.refreshLastNBlocks = options.refreshLastNBlocks || 12;
     this.options.callInterval = options.callInterval || 0;
     this.options.dbFilename = options.dbFilename || 'subspace.db';
+    this.latestBlockNumber = undefined;
     
     this.newBlocksSubscription = null;
     this.intervalTracker = null;
@@ -32,16 +34,21 @@ export default class Subspace {
 
   init() {
     return new Promise((resolve, reject) => {
-      this._db = new Database(this.options.dbFilename, this.events, resolve);
+      this._db = new Database(this.options.dbFilename, this.events);
       this.db = this._db.db;
       this.eventSyncer = new EventSyncer(this.web3, this.events, this._db);
       this.logSyncer = new LogSyncer(this.web3, this.events, this._db);
+
+      this.web3.getBlock('latest').then(block => {
+        this.latestBlockNumber = block.number;
+        resolve();
+      })
     })
   }
 
   // TODO: get contract abi/address instead
   trackEvent(contractInstance, eventName, filterConditionsOrCb) {
-    return this.eventSyncer.track(contractInstance, eventName, filterConditionsOrCb);
+    return this.eventSyncer.track(contractInstance, eventName, filterConditionsOrCb, this.latestBlockNumber - this.options.refreshLastNBlocks);
   }
 
   clearDB(collection) {
