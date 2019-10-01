@@ -119,5 +119,14 @@ Thank you for considering to help out with the source code! We welcome contribut
 
 If you'd like to contribute to Phoenix, please fork, fix, commit and send a pull request for the maintainers to review and merge into the main code base. If you wish to submit more complex changes though, please check up with the core devs first on #embark-status channel to ensure those changes are in line with the general philosophy of the project and/or get some early feedback which can make both your efforts much lighter as well as our review and merge procedures quick and simple.
 
+To build:
+
+* `yarn`
+* `yarn build`
+
+```js
+const Subspace = require('./src/index.js');
+```
+
 ## License
 MIT
