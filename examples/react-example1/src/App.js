@@ -22,7 +22,6 @@ class App extends React.Component {
     await subspace.init();
 
     Product = await ProductContract.getInstance();
-    console.dir(Product.options)
     const rating$ = subspace.trackEvent(Product, "Rating").pipe(map(x => parseInt(x.rating)));
 
     window.Product = Product;

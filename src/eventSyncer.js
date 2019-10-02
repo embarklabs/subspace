@@ -2,15 +2,15 @@ import { fromEvent, ReplaySubject } from 'rxjs';
 import hash from 'object-hash';
 
 class EventSyncer {
+
   constructor(web3, events, db) {
     this.events = events;
     this.web3 = web3;
     this.db = db;
-
     this.subscriptions = [];
   }
 
-  track(contractInstance, eventName, filterConditionsOrCb, gteBlockNum){
+  track(contractInstance, eventName, filterConditionsOrCb, gteBlockNum) {
     const isFilterFunction = typeof filterConditionsOrCb === 'function';
     const eventKey =  hash(Object.assign({address: contractInstance.options.address}, (isFilterFunction ? {filterConditionsOrCb} : (filterConditionsOrCb || {}))));
 
@@ -30,10 +30,10 @@ class EventSyncer {
     let contractObserver = fromEvent(this.events, eventKey)
 
     contractObserver.subscribe((e) => {
-      if(!e) return;
+      if (!e) return;
 
       const id = hash({eventName, blockNumber: e.blockNumber, transactionIndex: e.transactionIndex, logIndex: e.logIndex});
-        
+
       // TODO: would be nice if this was smart enough to understand the type of returnValues and do the needed conversions
       const eventData = {
         id,
@@ -47,8 +47,8 @@ class EventSyncer {
       // TODO: test reorgs
 
       sub.next({blockNumber: e.blockNumber, ...e.returnValues});	
-      
-      if(e.removed){
+
+      if (e.removed){
         this.db.deleteEvent(eventKey, id);
         return;
       }
@@ -83,7 +83,7 @@ class EventSyncer {
   _retrieveEvents(eventKey, firstKnownBlock, lastKnownBlock, filterConditions, filterConditionsCb, contractInstance, eventName) {
     // TODO: this should be moved to a 'smart' module
     // it should be able to do events X at the time to avoid slow downs as well as the 10k limit
-    
+
     if (firstKnownBlock == 0 || (firstKnownBlock > 0 && firstKnownBlock <= filterConditions.fromBlock)) {
       if (filterConditions.toBlock === 'latest') {
         // emit DB Events [fromBlock, lastKnownBlock]
@@ -129,7 +129,7 @@ class EventSyncer {
       }
     }
   }
-    
+
   _serveDBEvents(eventKey, firstKnownBlock, lastKnownBlock, filterConditions, filterConditionsCb) {
     const cb = this._parseEventCBFactory(filterConditions, filterConditionsCb, eventKey);
     const storedEvents = this.db.getEventsFor(eventKey).filter(x => x.blockNumber >= firstKnownBlock && x.blockNumber <= lastKnownBlock);
@@ -137,7 +137,7 @@ class EventSyncer {
       cb(null, ev);
     });
   }
-    
+
   _getPastEvents(contract, eventName, filterConditions, filterConditionsCb, eventKey) {
     const cb = this._parseEventCBFactory(filterConditions, filterConditionsCb, eventKey);
     contract.getPastEvents.apply(contract, [eventName, filterConditions, (err, events) => {
@@ -146,13 +146,13 @@ class EventSyncer {
       });
     }]);
   }
-    
+
   _subscribeToEvent(event, filterConditions, filterConditionsCb, eventKey) {
     const s = event.apply(event, [filterConditions, this._parseEventCBFactory(filterConditions, filterConditionsCb, eventKey) ]);
     this.subscriptions.push(s);
     return s;
   }
-      
+
   _parseEventCBFactory = (filterConditions, filterConditionsCb, eventKey) => (err, ev) => {
     if(err) {
       console.error(err);
