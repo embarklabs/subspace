@@ -154,7 +154,7 @@ class EventSyncer {
   }
 
   _parseEventCBFactory = (filterConditions, filterConditionsCb, eventKey) => (err, ev) => {
-    if(err) {
+    if (err) {
       console.error(err);
       return;
     }
