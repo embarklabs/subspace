@@ -10,10 +10,11 @@ class LogSyncer {
     this.subscriptions = [];
   }
 
-  track(options){
+  track(options, gteBlockNum){
     const eventKey = 'logs-' + hash(options || {});
     const filterConditions = Object.assign({fromBlock: 0, toBlock: "latest"}, options || {});
 
+    this.db.deleteNewestBlocks(eventKey, gteBlockNum);
 
     const eventSummary = this.db.getLastKnownEvent(eventKey);
     const sub = new ReplaySubject();
@@ -22,15 +23,25 @@ class LogSyncer {
     logObserver.subscribe((e) => {
       if(!e) return;
         
+      const id = hash({eventName: eventKey, blockNumber: e.blockNumber, transactionIndex: e.transactionIndex, logIndex: e.logIndex});
+
       // TODO: would be nice if this was smart enough to understand the type of returnValues and do the needed conversions
       const eventData = {
         id: hash({eventName: eventKey, blockNumber: e.blockNumber, transactionIndex: e.transactionIndex, logIndex: e.logIndex}),
         data: e.data,
         address: e.address,
-        topics: e.topics
+        topics: e.topics,
+        removed: e.removed
       }
 
+      // TODO: test reorgs
+
       sub.next({blockNumber: e.blockNumber, data: e.data, address: e.address, topics: e.topics});
+
+      if(e.removed){
+        this.db.deleteEvent(eventKey, id);
+        return;
+      }
 
       if (this.db.eventExists(eventKey, eventData.id)) return;
 
