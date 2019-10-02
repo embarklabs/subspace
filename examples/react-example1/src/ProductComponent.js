@@ -3,9 +3,9 @@ import { observe } from "@status-im/subspace/react";
 
 const ProductComponent = ({ maxRating, minRating, averageRating, title, balance }) => {
   // Handle initial state when no data is available
-  if (!maxRating && !minRating && !averageRating) {
-    return <p>No data</p>;
-  }
+  // if (!maxRating && !minRating && !averageRating) {
+    // return <p>No data</p>;
+  // }
 
   return <ul>
     <li><b>title: </b> {title}</li>

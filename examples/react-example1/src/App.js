@@ -18,12 +18,15 @@ class App extends React.Component {
   };
 
   async componentDidMount() {
-    Product = await ProductContract.getInstance(); //
-
     const subspace = new Subspace(web3.currentProvider);
     await subspace.init();
 
+    Product = await ProductContract.getInstance();
+    console.dir(Product.options)
     const rating$ = subspace.trackEvent(Product, "Rating").pipe(map(x => parseInt(x.rating)));
+
+    window.Product = Product;
+    window.web3 = web3;
 
     this.setState({
       title: subspace.trackProperty(Product, "products", [0]).pipe(map(x => x.title)),

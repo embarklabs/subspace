@@ -24,6 +24,13 @@ ganache-cli
 ```
 
 In a different session, execute
+
+```
+yarn run deploy
+```
+
+And then:
+
 ```
 yarn run start
 ```
