@@ -13,7 +13,7 @@ import LogSyncer from './logSyncer';
 export default class Subspace {
 
   constructor(provider, options = {}) {
-    if(provider.constructor.name !== "WebsocketProvider"){
+    if (provider.constructor.name !== "WebsocketProvider") {
       console.warn("subspace: it's recommended to use a websocket provider to react to new events");
     }
 
@@ -51,7 +51,7 @@ export default class Subspace {
   }
 
   clearDB(collection) {
-    if(collection){
+    if (collection){
       // TODO: delete specific collection
     } else {
       // TODO: delete everything
@@ -63,10 +63,10 @@ export default class Subspace {
   }
 
   _initNewBlocksSubscription() {
-    if(this.newBlocksSubscription != null || this.options.callInterval !== 0) return;
+    if (this.newBlocksSubscription != null || this.options.callInterval !== 0) return;
 
     this.newBlocksSubscription = this.web3.subscribe('newBlockHeaders', (err, result) => {
-      if(err) {
+      if (err) {
         sub.error(err);
         return;
       }
@@ -78,7 +78,7 @@ export default class Subspace {
   }
 
   _initCallInterval() {
-    if(this.intervalTracker != null || this.options.callInterval === 0) return;
+    if (this.intervalTracker != null || this.options.callInterval === 0) return;
 
     this.intervalTracker = setInterval(() => {
       this.callables.forEach(fn => {
@@ -94,7 +94,7 @@ export default class Subspace {
     const method = contractInstance.methods[propName].apply(contractInstance.methods[propName], methodArgs)
     const callContractMethod = () => {
       method.call.apply(method.call, [callArgs, (err, result) => {
-        if(err) {
+        if (err) {
           sub.error(err);
           return;
         }
@@ -115,11 +115,11 @@ export default class Subspace {
   trackBalance(address, erc20Address) {
     const sub = new ReplaySubject();
 
-    if(!isAddress(address)) throw "invalid address"
-    if(erc20Address && !isAddress(erc20Address)) throw "invalid ERC20 contract address"
+    if (!isAddress(address)) throw "invalid address"
+    if (erc20Address && !isAddress(erc20Address)) throw "invalid ERC20 contract address"
 
     let callFn;
-    if(!erc20Address){
+    if (!erc20Address){
       callFn = () => {
         const fn  = this.web3.getBalance;
 
@@ -137,7 +137,7 @@ export default class Subspace {
                   //  balanceOf
         const data = "0x70a08231" + "000000000000000000000000" + stripHexPrefix(erc20Address); 
         fn.apply(fn, [{to: erc20Address, data}, (err, result) => {
-          if(err) {
+          if (err) {
             sub.error(err);
             return;
           }
@@ -158,7 +158,7 @@ export default class Subspace {
 
   close(){
     clearInterval(this.intervalTracker);
-    if(this.newBlocksSubscription) this.newBlocksSubscription.unsubscribe();
+    if (this.newBlocksSubscription) this.newBlocksSubscription.unsubscribe();
     this.eventSyncer.close();
     this.intervalTracker = null;
     this.callables = [];

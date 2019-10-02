@@ -48,7 +48,7 @@ class LogSyncer {
     sub.subscribe = (next, error, complete) => {
       const s = og_subscribe.apply(sub, [next, error, complete]);
       s.add(() => { // Removing web3js subscription when rxJS unsubscribe is executed
-        if(eth_subscribe) eth_subscribe.unsubscribe();
+        if (eth_subscribe) eth_subscribe.unsubscribe();
       });
       return s;
     }
