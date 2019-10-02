@@ -13,7 +13,6 @@ import LogSyncer from './logSyncer';
 export default class Subspace {
 
   constructor(provider, options = {}) {
-
     if(provider.constructor.name !== "WebsocketProvider"){
       console.warn("subspace: it's recommended to use a websocket provider to react to new events");
     }
@@ -26,7 +25,7 @@ export default class Subspace {
     this.options.callInterval = options.callInterval || 0;
     this.options.dbFilename = options.dbFilename || 'subspace.db';
     this.latestBlockNumber = undefined;
-    
+
     this.newBlocksSubscription = null;
     this.intervalTracker = null;
     this.callables = [];
@@ -63,7 +62,6 @@ export default class Subspace {
     return this.logSyncer.track(options);
   }
 
-
   _initNewBlocksSubscription() {
     if(this.newBlocksSubscription != null || this.options.callInterval !== 0) return;
 
@@ -72,7 +70,7 @@ export default class Subspace {
         sub.error(err);
         return;
       }
-      
+
       this.callables.forEach(fn => {
         fn();
       });
@@ -87,7 +85,6 @@ export default class Subspace {
         fn();
       });
     }, this.options.callInterval);
-
   }
 
   // TODO: should save value in database?
@@ -104,12 +101,12 @@ export default class Subspace {
         sub.next(result);
       }]);
     };
-    
+
     callContractMethod();
 
     this._initNewBlocksSubscription();
     this._initCallInterval();
-    
+
     this.callables.push(callContractMethod);
 
     return sub.pipe(distinctUntilChanged((a, b) => equal(a, b)));
@@ -153,7 +150,7 @@ export default class Subspace {
 
     this._initNewBlocksSubscription();
     this._initCallInterval();
-    
+
     this.callables.push(callFn);
 
     return sub.pipe(distinctUntilChanged((a, b) => equal(a, b)));

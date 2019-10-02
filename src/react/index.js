@@ -41,11 +41,11 @@ export function observe(WrappedComponent) {
           }
         });
       }
-  
+
       componentDidMount() {
         Object.keys(this.props).forEach(this.subscribeToProp);
       }
-  
+
       componentWillUnmount() {
         this.state.subscriptions.forEach(subscription => {
           subscription.unsubscribe();
@@ -54,7 +54,7 @@ export function observe(WrappedComponent) {
 
       componentDidUpdate(prevProps) {
         Object.keys(prevProps).forEach(prop => {
-          if(!prevProps[prop] && this.props[prop]){
+          if (!prevProps[prop] && this.props[prop]){
             this.subscribeToProp(prop);
           } else if(prevProps[prop] !== this.props[prop]){
             this.unsubscribe(prop);
@@ -64,10 +64,10 @@ export function observe(WrappedComponent) {
 
         // TODO: check if prevProps and currProps are different, and unsubscribe from prevProp
       }
-  
+
       render() {
         const props = Object.keys(this.props).reduce((accum, curr) => {
-          if(!isObservable(this.props[curr])){
+          if (!isObservable(this.props[curr])){
             accum[curr] = this.props[curr];
             return accum;
           }
