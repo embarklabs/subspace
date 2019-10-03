@@ -74,6 +74,19 @@ export default class Subspace {
       return this.trackProperty(SubspaceContract, propName, methodArgs, callArgs);
     }
 
+    Object.keys(SubspaceContract.methods).forEach(methodName => {
+      const oldFunc = SubspaceContract.methods[methodName];
+
+      const _this = this;
+      const newFunc = function(){
+        const txObject = oldFunc.apply(null, arguments);
+        txObject.track = (callArgs) => _this.trackProperty(SubspaceContract, methodName, txObject.arguments, callArgs);
+        return txObject;
+      }
+
+      SubspaceContract.methods[methodName] = newFunc;
+    });
+
     SubspaceContract.trackBalance = (erc20Address) => {
       return this.trackBalance(SubspaceContract.options.address, erc20Address);
     }
