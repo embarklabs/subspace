@@ -147,10 +147,10 @@ export default class Subspace {
       };
     }
 
-    // TO FIX: this line makes everything explode
-    // It's supposed to obtain the current balance immediatly
-    // callFn();
-    
+    this.web3.getBlock('latest').then(block => {
+      callFn();
+    });
+
     this.callables.push(callFn);
 
     return sub.pipe(distinctUntilChanged((a, b) => equal(a, b)));
