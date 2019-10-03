@@ -54,8 +54,6 @@ export default class Subspace {
       throw new Error("please pass a contract instance to Subspace.contract()")
     }
 
-    console.dir(contractInstance)
-
     let address = (contractInstance.options && contractInstance.options.address) || contractInstance.address || contractInstance.deployedAddress;
     let abi = (contractInstance.options && contractInstance.options.jsonInterface) || contractInstance.abi || contractInstance.abiDefinition;
     let from = (contractInstance.options && contractInstance.options.from) || contractInstance.from || contractInstance.defaultAddress || this.web3.defaultAccount;
@@ -67,6 +65,10 @@ export default class Subspace {
     SubspaceContract.trackEvent = (eventName, filterConditionsOrCb) => {
       return this.trackEvent(SubspaceContract, eventName, filterConditionsOrCb);
     }
+
+    Object.keys(SubspaceContract.events).forEach(ev => {
+      SubspaceContract.events[ev].track = (filterConditionsOrCb) => this.trackEvent(SubspaceContract, ev, filterConditionsOrCb);
+    });
 
     SubspaceContract.trackProperty = (propName, methodArgs, callArgs) => {
       return this.trackProperty(SubspaceContract, propName, methodArgs, callArgs);
