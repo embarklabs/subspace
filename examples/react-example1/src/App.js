@@ -5,20 +5,20 @@ import { map } from 'rxjs/operators';
 import ProductComponent from "./ProductComponent";
 import web3 from './web3';
 import ProductContract from './MyContract';
-import { subscribe } from "graphql";
 
 let Product;
 
 class App extends React.Component {
   state = {
-    title: "",
+    userTitle: "",
+    userRating: 0,
     minRating: 0,
     maxRating: 0,
     averageRating: 0
   };
 
   async componentDidMount() {
-    const subspace = new Subspace(web3.currentProvider);
+  const subspace = new Subspace(web3.currentProvider);
     await subspace.init();
 
     Product = await ProductContract.getInstance();

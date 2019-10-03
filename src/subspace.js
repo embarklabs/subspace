@@ -40,6 +40,10 @@ export default class Subspace {
 
       this.web3.getBlock('latest').then(block => {
         this.latestBlockNumber = block.number;
+
+        this._initNewBlocksSubscription();
+        this._initCallInterval();
+
         resolve();
       })
     })
@@ -64,7 +68,7 @@ export default class Subspace {
 
   _initNewBlocksSubscription() {
     if (this.newBlocksSubscription != null || this.options.callInterval !== 0) return;
-
+   
     this.newBlocksSubscription = this.web3.subscribe('newBlockHeaders', (err, result) => {
       if (err) {
         sub.error(err);
@@ -103,9 +107,6 @@ export default class Subspace {
     };
 
     callContractMethod();
-
-    this._initNewBlocksSubscription();
-    this._initCallInterval();
 
     this.callables.push(callContractMethod);
 
@@ -146,11 +147,10 @@ export default class Subspace {
       };
     }
 
-    callFn();
-
-    this._initNewBlocksSubscription();
-    this._initCallInterval();
-
+    // TO FIX: this line makes everything explode
+    // It's supposed to obtain the current balance immediatly
+    // callFn();
+    
     this.callables.push(callFn);
 
     return sub.pipe(distinctUntilChanged((a, b) => equal(a, b)));
