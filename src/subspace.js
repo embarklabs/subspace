@@ -111,8 +111,8 @@ export default class Subspace {
     }
   }
 
-  trackLogs(options) {
-    return this.logSyncer.track(options);
+  trackLogs(options, inputsABI) {
+    return this.logSyncer.track(options, inputsABI, this.latestBlockNumber - this.options.refreshLastNBlocks);
   }
 
   _initNewBlocksSubscription() {
