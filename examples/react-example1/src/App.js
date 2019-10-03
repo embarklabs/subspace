@@ -29,7 +29,7 @@ class App extends React.Component {
     window.web3 = web3;
 
     this.setState({
-      title: Product.trackProperty("products", 0).map('title'),
+      title: Product.methods.products(0).track().map('title'),
       averageRating: rating$.pipe($average()),
       minRating: rating$.pipe($min()),
       maxRating: rating$.pipe($max()),
