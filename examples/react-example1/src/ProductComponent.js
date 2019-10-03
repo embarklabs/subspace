@@ -1,17 +1,21 @@
 import React from "react";
 import { observe } from "@status-im/subspace/react";
 
-const ProductComponent = ({ maxRating, minRating, averageRating, title, balance }) => {
+const ProductComponent = ({ maxRating, minRating, averageRating, title, balance, last5Ratings }) => {
   // Handle initial state when no data is available
   // if (!maxRating && !minRating && !averageRating) {
     // return <p>No data</p>;
   // }
+
+  console.dir("last5Ratings")
+  console.dir(last5Ratings)
 
   return <ul>
     <li><b>title: </b> {title}</li>
     <li><b>minimum rating: </b> {minRating}</li>
     <li><b>maximum rating: </b> {maxRating}</li>
     <li><b>average rating: </b> {averageRating}</li>
+    <li><b>last 5 ratings: </b> {(last5Ratings || []).join(', ')}</li>
     <li><b>balance in contract:</b> {balance}</li>
   </ul>;
 };

@@ -1,6 +1,6 @@
 import React from "react";
 import Subspace from "@status-im/subspace";
-import { $average, $max, $min } from "@status-im/subspace";
+import { $average, $max, $min, $latest } from "@status-im/subspace";
 import { map } from 'rxjs/operators';
 import ProductComponent from "./ProductComponent";
 import web3 from './web3';
@@ -32,6 +32,7 @@ class App extends React.Component {
       averageRating: rating$.pipe($average()),
       minRating: rating$.pipe($min()),
       maxRating: rating$.pipe($max()),
+      last5Ratings: rating$.pipe($latest(5)),
       balance: subspace.trackBalance(Product.options.address)
     });
   }
@@ -66,6 +67,7 @@ class App extends React.Component {
           minRating={this.state.minRating}
           averageRating={this.state.averageRating}
           balance={this.state.balance}
+          last5Ratings={this.state.last5Ratings}
         />
       </div>
     );

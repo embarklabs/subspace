@@ -71,15 +71,25 @@ export function $min(cb) {
       } else {
         currentValue = curr;
       }
-      console.dir("===========");
-      console.dir(currentValue);
-      console.dir(acc);
-      console.dir(currentValue <= acc);
-      console.dir("===========");
 
       if (currentValue < acc) return currentValue;
       return acc;
     })
+  );
+}
+
+export function $latest(num) {
+  return pipe(
+    scan((acc, curr) => {
+      let currentValue = curr;
+
+      acc.push(currentValue)
+      if (acc.length > num) {
+        acc.shift()
+      }
+
+      return acc;
+    }, [])
   );
 }
 
