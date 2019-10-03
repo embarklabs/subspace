@@ -28,7 +28,7 @@ class App extends React.Component {
     window.web3 = web3;
 
     this.setState({
-      title: subspace.trackProperty(Product, "products", [0]).pipe(map(x => x.title)),
+      title: subspace.trackProperty(Product, "products", 0).pipe(map(x => x.title)),
       averageRating: rating$.pipe($average()),
       minRating: rating$.pipe($min()),
       maxRating: rating$.pipe($max()),

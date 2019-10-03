@@ -95,6 +95,10 @@ export default class Subspace {
   trackProperty(contractInstance, propName, methodArgs = [], callArgs = {}) {
     const sub = new ReplaySubject();
 
+    if (!Array.isArray(methodArgs)) {
+      methodArgs = [methodArgs]
+    }
+
     const method = contractInstance.methods[propName].apply(contractInstance.methods[propName], methodArgs)
     const callContractMethod = () => {
       method.call.apply(method.call, [callArgs, (err, result) => {
