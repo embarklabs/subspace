@@ -38,11 +38,13 @@ class App extends React.Component {
   }
 
   rateProduct = async () => {
-    await Product.methods.rateProduct(0, this.state.userRating).send();
+    let accounts = await web3.eth.getAccounts();
+    await Product.methods.rateProduct(0, this.state.userRating).send({from: accounts[0]});
   };
 
   updateTitle = async () => {
-    await Product.methods.editProduct(0, this.state.userTitle).send();
+    let accounts = await web3.eth.getAccounts();
+    await Product.methods.editProduct(0, this.state.userTitle).send({from: accounts[0]});
   };
 
   sendFunds = async () => {
