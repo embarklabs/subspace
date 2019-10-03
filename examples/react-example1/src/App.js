@@ -22,18 +22,19 @@ class App extends React.Component {
     await subspace.init();
 
     Product = await ProductContract.getInstance();
-    const rating$ = subspace.trackEvent(Product, "Rating").map("rating").pipe(map(x => parseInt(x)));
+    Product = subspace.contract(Product)
+    const rating$ = Product.events.Rating.track().map("rating").pipe(map(x => parseInt(x)));
 
     window.Product = Product;
     window.web3 = web3;
 
     this.setState({
-      title: subspace.trackProperty(Product, "products", 0).map('title'),
+      title: Product.trackProperty("products", 0).map('title'),
       averageRating: rating$.pipe($average()),
       minRating: rating$.pipe($min()),
       maxRating: rating$.pipe($max()),
       last5Ratings: rating$.pipe($latest(5)),
-      balance: subspace.trackBalance(Product.options.address)
+      balance: Product.trackBalance()
     });
   }
 
