@@ -21,16 +21,16 @@ export function observe(WrappedComponent) {
 
         const subscription = this.props[prop].subscribe(
           value => {
-            this.setState({
+            this.setState(state => ({
               observedValues: {
-                ...this.state.observedValues,
+                ...state.observedValues,
                 [prop]: value
               }
-            });
+            }));
           },
           err => {
             // TODO: pass the error to the wrapped component
-            console.err(err);
+            console.error(err);
           }
         );
 
@@ -41,11 +41,11 @@ export function observe(WrappedComponent) {
           }
         });
       }
-  
+
       componentDidMount() {
         Object.keys(this.props).forEach(this.subscribeToProp);
       }
-  
+
       componentWillUnmount() {
         this.state.subscriptions.forEach(subscription => {
           subscription.unsubscribe();
@@ -64,7 +64,7 @@ export function observe(WrappedComponent) {
 
         // TODO: check if prevProps and currProps are different, and unsubscribe from prevProp
       }
-  
+
       render() {
         const props = Object.keys(this.props).reduce((accum, curr) => {
           if(!isObservable(this.props[curr])){
