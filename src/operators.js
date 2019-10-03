@@ -42,6 +42,57 @@ export function $average(cb) {
     );
   }
 
+export function $max(cb) {
+  return pipe(
+    scan((acc, curr) => {
+      let currentValue;
+      if (typeof cb === 'string' || cb instanceof String){
+        currentValue = curr[cb];
+      } else if(typeof cb === "function") {
+        currentValue = cb(curr);
+      } else {
+        currentValue = curr;
+      }
+
+      if (currentValue > acc) return currentValue;
+      return acc;
+    })
+  );
+}
+
+export function $min(cb) {
+  return pipe(
+    scan((acc, curr) => {
+      let currentValue;
+      if (typeof cb === 'string' || cb instanceof String){
+        currentValue = curr[cb];
+      } else if(typeof cb === "function") {
+        currentValue = cb(curr);
+      } else {
+        currentValue = curr;
+      }
+
+      if (currentValue < acc) return currentValue;
+      return acc;
+    })
+  );
+}
+
+export function $latest(num) {
+  return pipe(
+    scan((acc, curr) => {
+      let currentValue = curr;
+
+      acc.push(currentValue)
+      if (acc.length > num) {
+        acc.shift()
+      }
+
+      return acc;
+    }, [])
+  );
+}
+
 /*
 of(10, 3, 4)
   .pipe($average())

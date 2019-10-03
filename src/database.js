@@ -21,11 +21,9 @@ const getENV = function () {
     }
     return 'BROWSER';
   }
- 
+
   return 'CORDOVA';
 };
-
-
 
 class Database {
 
@@ -56,19 +54,18 @@ class Database {
     let firstKnownBlock = 0;
     let lastKnownBlock = 0;
 
-    if(collection && collection.count()){
+    if (collection && collection.count()){
       firstKnownBlock = collection.min('blockNumber');
       lastKnownBlock = collection.max('blockNumber'); 
     } else {
       this.db.addCollection(eventKey);
     }
-    
+
     return {
       firstKnownBlock: firstKnownBlock || 0, 
       lastKnownBlock: lastKnownBlock || 0
     };
   }
-
 
   getEventsFor(eventKey) {
     let children = this.db.getCollection(eventKey);

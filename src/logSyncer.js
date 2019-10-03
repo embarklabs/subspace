@@ -21,8 +21,8 @@ class LogSyncer {
     const logObserver = fromEvent(this.events, eventKey)
 
     logObserver.subscribe((e) => {
-      if(!e) return;
-        
+      if (!e) return;
+
       const id = hash({eventName: eventKey, blockNumber: e.blockNumber, transactionIndex: e.transactionIndex, logIndex: e.logIndex});
 
       // TODO: would be nice if this was smart enough to understand the type of returnValues and do the needed conversions
@@ -50,7 +50,7 @@ class LogSyncer {
       this.events.emit("updateDB");
     });
 
-    const eth_subscribe = this._retrieveEvents(eventKey, 
+    const eth_subscribe = this._retrieveEvents(eventKey,
                                            eventSummary.firstKnownBlock,
                                            eventSummary.lastKnownBlock,
                                            filterConditions
@@ -60,7 +60,7 @@ class LogSyncer {
     sub.subscribe = (next, error, complete) => {
       const s = og_subscribe.apply(sub, [next, error, complete]);
       s.add(() => { // Removing web3js subscription when rxJS unsubscribe is executed
-        if(eth_subscribe) eth_subscribe.unsubscribe();
+        if (eth_subscribe) eth_subscribe.unsubscribe();
       });
       return s;
     }
@@ -75,7 +75,7 @@ class LogSyncer {
       if (filterConditions.toBlock === 'latest') {
         // emit DB Events [fromBlock, lastKnownBlock]
         this._serveDBEvents(eventKey, filterConditions.fromBlock, lastKnownBlock, filterConditions);
-        // create a event subscription [lastKnownBlock + 1, ...] 
+        // create a event subscription [lastKnownBlock + 1, ...]
         let filters = Object.assign({}, filterConditions, { fromBlock: filterConditions.fromBlock > lastKnownBlock ? filterConditions.fromBlock : lastKnownBlock + 1 });
         return this._subscribeToEvent(filters, eventKey);
       }
@@ -116,7 +116,7 @@ class LogSyncer {
       }
     }
   }
-    
+
   _serveDBEvents(eventKey, firstKnownBlock, lastKnownBlock, filterConditions) {
     const cb = this._parseEventCBFactory(filterConditions, eventKey);
     const storedEvents = this.db.getEventsFor(eventKey).filter(x => x.blockNumber >= firstKnownBlock && x.blockNumber <= lastKnownBlock);
@@ -124,44 +124,44 @@ class LogSyncer {
       cb(null, ev);
     });
   }
-    
+
   _getPastEvents(filterConditions, eventKey) {
     const cb = this._parseEventCBFactory(filterConditions, eventKey);
     this.web3.getPastLogs(options, (err, logs) => {
       if(err) {
         throw new Error(err);
       }
-      
+
       logs.forEach(l => {
         cb(null, l);
       })
     });
   }
-    
+
   _subscribeToEvent(filterConditions, eventKey) {
     const s = this.web3.subscribe('logs', filterConditions, this._parseEventCBFactory(filterConditions, eventKey));
     this.subscriptions.push(s);
     return s;
   }
-      
+
   _parseEventCBFactory = (filterConditions, eventKey) => (err, ev) => {
-    if(err) {
+    if (err) {
       throw new Error(err);
     }
 
     if (filterConditions) {
-      if(filterConditions.address && ev.address.toLowerCase() !== filterConditions.address.toLowerCase()) return;
-      if(filterConditions.topics){
+      if (filterConditions.address && ev.address.toLowerCase() !== filterConditions.address.toLowerCase()) return;
+      if (filterConditions.topics){
         let shouldSkip = false;
         filterConditions.topics.forEach((topic, i) => {
-          if(topic != null && (!ev.topics[i] || ev.topics[i].toLowerCase() !== topic.toLowerCase())){
+          if (topic != null && (!ev.topics[i] || ev.topics[i].toLowerCase() !== topic.toLowerCase())){
             shouldSkip = true;
           }
         });
         if(shouldSkip) return;
       }
     }
-    
+
     this.events.emit(eventKey, ev);
   }
 
