@@ -147,9 +147,12 @@ export default class Subspace {
       };
     }
 
-    this.web3.getBlock('latest').then(block => {
+    // FIX ME: has issues immediatly getting the value
+    // this.web3.getBlock('latest').then(block => {
+    setTimeout(() => {
       callFn();
-    });
+    }, 500);
+    // });
 
     this.callables.push(callFn);
 
