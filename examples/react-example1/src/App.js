@@ -4,7 +4,8 @@ import { $average, $max, $min, $latest } from "@status-im/subspace";
 import { map } from 'rxjs/operators';
 import ProductComponent from "./ProductComponent";
 import web3 from './web3';
-import ProductContract from './MyContract';
+
+import {abi, address} from './contract.json'
 
 let Product;
 
@@ -21,12 +22,10 @@ class App extends React.Component {
     const subspace = new Subspace(web3.currentProvider);
     await subspace.init();
 
-    Product = await ProductContract.getInstance();
-    Product = subspace.contract(Product)
-    const rating$ = Product.events.Rating.track().map("rating").pipe(map(x => parseInt(x)));
+    // Product = subspace.contract(ContractInstance); // would also work
+    Product = subspace.contract({abi, address});
 
-    window.Product = Product;
-    window.web3 = web3;
+    const rating$ = Product.events.Rating.track().map("rating").pipe(map(x => parseInt(x)));
 
     this.setState({
       title: Product.methods.products(0).track().map('title'),
@@ -39,15 +38,18 @@ class App extends React.Component {
   }
 
   rateProduct = async () => {
-    await Product.methods.rateProduct(0, this.state.userRating).send();
+    let accounts = await web3.eth.getAccounts();
+    await Product.methods.rateProduct(0, this.state.userRating).send({from: accounts[0]});
   };
 
   updateTitle = async () => {
-    await Product.methods.editProduct(0, this.state.userTitle).send();
+    let accounts = await web3.eth.getAccounts();
+    await Product.methods.editProduct(0, this.state.userTitle).send({from: accounts[0]});
   };
 
   sendFunds = async () => {
-    await web3.eth.sendTransaction({value: this.state.contractFunds, to: Product.options.address});
+    let accounts = await web3.eth.getAccounts();
+    await web3.eth.sendTransaction({value: this.state.contractFunds, to: Product.options.address, from: accounts[0]});
   };
 
   render() {

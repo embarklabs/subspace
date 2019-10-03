@@ -61,6 +61,14 @@ export default class Subspace {
 
     const SubspaceContract = new this.web3.Contract(abi, {from, gas});
     SubspaceContract.options.address = address;
+    SubspaceContract.options.from = from;
+
+    if (!from) {
+      setTimeout(async () => {
+        const accounts = await web3.eth.getAccounts();
+        SubspaceContract.options.from = accounts[0];
+      }, 100);
+    }
 
     SubspaceContract.trackEvent = (eventName, filterConditionsOrCb) => {
       return this.trackEvent(SubspaceContract, eventName, filterConditionsOrCb);
