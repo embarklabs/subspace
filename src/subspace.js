@@ -49,6 +49,36 @@ export default class Subspace {
     })
   }
 
+  contract(contractInstance) {
+    if (!contractInstance) {
+      throw new Error("please pass a contract instance to Subspace.contract()")
+    }
+
+    console.dir(contractInstance)
+
+    let address = (contractInstance.options && contractInstance.options.address) || contractInstance.address || contractInstance.deployedAddress;
+    let abi = (contractInstance.options && contractInstance.options.jsonInterface) || contractInstance.abi || contractInstance.abiDefinition;
+    let from = (contractInstance.options && contractInstance.options.from) || contractInstance.from || contractInstance.defaultAddress || this.web3.defaultAccount;
+    let gas = (contractInstance.options && contractInstance.options.gas) || contractInstance.gas || contractInstance.gas || "800000";
+
+    const SubspaceContract = new this.web3.Contract(abi, {from, gas});
+    SubspaceContract.options.address = address;
+
+    SubspaceContract.trackEvent = (eventName, filterConditionsOrCb) => {
+      return this.trackEvent(SubspaceContract, eventName, filterConditionsOrCb);
+    }
+
+    SubspaceContract.trackProperty = (propName, methodArgs, callArgs) => {
+      return this.trackProperty(SubspaceContract, propName, methodArgs, callArgs);
+    }
+
+    SubspaceContract.trackBalance = (erc20Address) => {
+      return this.trackBalance(SubspaceContract.options.address, erc20Address);
+    }
+
+    return SubspaceContract;
+  }
+
   // TODO: get contract abi/address instead
   trackEvent(contractInstance, eventName, filterConditionsOrCb) {
     let returnSub = this.eventSyncer.track(contractInstance, eventName, filterConditionsOrCb, this.latestBlockNumber - this.options.refreshLastNBlocks);
