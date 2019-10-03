@@ -2,7 +2,9 @@ Subspace
 ===
 
 ## Overview
-Subspace is a framework agnostic JS library that embraces reactive programming with RxJS, by observing asynchronous changes in Smart Contracts, and providing methods to track and subscribe to events, changes to the state of contracts and address balances, and react to these changes and events via callbacks.
+Subspace is a framework agnostic JS library that embraces reactive programming with RxJS, by observing asynchronous changes in Smart Contracts, and providing methods to track and subscribe to events, changes to the state of contracts and address balances, and react to these changes and events via observables.
+
+Subspace also takes care of syncing under the hood, saving & loading the state in a local db.
 
 ### Documentation
 https://status-im.github.io/subspace-docs/
