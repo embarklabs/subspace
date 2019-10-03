@@ -1,5 +1,5 @@
 import { ReplaySubject } from 'rxjs';
-import { distinctUntilChanged } from 'rxjs/operators';
+import { distinctUntilChanged, map } from 'rxjs/operators';
 import equal from 'fast-deep-equal';
 import Database  from './database.js';
 import Events from 'events';
@@ -51,7 +51,24 @@ export default class Subspace {
 
   // TODO: get contract abi/address instead
   trackEvent(contractInstance, eventName, filterConditionsOrCb) {
-    return this.eventSyncer.track(contractInstance, eventName, filterConditionsOrCb, this.latestBlockNumber - this.options.refreshLastNBlocks);
+    let returnSub = this.eventSyncer.track(contractInstance, eventName, filterConditionsOrCb, this.latestBlockNumber - this.options.refreshLastNBlocks);
+
+    returnSub.map = (prop) => {
+      return returnSub.pipe(map((x) => {
+        if (typeof(prop) === "string") {
+          return x[prop];
+        }
+        if (Array.isArray(prop)) {
+          let newValues = {}
+          prop.forEach((p) => {
+            newValues[p] = x[p]
+          })
+          return newValues
+        }
+      }))
+    }
+
+    return returnSub;
   }
 
   clearDB(collection) {
@@ -95,6 +112,10 @@ export default class Subspace {
   trackProperty(contractInstance, propName, methodArgs = [], callArgs = {}) {
     const sub = new ReplaySubject();
 
+    if (!Array.isArray(methodArgs)) {
+      methodArgs = [methodArgs]
+    }
+
     const method = contractInstance.methods[propName].apply(contractInstance.methods[propName], methodArgs)
     const callContractMethod = () => {
       method.call.apply(method.call, [callArgs, (err, result) => {
@@ -110,7 +131,24 @@ export default class Subspace {
 
     this.callables.push(callContractMethod);
 
-    return sub.pipe(distinctUntilChanged((a, b) => equal(a, b)));
+    let returnSub = sub.pipe(distinctUntilChanged((a, b) => equal(a, b)));
+
+    returnSub.map = (prop) => {
+      return returnSub.pipe(map((x) => {
+        if (typeof(prop) === "string") {
+          return x[prop];
+        }
+        if (Array.isArray(prop)) {
+          let newValues = {}
+          prop.forEach((p) => {
+            newValues[p] = x[p]
+          })
+          return newValues
+        }
+      }))
+    }
+
+    return returnSub;
   }
 
   trackBalance(address, erc20Address) {
