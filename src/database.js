@@ -76,8 +76,13 @@ class Database {
   }
 
   eventExists(eventKey, eventId) {
-    let children = this.db.getCollection(eventKey);
-    return (children.find({ 'id': eventId }).length > 0);
+    let collection = this.db.getCollection(eventKey);
+    if(!collection){
+      this.db.addCollection(eventKey);
+      return false;
+    }
+
+    return (collection.find({ 'id': eventId }).length > 0);
   }
 
   recordEvent(eventKey, values) {
