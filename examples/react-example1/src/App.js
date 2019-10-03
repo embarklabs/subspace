@@ -23,7 +23,7 @@ class App extends React.Component {
 
     Product = await ProductContract.getInstance();
     Product = subspace.contract(Product)
-    const rating$ = Product.trackEvent("Rating").map("rating").pipe(map(x => parseInt(x)));
+    const rating$ = Product.events.Rating.track().map("rating").pipe(map(x => parseInt(x)));
 
     window.Product = Product;
     window.web3 = web3;
