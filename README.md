@@ -1,4 +1,4 @@
-Subspace
+![Subspace](https://raw.githubusercontent.com/status-im/subspace/master/logo.png?token=AABLEUFLVJ24SL7R6JIRXVS5T2MFI)
 ===
 
 ## Overview
