@@ -66,6 +66,10 @@ export default class Subspace {
       return this.trackEvent(SubspaceContract, eventName, filterConditionsOrCb);
     }
 
+    Object.keys(SubspaceContract.events).forEach(ev => {
+      SubspaceContract.events[ev].track = (filterConditionsOrCb) => this.trackEvent(SubspaceContract, ev, filterConditionsOrCb);
+    });
+
     SubspaceContract.trackProperty = (propName, methodArgs, callArgs) => {
       return this.trackProperty(SubspaceContract, propName, methodArgs, callArgs);
     }
