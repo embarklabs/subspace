@@ -10,7 +10,7 @@ class LogSyncer {
     this.subscriptions = [];
   }
 
-  track(options, gteBlockNum){
+  track(options, inputsABI, gteBlockNum){
     const eventKey = 'logs-' + hash(options || {});
     const filterConditions = Object.assign({fromBlock: 0, toBlock: "latest"}, options || {});
 
@@ -34,9 +34,16 @@ class LogSyncer {
         removed: e.removed
       }
 
+      const obsData = {blockNumber: e.blockNumber, data: e.data, address: e.address, topics: e.topics};
+
+      if(inputsABI){
+        eventData.returnValues = web3.eth.abi.decodeLog(inputsABI, e.data, e.topics.slice(1));
+        obsData.returnValues = eventData.returnValues;
+      }
+
       // TODO: test reorgs
 
-      sub.next({blockNumber: e.blockNumber, data: e.data, address: e.address, topics: e.topics});
+      sub.next(obsData);
 
       if(e.removed){
         this.db.deleteEvent(eventKey, id);
