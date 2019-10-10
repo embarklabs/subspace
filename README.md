@@ -4,10 +4,10 @@
 ## Overview
 Subspace is a framework agnostic JS library that embraces reactive programming with RxJS, by observing asynchronous changes in Smart Contracts, and providing methods to track and subscribe to events, changes to the state of contracts and address balances, and react to these changes and events via observables.
 
-Subspace also takes care of syncing under the hood, saving & loading the state in a local db.
+Subspace also takes care of syncing under the hood, saving & loading the state in a local database.
 
 ### Documentation
-https://status-im.github.io/subspace-docs/
+https://subspace.status.im
 
 ### Install
 Subspace can be used in browser, node and native script environments. You can install it through `npm` or `yarn`:
@@ -40,7 +40,51 @@ In addition to the provider, `Subspace` also accepts an `options` object with se
 - `callInterval` - Interval of time in milliseconds to query a contract/address to determine changes in state or balance (default: obtain data every block).
 - `refreshLastNBlocks` - Ignores last N blocks (from current block), stored in the local db and refresh them via a web3 subscription. Useful for possible reorgs (default: 12)
 
-### API
+### Contract methods
+
+#### Enhancing a contract object
+Subspace adds a `track` method to the web3 contract objects. You can obtain this functionality by passing a `web3.eth.Contract` instance, or the `abi` and `address` of your contract
+
+```js
+const myContract = subspace.contract(myWeb3ContractInstance);
+
+// OR
+
+const myContract = subspace.contract({abi, address});
+```
+
+
+#### Tracking a contract method
+You can track changes to a contract state variable, by specifying the view function and arguments to call and query the contract. `.track()` has the same signature as the `.call()` function. This will track all the changes in state using a  “constant” method without sending any transaction.
+
+
+```js
+const myObservable$ = myContract.methods.myMethodName([param1[, param2[, ...]]]).track()
+myObservable$.subscribe(console.dir)
+```
+
+#### Tracking a contract event.
+Event tracking is done by using the `.track()` method and passing any optional event filter.
+
+```js
+const myObservable$ = myContract.events.MyEvent.track([options])
+myObservable$.subscribe(console.dir)
+```
+
+#### Tracking a contract balance, and a account balance
+Track balance changes in ETH or Tokens by specifying the token address. By default it will track ETH balance.
+
+```js
+
+const myObservable$ = myContract.trackBalance([tokenAddress])
+
+or
+
+const myObservable$ = subspace.trackBalance(address, [tokenAddress])
+```
+
+
+### Low level API
 
 #### `trackProperty(contractObject, functionName [, functionArgs] [, callOptions])`
 Reacts to contract state changes by specifying the view function and arguments to call and query the contract. 
@@ -50,7 +94,7 @@ const functionName = "..."; // string containing the name of the contract's cons
 const functionArgs = []; // array containing the arguments of the function to track. Optional
 const callOptions = {from: web3.eth.defaultAccount}; //  Options used for calling. Only `from`, `gas` and `gasPrice` are accepted. Optional
 subspace.trackProperty(contractObject, functionName, functionArgs, callOptions)
-  .subscribe(value => console.dir)
+  .subscribe(console.dir)
 ```
 This can be used as well to track public state variables, since they implicity create a view function when they're declared public. The `functionName` would be the same as the variable name, and `functionArgs` would have a value when the type is a `mapping` or `array` (since these require an index value to query them).
 
