@@ -72,13 +72,13 @@ myObservable$.subscribe(console.dir)
 ```
 
 #### Tracking a contract balance, and a account balance
-Track balance changes in ETH or Tokens by specifying the token address. By default it will track ETH balance.
+Track balance changes in ETH or Tokens by optionally specifying the token address. By default it will track ETH balance.
 
 ```js
 
 const myObservable$ = myContract.trackBalance([tokenAddress])
 
-or
+// OR
 
 const myObservable$ = subspace.trackBalance(address, [tokenAddress])
 ```
