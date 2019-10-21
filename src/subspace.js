@@ -1,7 +1,8 @@
 import { ReplaySubject } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
 import equal from 'fast-deep-equal';
-import Database  from './database.js';
+import Database  from './database/database.js';
+import NullDatabase  from './database/nullDatabase.js';
 import Events from 'events';
 import Web3Eth from 'web3-eth';
 import {isAddress} from './utils';
@@ -25,6 +26,7 @@ export default class Subspace {
     this.options.callInterval = options.callInterval || 0;
     this.options.dbFilename = options.dbFilename || 'subspace.db';
     this.latestBlockNumber = undefined;
+    this.disableDatabase = options.disableDatabase;
 
     this.newBlocksSubscription = null;
     this.intervalTracker = null;
@@ -33,8 +35,11 @@ export default class Subspace {
 
   init() {
     return new Promise((resolve, reject) => {
-      this._db = new Database(this.options.dbFilename, this.events);
-      this.db = this._db.db;
+      if (this.disableDatabase === true) {
+        this._db = new NullDatabase("", this.events);
+      } else {
+        this._db = new Database(this.options.dbFilename, this.events);
+      }
       this.eventSyncer = new EventSyncer(this.web3, this.events, this._db);
       this.logSyncer = new LogSyncer(this.web3, this.events, this._db);
 
