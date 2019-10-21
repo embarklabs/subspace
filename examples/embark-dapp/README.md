@@ -1,14 +1,17 @@
 subspace - react example 
 ===
-Simple application using a react observable component to receive a stream of emitted events. This app will deploy a test contract to **Ganache**.
+Simple application using a react observable component to receive a stream of emitted events. This app will deploy a test contract to **Ganache**. This example assumes you have Embark installed
 
 ## Requirements
+- `embark` framework installed. https://embark.status.im
 - `ganache-cli`
 - `yarn` or `npm` installed.
 
 ## Install
-In the parent folder, link the package with `yarn` or `npm`
+In the parent folder, install, build and link the package with `yarn` or `npm`
 ```
+yarn
+yarn build:dev
 yarn link
 ```
 Then in the current folder link `subspace`, and install the packages
