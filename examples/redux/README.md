@@ -1,4 +1,4 @@
-subspcae - redux example 
+subspace - redux example 
 ===
 Simple application that shows how to dispatch a redux action from an observable. This app will deploy a test contract to **Ganache**.
 For using Subspace with `react` and `redux`, please check `examples/react-redux` to see a practical example
