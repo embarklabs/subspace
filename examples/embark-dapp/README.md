@@ -1,4 +1,4 @@
-subspace - react example 
+subspace - react example using Embark framework
 ===
 Simple application using a react observable component to receive a stream of emitted events. This app will deploy a test contract to **Ganache**. This example assumes you have Embark installed
 
