@@ -10,9 +10,9 @@ class EventSyncer {
     this.subscriptions = [];
   }
 
-  track(contractInstance, eventName, filterConditionsOrCb, gteBlockNum) {
+  track(contractInstance, eventName, filterConditionsOrCb, gteBlockNum, networkId) {
     const isFilterFunction = typeof filterConditionsOrCb === 'function';
-    const eventKey =  hash(Object.assign({address: contractInstance.options.address}, (isFilterFunction ? {filterConditionsOrCb} : (filterConditionsOrCb || {}))));
+    const eventKey =  hash(Object.assign({address: contractInstance.options.address, networkId}, (isFilterFunction ? {filterConditionsOrCb} : (filterConditionsOrCb || {}))));
 
     this.db.deleteNewestBlocks(eventKey, gteBlockNum);
 
