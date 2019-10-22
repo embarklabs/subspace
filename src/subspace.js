@@ -27,6 +27,7 @@ export default class Subspace {
     this.options.dbFilename = options.dbFilename || 'subspace.db';
     this.latestBlockNumber = undefined;
     this.disableDatabase = options.disableDatabase;
+    this.networkId = undefined;
 
     this.newBlocksSubscription = null;
     this.intervalTracker = null;
@@ -42,6 +43,10 @@ export default class Subspace {
       }
       this.eventSyncer = new EventSyncer(this.web3, this.events, this._db);
       this.logSyncer = new LogSyncer(this.web3, this.events, this._db);
+
+      this.web3.net.getId().then(netId => {
+        this.networkId = netId;
+      });
 
       this.web3.getBlock('latest').then(block => {
         this.latestBlockNumber = block.number;
@@ -109,7 +114,7 @@ export default class Subspace {
 
   // TODO: get contract abi/address instead
   trackEvent(contractInstance, eventName, filterConditionsOrCb) {
-    let returnSub = this.eventSyncer.track(contractInstance, eventName, filterConditionsOrCb, this.latestBlockNumber - this.options.refreshLastNBlocks);
+    let returnSub = this.eventSyncer.track(contractInstance, eventName, filterConditionsOrCb, this.latestBlockNumber - this.options.refreshLastNBlocks, this.networkId);
 
     returnSub.map = (prop) => {
       return returnSub.pipe(map((x) => {
@@ -138,7 +143,7 @@ export default class Subspace {
   }
 
   trackLogs(options, inputsABI) {
-    return this.logSyncer.track(options, inputsABI, this.latestBlockNumber - this.options.refreshLastNBlocks);
+    return this.logSyncer.track(options, inputsABI, this.latestBlockNumber - this.options.refreshLastNBlocks, this.networkId);
   }
 
   _initNewBlocksSubscription() {

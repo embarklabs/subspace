@@ -10,8 +10,8 @@ class LogSyncer {
     this.subscriptions = [];
   }
 
-  track(options, inputsABI, gteBlockNum){
-    const eventKey = 'logs-' + hash(options || {});
+  track(options, inputsABI, gteBlockNum, networkId){
+    const eventKey = 'logs-' + hash(Object.assign({networkId}, options || {}));
     const filterConditions = Object.assign({fromBlock: 0, toBlock: "latest"}, options || {});
 
     this.db.deleteNewestBlocks(eventKey, gteBlockNum);
