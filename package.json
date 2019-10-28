@@ -1,10 +1,29 @@
 {
   "name": "@status-im/subspace",
   "version": "1.1.0",
-  "description": "",
+  "description": "Library for Reactive Dapp Development with auto syncing and caching capabilities https://subspace.status.im",
   "main": "./dist/node.js",
   "browser": "./dist/browser.js",
-  "author": "",
+  "author": "Status Research & Development GMBH",
+  "authors": [
+    {
+      "name": "Iuri Matias",
+      "email": "iuri.matias@gmail.com",
+      "homepage": "https://github.com/iurimatias"
+    },
+    {
+      "name": "Richard Ramos",
+      "email": "info@richardramos.me",
+      "homepage": "https://github.com/richard-ramos"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/embark-framework/subspace.git"
+  },
+  "bugs": {
+    "url": "https://github.com/embark-framework/subspace/issues"
+  },
   "license": "MIT",
   "scripts": {
     "babel": "babel",
