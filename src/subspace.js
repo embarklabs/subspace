@@ -237,7 +237,7 @@ export default class Subspace {
       callFn = () => {
         const fn  = this.web3.call;
                   //  balanceOf
-        const data = "0x70a08231" + "000000000000000000000000" + stripHexPrefix(erc20Address); 
+        const data = "0x70a08231" + "000000000000000000000000" + stripHexPrefix(address); 
         fn.apply(fn, [{to: erc20Address, data}, (err, result) => {
           if (err) {
             sub.error(err);
