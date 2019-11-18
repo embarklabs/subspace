@@ -1,6 +1,6 @@
 {
   "name": "@status-im/subspace",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Library for Reactive Dapp Development with auto syncing and caching capabilities https://subspace.status.im",
   "homepage": "https://subspace.status.im",
   "author": "Status Research & Development GMBH",
