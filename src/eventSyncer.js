@@ -53,7 +53,7 @@ class EventSyncer {
       }
 
       // TODO: test reorgs
-
+console.log("Calling next...")
       sub.next({blockNumber: e.blockNumber, ...e.returnValues});	
 
       if (e.removed){
@@ -88,7 +88,7 @@ class EventSyncer {
   }
 
   async _scan(pollExecutionId, eventKey, lastCachedBlock, filterConditions, contractInstance, eventName) {
-    const maxBlockRange = 10000; // TODO: extract to config
+    const maxBlockRange = 500000; // TODO: extract to config
     const lastBlockNumberAtLoad = await this.web3.getBlockNumber();
 
     // If there's a toBlock with a number
@@ -98,12 +98,15 @@ class EventSyncer {
     }
     const toBlockInPast =  toBlockFilter && toBlockFilter < lastBlockNumberAtLoad;
 
-    console.log("LAST CACHED BLOCK", lastCachedBlock, filterConditions)
+    console.log("LAST CACHED BLOCK", lastCachedBlock, filterConditions, toBlockFilter)
     // Determine if data already exists and return it.
-    if(lastCachedBlock > 0 && filterConditions.fromBlock >= 0 && (toBlockFilter == 0 || toBlockFilter <= lastCachedBlock)){
+    let dbLimit = toBlockFilter > 0 ? Math.min(toBlockFilter, lastCachedBlock) : lastCachedBlock;
+    if(lastCachedBlock > 0 && filterConditions.fromBlock >= 0){
      console.log("Serving DB events")
-     this._serveDBEvents(eventKey, filterConditions.fromBlock, lastCachedBlock, filterConditions);
+     this._serveDBEvents(eventKey, filterConditions.fromBlock, dbLimit, filterConditions);
     }
+
+    
 
     // Get old events and store them in db
     await this._poll(pollExecutionId, async () => {
@@ -112,6 +115,7 @@ class EventSyncer {
         const toBlock = toBlockInPast ? Math.min(maxBlock, toBlockFilter) : maxBlock;
         const toBlockLimit = Math.min(await this.web3.getBlockNumber(), toBlock);  
         if(toBlockLimit > lastCachedBlock) {  
+          console.log("Emit");
           await this._getPastEvents(eventKey, contractInstance, eventName, filterConditions, lastCachedBlock, toBlockLimit, toBlockInPast ? toBlockFilter || 0 : 0);  
           lastCachedBlock = toBlockLimit + 1;  
         }
