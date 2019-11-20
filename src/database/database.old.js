@@ -50,12 +50,21 @@ class Database {
 
   getLastKnownEvent(eventKey) {
     const collection = this.db.getCollection(eventKey);
+
+    let firstKnownBlock = 0;
+    let lastKnownBlock = 0;
+
     if (collection && collection.count()){
-      return collection.max('blockNumber');
+      firstKnownBlock = collection.min('blockNumber');
+      lastKnownBlock = collection.max('blockNumber'); 
     } else {
       this.db.addCollection(eventKey);
     }
-    return 0;
+
+    return {
+      firstKnownBlock: firstKnownBlock || 0, 
+      lastKnownBlock: lastKnownBlock || 0
+    };
   }
 
   getEventsFor(eventKey) {
@@ -85,8 +94,6 @@ class Database {
   }
 
   deleteNewestBlocks(eventKey, gteBlockNum) {
-    if(gteBlockNum <= 0) return;
-    
     const collection = this.db.getCollection(eventKey);
     if(collection)
     collection.chain().find({ 'blockNumber': {'$gte': gteBlockNum}}).remove();

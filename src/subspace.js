@@ -114,7 +114,8 @@ export default class Subspace {
 
   // TODO: get contract abi/address instead
   trackEvent(contractInstance, eventName, filterConditionsOrCb) {
-    let returnSub = this.eventSyncer.track(contractInstance, eventName, filterConditionsOrCb, this.latestBlockNumber - this.options.refreshLastNBlocks, this.networkId);
+    let deleteFrom = this.latestBlockNumber - this.options.refreshLastNBlocks;
+    let returnSub = this.eventSyncer.track(contractInstance, eventName, filterConditionsOrCb, deleteFrom, this.networkId);
 
     returnSub.map = (prop) => {
       return returnSub.pipe(map((x) => {
