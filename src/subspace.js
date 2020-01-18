@@ -8,7 +8,7 @@ import Web3Eth from 'web3-eth';
 import {isAddress} from './utils';
 import stripHexPrefix from 'strip-hex-prefix';
 import {hexToDec} from 'hex2dec';
-import EventSyncer from './eventSyncer';
+import EventSyncer from './httpEventSyncer';
 import LogSyncer from './logSyncer';
 
 export default class Subspace {
@@ -152,7 +152,9 @@ export default class Subspace {
    
     this.newBlocksSubscription = this.web3.subscribe('newBlockHeaders', (err, result) => {
       if (err) {
-        sub.error(err);
+        if(err.message.indexOf("The current provider doesn't support subscriptions") > -1){
+          console.log("No subscriptions available...")
+        }
         return;
       }
 
