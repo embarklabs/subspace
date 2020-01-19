@@ -8,7 +8,7 @@ import Web3Eth from 'web3-eth';
 import {isAddress} from './utils';
 import stripHexPrefix from 'strip-hex-prefix';
 import {hexToDec} from 'hex2dec';
-import EventSyncer from './httpEventSyncer';
+import EventSyncer from './eventSyncer';
 import LogSyncer from './logSyncer';
 
 export default class Subspace {
@@ -16,6 +16,7 @@ export default class Subspace {
   constructor(provider, options = {}) {
     if (provider.constructor.name !== "WebsocketProvider") {
       console.warn("subspace: it's recommended to use a websocket provider to react to new events");
+      console.warn("If this provider supports websockets, use {useWebsockets: true} in subspace options");
     }
 
     this.events = new Events();
@@ -28,7 +29,8 @@ export default class Subspace {
     this.latestBlockNumber = undefined;
     this.disableDatabase = options.disableDatabase;
     this.networkId = undefined;
-
+    this.isWebsocketProvider = provider.constructor.name === "WebsocketProvider" || options.useWebsockets
+    
     this.newBlocksSubscription = null;
     this.intervalTracker = null;
     this.callables = [];
@@ -41,7 +43,7 @@ export default class Subspace {
       } else {
         this._db = new Database(this.options.dbFilename, this.events);
       }
-      this.eventSyncer = new EventSyncer(this.web3, this.events, this._db);
+      this.eventSyncer = new EventSyncer(this.web3, this.events, this._db, this.isWebsocketProvider);
       this.logSyncer = new LogSyncer(this.web3, this.events, this._db);
 
       this.web3.net.getId().then(netId => {
@@ -51,8 +53,12 @@ export default class Subspace {
       this.web3.getBlock('latest').then(block => {
         this.latestBlockNumber = block.number;
 
-        this._initNewBlocksSubscription();
-        this._initCallInterval();
+        if(this.isWebsocketProvider){
+          this._initNewBlocksSubscription();
+        } else {
+          this.options.callInterval = this.options.callInterval || 1000;
+          this._initCallInterval();
+        }
 
         resolve();
       })
@@ -144,6 +150,7 @@ export default class Subspace {
   }
 
   trackLogs(options, inputsABI) {
+    if(!this.isWebsocketProvider) console.warn("This method only works with websockets");
     return this.logSyncer.track(options, inputsABI, this.latestBlockNumber - this.options.refreshLastNBlocks, this.networkId);
   }
 
@@ -152,9 +159,7 @@ export default class Subspace {
    
     this.newBlocksSubscription = this.web3.subscribe('newBlockHeaders', (err, result) => {
       if (err) {
-        if(err.message.indexOf("The current provider doesn't support subscriptions") > -1){
-          console.log("No subscriptions available...")
-        }
+        console.error(err);
         return;
       }
 

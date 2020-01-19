@@ -58,6 +58,16 @@ class Database {
     return 0;
   }
 
+  getFirstKnownEvent(eventKey) {
+    const collection = this.db.getCollection(eventKey);
+    if (collection && collection.count()){
+      return collection.min('blockNumber');
+    } else {
+      this.db.addCollection(eventKey);
+    }
+    return 0;
+  }
+
   getEventsFor(eventKey) {
     let children = this.db.getCollection(eventKey);
     return children.find();
