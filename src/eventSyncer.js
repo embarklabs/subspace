@@ -1,36 +1,36 @@
 import { fromEvent, ReplaySubject } from 'rxjs';
 import hash from 'object-hash';
+import HttpEventScanner from './httpEventScanner';
+import WsEventScanner from './wsEventScanner';
 
 class EventSyncer {
 
-  constructor(web3, events, db) {
+  constructor(web3, events, db, isWebsocketProvider) {
     this.events = events;
     this.web3 = web3;
     this.db = db;
-    this.subscriptions = [];
+    this.isWebsocketProvider = isWebsocketProvider;
+    this.eventScanner = isWebsocketProvider ? new WsEventScanner(web3) : new HttpEventScanner(web3);
   }
 
-  track(contractInstance, eventName, filterConditionsOrCb, gteBlockNum, networkId) {
-    const isFilterFunction = typeof filterConditionsOrCb === 'function';
-    const eventKey =  hash(Object.assign({address: contractInstance.options.address, networkId}, (isFilterFunction ? {filterConditionsOrCb} : (filterConditionsOrCb || {}))));
+  track(contractInstance, eventName, filters, gteBlockNum, networkId) {
+    const eventKey =  hash(Object.assign({address: contractInstance.options.address, networkId}, (filters || {})));
 
     this.db.deleteNewestBlocks(eventKey, gteBlockNum);
 
-    let filterConditions = {fromBlock: 0, toBlock: "latest"};
-    let filterConditionsCb;
-    if (isFilterFunction) {
-      filterConditionsCb = filterConditionsOrCb;
-    } else {
-      filterConditions = Object.assign(filterConditions, filterConditionsOrCb || {});
-    }
+    let filterConditions = Object.assign({fromBlock: 0, toBlock: "latest"}, filters || {});
+    let lastKnownBlock = this.db.getLastKnownEvent(eventKey);
+    let firstKnownBlock = this.db.getFirstKnownEvent(eventKey);
 
-    let eventSummary = this.db.getLastKnownEvent(eventKey);
 
     let sub = new ReplaySubject();
     let contractObserver = fromEvent(this.events, eventKey)
 
     contractObserver.subscribe((e) => {
-      if (!e) return;
+      if (!e) {
+        sub.complete();
+        return;
+      }
 
       const id = hash({eventName, blockNumber: e.blockNumber, transactionIndex: e.transactionIndex, logIndex: e.logIndex});
 
@@ -45,7 +45,6 @@ class EventSyncer {
       }
 
       // TODO: test reorgs
-
       sub.next({blockNumber: e.blockNumber, ...e.returnValues});	
 
       if (e.removed){
@@ -60,100 +59,60 @@ class EventSyncer {
       this.events.emit("updateDB");
     });
 
-    const eth_subscribe = this._retrieveEvents(eventKey, 
-      eventSummary.firstKnownBlock,
-      eventSummary.lastKnownBlock,
-      filterConditions,
-      filterConditionsCb,
-      contractInstance,
-      eventName);
 
-    const og_subscribe = sub.subscribe;
-    sub.subscribe = (next, error, complete) => {
-      const s = og_subscribe.apply(sub, [next, error, complete]);
-      s.add(() => { // Removing web3js subscription when rxJS unsubscribe is executed
-        if(eth_subscribe) eth_subscribe.unsubscribe();
-      });
-      return s;
+    const fnDBEvents = this.serveDBEvents(eventKey);
+    const fnPastEvents = this.getPastEvents(eventKey, contractInstance, eventName, filters);
+
+    if(this.isWebsocketProvider){
+      const fnSubscribe = this.subscribeToEvent(eventKey, contractInstance, eventName);
+      const eth_subscribe = this.eventScanner.scan(fnDBEvents, fnPastEvents, fnSubscribe, firstKnownBlock, lastKnownBlock, filterConditions);
+
+      const og_subscribe = sub.subscribe;
+      sub.subscribe = async (next, error, complete) => {
+        const s = og_subscribe.apply(sub, [next, error, complete]);
+        s.add(() => { // Removing web3js subscription when rxJS unsubscribe is executed
+          eth_subscribe.then(susc => {
+            if(susc) {
+              susc.unsubscribe();
+            }
+          });
+        });
+        return s;
+      }
+    } else {
+      this.eventScanner.scan(fnDBEvents, fnPastEvents, lastKnownBlock, filterConditions);
     }
 
     return sub;
   }
 
-  _retrieveEvents(eventKey, firstKnownBlock, lastKnownBlock, filterConditions, filterConditionsCb, contractInstance, eventName) {
-    // TODO: this should be moved to a 'smart' module
-    // it should be able to do events X at the time to avoid slow downs as well as the 10k limit
+  getPastEvents = (eventKey, contractInstance, eventName, filters) => async (fromBlock, toBlock, hardLimit) => { 
+    let events = await contractInstance.getPastEvents(eventName, { ...filters, fromBlock, toBlock });  
+    const cb = this.callbackFactory(filters, eventKey);
+    
+    events.forEach(ev => cb(null, ev));
 
-    if (firstKnownBlock == 0 || (firstKnownBlock > 0 && firstKnownBlock <= filterConditions.fromBlock)) {
-      if (filterConditions.toBlock === 'latest') {
-        // emit DB Events [fromBlock, lastKnownBlock]
-        this._serveDBEvents(eventKey, filterConditions.fromBlock, lastKnownBlock, filterConditions, filterConditionsCb);
-        // create a event subscription [lastKnownBlock + 1, ...] 
-        let filters = Object.assign({}, filterConditions, { fromBlock: filterConditions.fromBlock > lastKnownBlock ? filterConditions.fromBlock : lastKnownBlock + 1 });
-        return this._subscribeToEvent(contractInstance.events[eventName], filters, filterConditionsCb, eventKey);
-      }
-      else if (filterConditions.toBlock <= lastKnownBlock) {
-        // emit DB Events [fromBlock, toBlock]
-        this._serveDBEvents(eventKey, filterConditions.fromBlock, filterConditions.toBlock, filterConditions, filterConditionsCb);
-      }
-      else {
-        // emit DB Events [fromBlock, lastKnownBlock]
-        this._serveDBEvents(eventKey, filterConditions.fromBlock, lastKnownBlock, filterConditions, filterConditionsCb);
-        // create a past event subscription [lastKnownBlock + 1, toBlock]
-        let filters = Object.assign({}, filterConditions, { fromBlock: filterConditions.fromBlock > lastKnownBlock ? filterConditions.fromBlock : lastKnownBlock + 1 });
-        this._getPastEvents(contractInstance, eventName, filters, filterConditionsCb, eventKey);
-      }
-    }
-    else if (firstKnownBlock > 0) {
-      // create a past event subscription [ firstKnownBlock > fromBlock ? fromBlock : 0, firstKnownBlock - 1]
-      let fromBlock = firstKnownBlock > filterConditions.fromBlock ? filterConditions.fromBlock : 0;
-      let filters = Object.assign({}, filterConditions, { fromBlock, toBlock: firstKnownBlock - 1 });
-      this._getPastEvents(contractInstance, eventName, filters, filterConditionsCb, eventKey);
-      if (filterConditions.toBlock === 'latest') {
-        // emit DB Events [firstKnownBlock, lastKnownBlock]
-        this._serveDBEvents(eventKey, firstKnownBlock, lastKnownBlock, filterConditions, filterConditionsCb);
-        // create a subscription [lastKnownBlock + 1, ...]
-        const filters = Object.assign({}, filterConditions, { fromBlock: lastKnownBlock + 1 });
-        return this._subscribeToEvent(contractInstance.events[eventName], filters, filterConditionsCb, eventKey);
-      }
-      else if (filterConditions.toBlock <= lastKnownBlock) {
-        // emit DB Events [fromBlock, toBlock]
-        this._serveDBEvents(eventKey, filterConditions.fromBlock, filterConditions.toBlock, filterConditions, filterConditionsCb);
-      }
-      else {
-        // emit DB Events [fromBlock, lastKnownBlock]
-        this._serveDBEvents(eventKey, filterConditions.fromBlock, lastKnownBlock, filterConditions, filterConditionsCb);
-        // create a past event subscription [lastKnownBlock + 1, toBlock]
-        let filters = Object.assign({}, filterConditions, { fromBlock: lastKnownBlock + 1, toBlock: filterConditions.toBlock });
-        this._getPastEvents(contractInstance, eventName, filters, filterConditionsCb, eventKey);
-      }
+    if(hardLimit && toBlock === hardLimit){ // Complete the observable
+      this.events.emit(eventKey);
     }
   }
 
-  _serveDBEvents(eventKey, firstKnownBlock, lastKnownBlock, filterConditions, filterConditionsCb) {
-    const cb = this._parseEventCBFactory(filterConditions, filterConditionsCb, eventKey);
-    const storedEvents = this.db.getEventsFor(eventKey).filter(x => x.blockNumber >= firstKnownBlock && x.blockNumber <= lastKnownBlock);
+  serveDBEvents = eventKey => (filters, toBlock, fromBlock = null) => {
+    const cb = this.callbackFactory(filters, eventKey);
+    const storedEvents = this.db.getEventsFor(eventKey).filter(x => x.blockNumber >= (fromBlock || filters.fromBlock) && x.blockNumber <= toBlock);
     storedEvents.forEach(ev => {
       cb(null, ev);
     });
   }
 
-  _getPastEvents(contract, eventName, filterConditions, filterConditionsCb, eventKey) {
-    const cb = this._parseEventCBFactory(filterConditions, filterConditionsCb, eventKey);
-    contract.getPastEvents.apply(contract, [eventName, filterConditions, (err, events) => {
-      events.forEach(ev => {
-        cb(err, ev);
-      });
-    }]);
-  }
-
-  _subscribeToEvent(event, filterConditions, filterConditionsCb, eventKey) {
-    const s = event.apply(event, [filterConditions, this._parseEventCBFactory(filterConditions, filterConditionsCb, eventKey) ]);
-    this.subscriptions.push(s);
+  subscribeToEvent = (eventKey, contractInstance, eventName) => (subscriptions, filters) => {
+    const cb = this.callbackFactory(filters, eventKey);
+    const s = contractInstance.events[eventName](filters, cb);
+    subscriptions.push(s);
     return s;
   }
 
-  _parseEventCBFactory = (filterConditions, filterConditionsCb, eventKey) => (err, ev) => {
+  callbackFactory = (filterConditions, eventKey) => (err, ev) => {
     if (err) {
       console.error(err);
       return;
@@ -170,16 +129,12 @@ class EventSyncer {
         if (filterConditions.filter[prop] !== ev.returnValues[prop]) return;
       }
     }
-    else if (filterConditionsCb && !filterConditionsCb(ev.returnValues)) {
-      return;
-    }
+
     this.events.emit(eventKey, ev);
   }
 
   close(){
-    this.subscriptions.forEach(x => {
-      x.unsubscribe();
-    })
+    this.eventScanner.close();
   }
 }
 

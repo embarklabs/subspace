@@ -16,6 +16,7 @@ export default class Subspace {
   constructor(provider, options = {}) {
     if (provider.constructor.name !== "WebsocketProvider") {
       console.warn("subspace: it's recommended to use a websocket provider to react to new events");
+      console.warn("If this provider supports websockets, use {useWebsockets: true} in subspace options");
     }
 
     this.events = new Events();
@@ -28,7 +29,8 @@ export default class Subspace {
     this.latestBlockNumber = undefined;
     this.disableDatabase = options.disableDatabase;
     this.networkId = undefined;
-
+    this.isWebsocketProvider = provider.constructor.name === "WebsocketProvider" || options.useWebsockets
+    
     this.newBlocksSubscription = null;
     this.intervalTracker = null;
     this.callables = [];
@@ -41,7 +43,7 @@ export default class Subspace {
       } else {
         this._db = new Database(this.options.dbFilename, this.events);
       }
-      this.eventSyncer = new EventSyncer(this.web3, this.events, this._db);
+      this.eventSyncer = new EventSyncer(this.web3, this.events, this._db, this.isWebsocketProvider);
       this.logSyncer = new LogSyncer(this.web3, this.events, this._db);
 
       this.web3.net.getId().then(netId => {
@@ -51,8 +53,12 @@ export default class Subspace {
       this.web3.getBlock('latest').then(block => {
         this.latestBlockNumber = block.number;
 
-        this._initNewBlocksSubscription();
-        this._initCallInterval();
+        if(this.isWebsocketProvider){
+          this._initNewBlocksSubscription();
+        } else {
+          this.options.callInterval = this.options.callInterval || 1000;
+          this._initCallInterval();
+        }
 
         resolve();
       })
@@ -114,7 +120,8 @@ export default class Subspace {
 
   // TODO: get contract abi/address instead
   trackEvent(contractInstance, eventName, filterConditionsOrCb) {
-    let returnSub = this.eventSyncer.track(contractInstance, eventName, filterConditionsOrCb, this.latestBlockNumber - this.options.refreshLastNBlocks, this.networkId);
+    let deleteFrom = this.latestBlockNumber - this.options.refreshLastNBlocks;
+    let returnSub = this.eventSyncer.track(contractInstance, eventName, filterConditionsOrCb, deleteFrom, this.networkId);
 
     returnSub.map = (prop) => {
       return returnSub.pipe(map((x) => {
@@ -143,6 +150,7 @@ export default class Subspace {
   }
 
   trackLogs(options, inputsABI) {
+    if(!this.isWebsocketProvider) console.warn("This method only works with websockets");
     return this.logSyncer.track(options, inputsABI, this.latestBlockNumber - this.options.refreshLastNBlocks, this.networkId);
   }
 
@@ -151,7 +159,7 @@ export default class Subspace {
    
     this.newBlocksSubscription = this.web3.subscribe('newBlockHeaders', (err, result) => {
       if (err) {
-        sub.error(err);
+        console.error(err);
         return;
       }
 
