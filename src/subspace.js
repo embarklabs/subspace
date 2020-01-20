@@ -14,9 +14,9 @@ import LogSyncer from './logSyncer';
 export default class Subspace {
 
   constructor(provider, options = {}) {
-    if (provider.constructor.name !== "WebsocketProvider") {
-      console.warn("subspace: it's recommended to use a websocket provider to react to new events");
-      console.warn("If this provider supports websockets, use {useWebsockets: true} in subspace options");
+    if (!!provider.on) {
+      // https://github.com/ethereum/web3.js/blob/1.x/packages/web3-core-subscriptions/src/subscription.js#L205
+      console.warn("subspace: the current provider doesn't support subscriptions. Falling back to http polling");
     }
 
     this.events = new Events();
@@ -29,8 +29,8 @@ export default class Subspace {
     this.latestBlockNumber = undefined;
     this.disableDatabase = options.disableDatabase;
     this.networkId = undefined;
-    this.isWebsocketProvider = provider.constructor.name === "WebsocketProvider" || options.useWebsockets
-    
+    this.isWebsocketProvider = options.usePolling ? false : !!provider.on;
+
     this.newBlocksSubscription = null;
     this.intervalTracker = null;
     this.callables = [];
