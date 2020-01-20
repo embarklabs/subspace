@@ -29,7 +29,7 @@ export default class Subspace {
     this.latestBlockNumber = undefined;
     this.disableDatabase = options.disableDatabase;
     this.networkId = undefined;
-    this.isWebsocketProvider = options.usePolling ? false : !!provider.on;
+    this.isWebsocketProvider = options.disableSubscriptions ? false : !!provider.on;
 
     this.newBlocksSubscription = null;
     this.intervalTracker = null;
