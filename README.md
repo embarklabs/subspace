@@ -12,7 +12,7 @@ https://subspace.status.im
 ### Install
 Subspace can be used in browser, node and native script environments. You can install it through `npm` or `yarn`:
 ```
-npm install --save @status-im/subspace
+npm install --save @embarklabs/subspace
 ```
 
 ### Usage
@@ -20,10 +20,10 @@ npm install --save @status-im/subspace
 #### Import into a dApp
 ```js
 // ESM (might require babel / browserify)
-import Subspace from '@status-im/subspace';
+import Subspace from '@embarklabs/subspace';
 
 // CommonJS
-const Subspace = require('@status-im/subspace');
+const Subspace = require('@embarklabs/subspace');
 ```
 
 

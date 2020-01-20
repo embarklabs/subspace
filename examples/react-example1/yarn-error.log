@@ -14,7 +14,7 @@ Platform:
   darwin x64
 
 Trace: 
-  Error: ENOTDIR: not a directory, scandir '/Users/iurimatias/Library/Caches/Yarn/v4/npm-@status-im-subspace-0.0.0-adae9934-27b8-41cc-a08a-37b4f84b2993-1569959669243/node_modules/@status-im/subspace'
+  Error: ENOTDIR: not a directory, scandir '/Users/iurimatias/Library/Caches/Yarn/v4/npm-@embarklabs-subspace-0.0.0-adae9934-27b8-41cc-a08a-37b4f84b2993-1569959669243/node_modules/@embarklabs/subspace'
 
 npm manifest: 
   {
@@ -25,7 +25,7 @@ npm manifest:
       "react": "^16.9.0",
       "react-dom": "^16.9.0",
       "react-scripts": "3.1.1",
-      "@status-im/subspace": "../../dist/node.js",
+      "@embarklabs/subspace": "../../dist/node.js",
       "rxjs": "^6.5.2",
       "web3": "^1.0.0-beta.37"
     },

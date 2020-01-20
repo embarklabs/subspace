@@ -1,7 +1,7 @@
 /* global web3 */
 import React from 'react';
 import EmbarkJS from 'Embark/EmbarkJS';
-import Subspace from '@status-im/subspace';
+import Subspace from '@embarklabs/subspace';
 import Ranking from '../embarkArtifacts/contracts/Ranking';
 import { scan, map } from 'rxjs/operators';
 import RankItem from './RankItem';

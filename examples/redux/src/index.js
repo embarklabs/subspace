@@ -1,6 +1,6 @@
 import store from './store';
 import web3 from './web3';
-import Subspace from '@status-im/subspace';
+import Subspace from '@embarklabs/subspace';
 import { myAction } from './actions';
 import MyContract from './MyContract';
 

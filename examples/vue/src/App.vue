@@ -7,7 +7,7 @@
 
 <script>
 import MyComponent from './components/MyComponent.vue'
-import Subspace from "@status-im/subspace";
+import Subspace from "@embarklabs/subspace";
 import web3 from './web3';
 import MyContract from './MyContract';
 

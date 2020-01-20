@@ -1,5 +1,5 @@
 {
-  "name": "@status-im/subspace",
+  "name": "@embarklabs/subspace",
   "version": "1.1.1",
   "description": "Library for Reactive Dapp Development with auto syncing and caching capabilities https://subspace.status.im",
   "homepage": "https://subspace.status.im",

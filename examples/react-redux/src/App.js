@@ -1,5 +1,5 @@
 import React from "react";
-import Subspace from "@status-im/subspace";
+import Subspace from "@embarklabs/subspace";
 import web3 from './web3';
 import MyContract from './MyContract';
 import { connect } from "react-redux";
