@@ -81,7 +81,7 @@ export default class Subspace {
 
     if (!from) {
       setTimeout(async () => {
-        const accounts = await web3.eth.getAccounts();
+        const accounts = await this.web3.getAccounts();
         SubspaceContract.options.from = accounts[0];
       }, 100);
     }
@@ -91,6 +91,7 @@ export default class Subspace {
     }
 
     Object.keys(SubspaceContract.events).forEach(ev => {
+      if(!SubspaceContract.options.jsonInterface.find(x => x.type === 'event' && x.name == ev)) return;
       SubspaceContract.events[ev].track = (filterConditionsOrCb) => this.trackEvent(SubspaceContract, ev, filterConditionsOrCb);
     });
 
