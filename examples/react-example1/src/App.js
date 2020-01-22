@@ -1,6 +1,6 @@
 import React from "react";
-import Subspace from "@status-im/subspace";
-import { $average, $max, $min, $latest } from "@status-im/subspace";
+import Subspace from "@embarklabs/subspace";
+import { $average, $max, $min, $latest } from "@embarklabs/subspace";
 import { map } from 'rxjs/operators';
 import ProductComponent from "./ProductComponent";
 import web3 from './web3';

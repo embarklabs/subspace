@@ -11,7 +11,7 @@
   "devDependencies": {},
   "dependencies": {
     "embark": "^4.1.0",
-    "@status-im/subspace": "../..",
+    "@embarklabs/subspace": "../..",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "rxjs": "^6.5.2",

@@ -3,7 +3,7 @@ const Web3Eth = require('web3-eth');
 const {deployRatingContract} = require('./utils-web3');
 const Subspace = require('../dist/node.js');
 
-let eth = new Web3Eth("ws://localhost:8545");
+let eth = new Web3Eth("http://localhost:8545");
 
 let myscan = scan((acc, curr) => {
   acc.push(curr);
