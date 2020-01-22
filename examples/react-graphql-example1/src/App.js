@@ -1,6 +1,6 @@
 import React from "react";
 import Subspace from "@status-im/subspace";
-import { $average, $latest } from "@status-im/subspace";
+import { $average, $latest } from "@embarklabs/subspace";
 import { makeExecutableSchema } from "graphql-tools";
 import { graphql } from "reactive-graphql";
 import { map, scan } from "rxjs/operators";

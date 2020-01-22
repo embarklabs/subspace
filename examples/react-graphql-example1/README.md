@@ -14,9 +14,9 @@ yarn
 yarn build:dev
 yarn link
 ```
-Then in the current folder link `@status-im/subspace`, and install the packages
+Then in the current folder link `@embarklabs/subspace`, and install the packages
 ```
-yarn link "@status-im/subspace"
+yarn link "@embarklabs/subspace"
 yarn
 ```
 
