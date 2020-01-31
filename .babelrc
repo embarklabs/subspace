@@ -1,4 +1,55 @@
 {
-  "plugins": ["@babel/transform-runtime", "@babel/plugin-proposal-class-properties"],
-  "presets": ["@babel/preset-env"]
+  "env": {
+    "development": {
+      "presets": [
+        [
+          "@babel/preset-env",
+          {
+            "targets": {
+              "node": "10"
+            }
+          }
+        ]
+      ],
+      "plugins": [
+        "@babel/transform-runtime",
+        "@babel/plugin-proposal-class-properties"
+      ]
+    },
+    "browser": {
+      "presets": [
+        [
+          "@babel/preset-env",
+          {
+            "targets": {
+              "browsers": "> 1%"
+            },
+            "modules": false
+          }
+        ]
+      ],
+      "plugins": [
+        "@babel/transform-runtime",
+        "@babel/plugin-proposal-class-properties"
+      ]
+    },
+    "module": {
+      "presets": [
+        [
+          "@babel/preset-env",
+          {
+            "targets": {
+              "node": "10"
+            },
+            "modules": false
+          }
+        ]
+      ],
+      "plugins": [
+        "@babel/transform-runtime",
+        "@babel/plugin-proposal-class-properties"
+      ]
+    }
+  },
+  "sourceMaps": true
 }

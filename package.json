@@ -24,18 +24,16 @@
     "url": "https://github.com/embark-framework/subspace/issues"
   },
   "license": "MIT",
-  "main": "./dist/node.js",
-  "browser": "./dist/browser.js",
+  "main": "./dist/index.js",
+  "browser": "./lib/index.js",
+  "module": "./module/index.js",
   "scripts": {
-    "babel": "babel",
-    "babel:node": "npm-run-all babel:node:*",
-    "babel:node:src": "cross-env BABEL_ENV=node babel src --copy-files --extensions \".js\" --out-dir dist",
-    "webpack:dev": "webpack --config webpack.dev.js",
-    "webpack:prod": "webpack --config webpack.prod.js",
-    "build:dev": "npm-run-all clean webpack:dev",
-    "build:prod": "npm-run-all clean webpack:prod",
-    "build": "npm-run-all build:dev",
-    "clean": "rimraf dist; rimraf react"
+    "clean": "rimraf dist; rimraf lib; rimraf module; rimraf react;",
+    "build:browser": "cross-env BABEL_ENV=browser babel ./src --out-dir ./lib --source-maps --copy-files --ignore src/react/*",
+    "build:react": "cross-env BABEL_ENV=browser babel ./src/react --out-dir ./react --source-maps --copy-files",
+    "build:module": "cross-env BABEL_ENV=module babel ./src --out-dir ./module --source-maps --copy-files",
+    "build:node": "babel ./src --out-dir ./dist --source-maps --copy-files",
+    "build": "npm-run-all clean build:*"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.5",
@@ -44,17 +42,11 @@
     "@babel/plugin-transform-runtime": "^7.6.2",
     "@babel/preset-env": "^7.1.6",
     "@babel/runtime": "^7.7.2",
-    "add-module-exports-webpack-plugin": "^1.0.0",
     "babel-loader": "^8.0.4",
     "cross-env": "^5.2.0",
     "ganache-core": "^2.7.0",
     "npm-run-all": "^4.1.5",
-    "rimraf": "^2.6.2",
-    "webpack": "4.39.1",
-    "webpack-bundle-analyzer": "^3.4.1",
-    "webpack-cli": "^3.3.6",
-    "webpack-merge": "^4.2.1",
-    "webpack-node-externals": "^1.7.2"
+    "rimraf": "^2.6.2"
   },
   "dependencies": {
     "fast-deep-equal": "^2.0.1",
@@ -64,7 +56,7 @@
     "rxjs": "^6.5.2",
     "web3-eth": "^1.2.1"
   },
-  "optionalDependencies": {
+  "peerDependencies": {
     "graphql": "^14.4.2",
     "graphql-tag": "^2.10.1",
     "graphql-tools": "^4.0.5",
