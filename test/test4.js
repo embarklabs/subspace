@@ -1,6 +1,6 @@
 const ganache = require("ganache-core");
 const Web3Eth = require('web3-eth');
-const Subspace = require('../dist/node.js');
+const Subspace = require('../dist/index.js').default;
 
 console.log("The following error is emitted by ganache - https://github.com/trufflesuite/ganache-core/issues/267")
 let eth = new Web3Eth(ganache.provider());
