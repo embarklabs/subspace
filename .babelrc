@@ -6,7 +6,7 @@
           "@babel/preset-env",
           {
             "targets": {
-              "node": "10"
+              "node": "current"
             }
           }
         ]
@@ -39,7 +39,7 @@
           "@babel/preset-env",
           {
             "targets": {
-              "node": "10"
+              "node": "current"
             },
             "modules": false
           }
