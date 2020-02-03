@@ -1,8 +1,7 @@
 const { map, scan, last, distinctUntilChanged } = require('rxjs/operators');
 const Web3Eth = require('web3-eth');
 const {deployRatingContract} = require('./utils-web3');
-const Subspace = require('../dist/node.js');
-
+const Subspace = require('../dist/index.js').default;
 let eth = new Web3Eth("http://localhost:8545");
 
 let myscan = scan((acc, curr) => {

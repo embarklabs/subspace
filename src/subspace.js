@@ -14,7 +14,7 @@ import LogSyncer from './logSyncer';
 export default class Subspace {
 
   constructor(provider, options = {}) {
-    if (!!provider.on) {
+    if (!provider.on) {
       // https://github.com/ethereum/web3.js/blob/1.x/packages/web3-core-subscriptions/src/subscription.js#L205
       console.warn("subspace: the current provider doesn't support subscriptions. Falling back to http polling");
     }

@@ -1,5 +1,5 @@
 const Web3Eth = require('web3-eth');
-const Subspace = require('../dist/node.js');
+const Subspace = require('../dist/index.js').default;
 
 let eth = new Web3Eth("wss://mainnet.infura.io/ws/v3/_____________");
 

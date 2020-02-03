@@ -6,4 +6,6 @@ TODO
 test.js
 /dist/
 /react/
+/lib/
+/module/
 /examples/react-example1/src/contract.json

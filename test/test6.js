@@ -1,6 +1,6 @@
 const Web3Eth = require('web3-eth');
 const {deployRatingContract, mine} = require('./utils-web3');
-const Subspace = require('../dist/node.js');
+const Subspace = require('../dist/index.js').default;
 const ganache = require("ganache-core");
 
 console.log("The following error is emitted by ganache - https://github.com/trufflesuite/ganache-core/issues/267")

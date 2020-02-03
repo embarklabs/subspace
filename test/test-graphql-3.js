@@ -1,7 +1,7 @@
 const { makeExecutableSchema } = require("graphql-tools");
 const gql  = require( "graphql-tag");
 const graphql  = require( "reactive-graphql").graphql;
-const Subspace = require('../dist/node.js');
+const Subspace = require('../dist/index.js').default;
 const { map, scan, last, distinctUntilChanged, pluck } = require('rxjs/operators');
 const Web3Eth = require('web3-eth');
 const {$average} = require('../src/operators');
