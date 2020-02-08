@@ -67,11 +67,15 @@ this.blockTimeObservable = null;
       const block = await this.web3.getBlock('latest');
       const gasPrice = await this.web3.getGasPrice();
 
+      // Preload <= 10 blocks to calculate avg block time
       if(block.number !== 0){
-        const prevBlock = await this.web3.getBlock(block.number - 1);
-        this.latest10Blocks.push(prevBlock);
-      }
+        const minBlock = Math.max(0, block.number - 9);
+        for(let i = minBlock; i < block.number; i++){
+          this.latest10Blocks.push(this.web3.getBlock(i));
+        }
 
+        this.latest10Blocks = await Promise.all(this.latest10Blocks);
+      }
 
       // TODO: part of manager
       this.latestBlockNumber = block.number;
@@ -296,7 +300,7 @@ this.blockTimeObservable = null;
         let time = this.latest10Blocks[i].timestamp - this.latest10Blocks[i - 1].timestamp;
         times.push(time)
       }
-      const average = Math.round(times.reduce((a, b) => a + b) / times.length)
+      const average = times.length ? Math.round(times.reduce((a, b) => a + b) / times.length) * 1000 : 0;
       subject.next(average);
     };
     return this._addDistinctCallable('blockTimeObservable', avgTimeCB, BehaviorSubject, 123456);
