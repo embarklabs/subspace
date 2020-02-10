@@ -1,4 +1,4 @@
-import { ReplaySubject } from 'rxjs';
+import { ReplaySubject, BehaviorSubject } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
 import equal from 'fast-deep-equal';
 import Database  from './database/database.js';
@@ -26,10 +26,23 @@ export default class Subspace {
     this.options.refreshLastNBlocks = options.refreshLastNBlocks || 12;
     this.options.callInterval = options.callInterval || 0;
     this.options.dbFilename = options.dbFilename || 'subspace.db';
-    this.latestBlockNumber = undefined;
     this.disableDatabase = options.disableDatabase;
     this.networkId = undefined;
     this.isWebsocketProvider = options.disableSubscriptions ? false : !!provider.on;
+
+
+// TODO: part of manager
+this.latestBlockNumber = undefined;
+this.latestGasPrice = undefined;
+this.latestBlock = undefined;
+this.latest10Blocks = [];
+
+
+// TODO: part of manager
+this.blockNumberObservable = null;
+this.gasPriceObservable = null;
+this.blockObservable = null;
+this.blockTimeObservable = null;
 
     this.newBlocksSubscription = null;
     this.intervalTracker = null;
@@ -37,7 +50,7 @@ export default class Subspace {
   }
 
   init() {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       if (this.disableDatabase === true) {
         this._db = new NullDatabase("", this.events);
       } else {
@@ -50,19 +63,35 @@ export default class Subspace {
         this.networkId = netId;
       });
 
-      this.web3.getBlock('latest').then(block => {
-        this.latestBlockNumber = block.number;
 
-        if(this.isWebsocketProvider){
-          this._initNewBlocksSubscription();
-        } else {
-          this.options.callInterval = this.options.callInterval || 1000;
-          this._initCallInterval();
+      const block = await this.web3.getBlock('latest');
+      const gasPrice = await this.web3.getGasPrice();
+
+      // Preload <= 10 blocks to calculate avg block time
+      if(block.number !== 0){
+        const minBlock = Math.max(0, block.number - 9);
+        for(let i = minBlock; i < block.number; i++){
+          this.latest10Blocks.push(this.web3.getBlock(i));
         }
 
-        resolve();
-      })
-    })
+        this.latest10Blocks = await Promise.all(this.latest10Blocks);
+      }
+
+      // TODO: part of manager
+      this.latestBlockNumber = block.number;
+      this.latestGasPrice = gasPrice;
+      this.latestBlock = block;
+      this.latest10Blocks.push(block);
+
+      if(this.isWebsocketProvider){
+        this._initNewBlocksSubscription();
+      } else {
+        this.options.callInterval = this.options.callInterval || 1000;
+        this._initCallInterval();
+      }
+
+      resolve();
+    });
   }
 
   contract(contractInstance) {
@@ -222,6 +251,61 @@ export default class Subspace {
 
     return returnSub;
   }
+
+  _addDistinctCallable(trackAttribute, cbBuilder, subject, subjectArg = undefined) {
+    if(this[trackAttribute]) return this[trackAttribute].pipe(distinctUntilChanged((a, b) => equal(a, b)));
+    this[trackAttribute] = new subject(subjectArg);
+    const cb = cbBuilder(this[trackAttribute]);
+    cb();
+    this.callables.push(cb);
+    return this[trackAttribute].pipe(distinctUntilChanged((a, b) => equal(a, b)));
+  }
+
+  trackBlock() {
+    const blockCB = (subject) => () => {
+      this.web3.getBlock('latest').then(block => {
+        if(this.latest10Blocks[this.latest10Blocks.length - 1].number === block.number) return;
+
+        this.latest10Blocks.push(block);
+        if(this.latest10Blocks.length > 10){
+          this.latest10Blocks.shift();
+        }
+        subject.next(block);
+      }).catch(error => subject.error(error));
+    };
+    return this._addDistinctCallable('blockObservable', blockCB, BehaviorSubject, this.latestBlock);
+  }
+
+  trackBlockNumber() {
+    const blockNumberCB = (subject) => () => {
+      this.web3.getBlockNumber().then(blockNumber => subject.next(blockNumber)).catch(error => subject.error(error));
+    };
+    return this._addDistinctCallable('blockNumberObservable', blockNumberCB, BehaviorSubject, this.latestBlockNumber);
+  }
+
+  trackGasPrice() {
+    const gasPriceCB = (subject) => () => {
+      this.web3.getGasPrice().then(gasPrice => subject.next(gasPrice)).catch(error => subject.error(error));
+    };
+    return this._addDistinctCallable('gasPriceObservable', gasPriceCB, BehaviorSubject, this.latestGasPrice);
+  }
+
+  trackAverageBlocktime() {
+
+    this.trackBlock()
+
+    const avgTimeCB = (subject) => () => {
+      const times = [];
+      for (let i = 1; i < this.latest10Blocks.length; i++) {
+        let time = this.latest10Blocks[i].timestamp - this.latest10Blocks[i - 1].timestamp;
+        times.push(time)
+      }
+      const average = times.length ? Math.round(times.reduce((a, b) => a + b) / times.length) * 1000 : 0;
+      subject.next(average);
+    };
+    return this._addDistinctCallable('blockTimeObservable', avgTimeCB, BehaviorSubject, 123456);
+  }
+
 
   trackBalance(address, erc20Address) {
     const sub = new ReplaySubject();
