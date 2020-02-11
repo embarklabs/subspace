@@ -144,9 +144,13 @@ export default class Subspace {
   }
 
   // TODO: get contract abi/address instead
-  trackEvent(contractInstance, eventName, filterConditionsOrCb) {
+  trackEvent(contractInstance, eventName, filterConditions) {
+    const subjectHash = hash({address: contractInstance.options.address, networkId: this.networkId, eventName, filterConditions}); 
+
+    if(this.subjects[subjectHash]) return this.subjects[subjectHash];
+
     let deleteFrom = this.latestBlockNumber - this.options.refreshLastNBlocks;
-    let returnSub = this.eventSyncer.track(contractInstance, eventName, filterConditionsOrCb, deleteFrom, this.networkId);
+    let returnSub = this.eventSyncer.track(contractInstance, eventName, filterConditions, deleteFrom, this.networkId);
 
     returnSub.map = (prop) => {
       return returnSub.pipe(map((x) => {
@@ -163,6 +167,8 @@ export default class Subspace {
       }))
     }
 
+    this.subjects[subjectHash] = returnSub;
+
     return returnSub;
   }
 
@@ -176,7 +182,14 @@ export default class Subspace {
 
   trackLogs(options, inputsABI) {
     if(!this.isWebsocketProvider) console.warn("This method only works with websockets");
-    return this.logSyncer.track(options, inputsABI, this.latestBlockNumber - this.options.refreshLastNBlocks, this.networkId);
+
+    const subjectHash = hash({inputsABI, options}); 
+
+    if(this.subjects[subjectHash]) return this.subjects[subjectHash];
+
+    this.subjects[subjectHash] = this.logSyncer.track(options, inputsABI, this.latestBlockNumber - this.options.refreshLastNBlocks, this.networkId);
+    
+    return this.subjects[subjectHash];
   }
 
   _initNewBlocksSubscription() {
