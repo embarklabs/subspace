@@ -36,9 +36,11 @@ await subspace.init();
 ```
 
 In addition to the provider, `Subspace` also accepts an `options` object with settings that can change its behavior:
-- `dbFilename` - Name of the database where the information will be stored (default 'subspace.db')
-- `callInterval` - Interval of time in milliseconds to query a contract/address to determine changes in state or balance (default: obtain data every block).
-- `refreshLastNBlocks` - Ignores last N blocks (from current block), stored in the local db and refresh them via a web3 subscription. Useful for possible reorgs (default: 12)
+- `dbFilename` - Name of the database where the information will be stored (default `subspace.db`)
+- `callInterval` - Interval of time in milliseconds to query a contract/address to determine changes in state or balance (default: `undefined`. Obtain data every block).
+- `refreshLastNBlocks` - Ignores last N blocks (from current block), stored in the local db and refresh them via a web3 subscription. Useful for possible reorgs (default: `12`),
+- `disableSubscriptions` - Subspace by default will attempt to use websocket subscriptions if the current provider supports them, otherwise it will use polling because it asumes the provider is an HttpProvider. This functionality can be disabled by passing true to this option. (default: `undefined`)
+
 
 ### Contract methods
 
@@ -59,16 +61,23 @@ You can track changes to a contract state variable, by specifying the view funct
 
 
 ```js
-const myObservable$ = myContract.methods.myMethodName([param1[, param2[, ...]]]).track()
+const myObservable$ = myContract.methods.myMethodName([param1[, param2[, ...]]]).track({from: web3.eth.defaultAccount})
 myObservable$.subscribe(console.dir)
+
+// or
+
+const myObservable$ = subspace.trackProperty(myContract, "myMethodName", [param1,...], {from: web3.eth.defaultAccount})
 ```
 
 #### Tracking a contract event.
 Event tracking is done by using the `.track()` method and passing any optional event filter.
 
 ```js
-const myObservable$ = myContract.events.MyEvent.track([options])
+const myObservable$ = myContract.events.MyEvent.track(options)
 myObservable$.subscribe(console.dir)
+
+// or...
+const myObservable$ = subspace.trackEvent(myContract, "MyEvent", options);
 ```
 
 #### Tracking a contract balance, and a account balance
@@ -81,6 +90,32 @@ const myObservable$ = myContract.trackBalance([tokenAddress])
 // OR
 
 const myObservable$ = subspace.trackBalance(address, [tokenAddress])
+```
+
+### Blocks, gas price and block time
+
+#### `trackBlock()`
+Returns the block information for any new block as soon as they are mined. It's the reactive equivalent to `web3.eth.getBlock("latest")`.
+```js
+subspace.trackBlock().subscribe(block => console.log(block));
+```
+
+#### `trackBlockNumber()`
+Returns the latest block number. It's the reactive equivalent to `web3.eth.getBlockNumber`.
+```js
+subspace.trackBlockNumber().subscribe(blockNumber => console.log(blockNumber));
+```
+
+#### `trackGasPrice()`
+Returns the current gas price oracle. It's the reactive equivalent to `web3.eth.getGasPrice`.
+```js
+subspace.trackGasPrice().subscribe(gasPrice => console.log(gasPrice));
+```
+
+#### `trackAverageBlocktime()`
+Returns the moving average block time taking in account the latest 10 blocks. The time is returned in milliseconds:
+```js
+subspace.trackAverageBlocktime().subscribe(blocktimeMS => console.log(blocktimeMS));
 ```
 
 
