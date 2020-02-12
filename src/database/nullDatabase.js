@@ -1,6 +1,5 @@
 
 class NullDatabase {
-
   constructor(_dbFilename, events, cb) {
     this.events = events;
     if (cb) {
@@ -16,7 +15,7 @@ class NullDatabase {
 
   getLastKnownEvent() {
     return {
-      firstKnownBlock: 0, 
+      firstKnownBlock: 0,
       lastKnownBlock: 0
     };
   }
@@ -29,15 +28,11 @@ class NullDatabase {
     return false;
   }
 
-  recordEvent(eventKey, values) {
-  }
+  recordEvent(eventKey, values) {}
 
-  deleteEvent(eventKey, eventId) {
-  }
+  deleteEvent(eventKey, eventId) {}
 
-  deleteNewestBlocks(eventKey, gteBlockNum) {
-  }
-
+  deleteNewestBlocks(eventKey, gteBlockNum) {}
 }
 
 export default NullDatabase;

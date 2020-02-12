@@ -1,37 +1,36 @@
-import { fromEvent } from 'rxjs';
-import loki from 'lokijs';
+import {fromEvent} from "rxjs";
+import Loki from "lokijs";
 
-const getENV = function () {
-  if (typeof global !== 'undefined' && (global.android || global.NSObject)) {
-     // If no adapter assume nativescript which needs adapter to be passed manually
-     return 'NATIVESCRIPT'; //nativescript
+const getENV = function() {
+  if (typeof global !== "undefined" && (global.android || global.NSObject)) {
+    // If no adapter assume nativescript which needs adapter to be passed manually
+    return "NATIVESCRIPT"; //nativescript
   }
 
-  if (typeof window === 'undefined') {
-    return 'NODEJS';
-  } 
+  if (typeof window === "undefined") {
+    return "NODEJS";
+  }
 
-  // TODO: LokiJS determines it's running in a browser if process is undefined, 
+  // TODO: LokiJS determines it's running in a browser if process is undefined,
   // yet we need webpack shim for process in a different package.
   // this code ignores is the same getENV from loki except for the check for node webkit
 
-  if (typeof document !== 'undefined') {
-    if (document.URL.indexOf('http://') === -1 && document.URL.indexOf('https://') === -1) {
-      return 'CORDOVA';
+  if (typeof document !== "undefined") {
+    if (document.URL.indexOf("http://") === -1 && document.URL.indexOf("https://") === -1) {
+      return "CORDOVA";
     }
-    return 'BROWSER';
+    return "BROWSER";
   }
 
-  return 'CORDOVA';
+  return "CORDOVA";
 };
 
 class Database {
-
   constructor(dbFilename, events, cb) {
-    this.db = new loki(dbFilename, {
+    this.db = new Loki(dbFilename, {
       autoload: true,
       autoloadCallback: () => {
-        this.databaseInitialize()
+        this.databaseInitialize();
       },
       autosave: true,
       env: getENV(),
@@ -42,16 +41,16 @@ class Database {
   }
 
   databaseInitialize(cb) {
-    let dbChanges = fromEvent(this.events, "updateDB")
+    let dbChanges = fromEvent(this.events, "updateDB");
     dbChanges.subscribe(() => {
-      this.db.saveDatabase()
-    })
+      this.db.saveDatabase();
+    });
   }
 
   getLastKnownEvent(eventKey) {
     const collection = this.db.getCollection(eventKey);
-    if (collection && collection.count()){
-      return collection.max('blockNumber');
+    if (collection && collection.count()) {
+      return collection.max("blockNumber");
     } else {
       this.db.addCollection(eventKey);
     }
@@ -60,8 +59,8 @@ class Database {
 
   getFirstKnownEvent(eventKey) {
     const collection = this.db.getCollection(eventKey);
-    if (collection && collection.count()){
-      return collection.min('blockNumber');
+    if (collection && collection.count()) {
+      return collection.min("blockNumber");
     } else {
       this.db.addCollection(eventKey);
     }
@@ -75,12 +74,12 @@ class Database {
 
   eventExists(eventKey, eventId) {
     let collection = this.db.getCollection(eventKey);
-    if(!collection){
+    if (!collection) {
       this.db.addCollection(eventKey);
       return false;
     }
 
-    return (collection.find({ 'id': eventId }).length > 0);
+    return collection.find({id: eventId}).length > 0;
   }
 
   recordEvent(eventKey, values) {
@@ -90,18 +89,21 @@ class Database {
 
   deleteEvent(eventKey, eventId) {
     const collection = this.db.getCollection(eventKey);
-    if(collection)
-    collection.chain().find({ 'id': eventId }).remove();
+    if (collection)
+      collection.chain()
+                .find({id: eventId})
+                .remove();
   }
 
   deleteNewestBlocks(eventKey, gteBlockNum) {
-    if(gteBlockNum <= 0) return;
-    
-    const collection = this.db.getCollection(eventKey);
-    if(collection)
-    collection.chain().find({ 'blockNumber': {'$gte': gteBlockNum}}).remove();
-  }
+    if (gteBlockNum <= 0) return;
 
+    const collection = this.db.getCollection(eventKey);
+    if (collection)
+      collection.chain()
+                .find({blockNumber: {$gte: gteBlockNum}})
+                .remove();
+  }
 }
 
 export default Database;
