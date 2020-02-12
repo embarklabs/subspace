@@ -206,10 +206,10 @@ If you'd like to contribute to Subspace, please fork, fix, commit and send a pul
 * `yarn build`
 
 ```js
-const Subspace = require('./dist/node.js');
+const Subspace = require('./dist/index.js').default;
 ```
 
-The browser version can be found at `dist/browser.js`. You can also check the examples in `test/`.
+The browser version can be found at `lib/index.js`. You can also check the examples in `examples/` and `test/`.
 
 ## License
 MIT
