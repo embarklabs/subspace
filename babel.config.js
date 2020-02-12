@@ -22,7 +22,8 @@ module.exports = api => {
               corejs: 3
             }
           ],
-          "@babel/plugin-proposal-class-properties"
+          "@babel/plugin-proposal-class-properties",
+          "@babel/plugin-proposal-private-methods"
         ]
       },
       browser: {
@@ -46,7 +47,8 @@ module.exports = api => {
               useESModules: true
             }
           ],
-          "@babel/plugin-proposal-class-properties"
+          "@babel/plugin-proposal-class-properties",
+          "@babel/plugin-proposal-private-methods"
         ]
       },
       module: {
@@ -70,7 +72,8 @@ module.exports = api => {
               useESModules: true
             }
           ],
-          "@babel/plugin-proposal-class-properties"
+          "@babel/plugin-proposal-class-properties",
+          "@babel/plugin-proposal-private-methods"
         ]
       }
     },

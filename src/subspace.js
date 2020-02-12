@@ -13,6 +13,15 @@ import LogSyncer from './logSyncer';
 import hash from 'object-hash';
 
 export default class Subspace {
+  #subjects = {};
+  #callables = [];
+  
+  #newBlocksSubscription = null;
+  #intervalTracker = null;
+
+  // Stats
+  #latestBlockNumber = undefined;
+  #latest10Blocks = [];
 
   constructor(provider, options = {}) {
     if (!provider.on) {
@@ -27,24 +36,15 @@ export default class Subspace {
     this.options.refreshLastNBlocks = options.refreshLastNBlocks || 12;
     this.options.callInterval = options.callInterval || 0;
     this.options.dbFilename = options.dbFilename || 'subspace.db';
-    this.disableDatabase = options.disableDatabase;
+    this.options.disableDatabase = options.disableDatabase;
+
     this.networkId = undefined;
     this.isWebsocketProvider = options.disableSubscriptions ? false : !!provider.on;
-
-    // Stats
-    this.latestBlockNumber = undefined;
-    this.latest10Blocks = [];
-
-    this.subjects = {};
-
-    this.newBlocksSubscription = null;
-    this.intervalTracker = null;
-    this.callables = [];
   }
 
   init() {
     return new Promise(async (resolve) => {
-      if (this.disableDatabase === true) {
+      if (this.options.disableDatabase === true) {
         this._db = new NullDatabase("", this.events);
       } else {
         this._db = new Database(this.options.dbFilename, this.events);
@@ -62,21 +62,21 @@ export default class Subspace {
       if(block.number !== 0){
         const minBlock = Math.max(0, block.number - 9);
         for(let i = minBlock; i < block.number; i++){
-          this.latest10Blocks.push(this.web3.getBlock(i));
+          this.#latest10Blocks.push(this.web3.getBlock(i));
         }
 
-        this.latest10Blocks = await Promise.all(this.latest10Blocks);
+        this.#latest10Blocks = await Promise.all(this.#latest10Blocks);
       }
 
       // Initial stats
-      this.latestBlockNumber = block.number;
-      this.latest10Blocks.push(block);
+      this.#latestBlockNumber = block.number;
+      this.#latest10Blocks.push(block);
 
       if(this.isWebsocketProvider){
-        this._initNewBlocksSubscription();
+        this.#initNewBlocksSubscription();
       } else {
         this.options.callInterval = this.options.callInterval || 1000;
-        this._initCallInterval();
+        this.#initCallInterval();
       }
 
       resolve();
@@ -146,51 +146,51 @@ export default class Subspace {
     }
   }
 
-  _initNewBlocksSubscription() {
-    if (this.newBlocksSubscription != null || this.options.callInterval !== 0) return;
+  #initNewBlocksSubscription() {
+    if (this.#newBlocksSubscription != null || this.options.callInterval !== 0) return;
    
-    this.newBlocksSubscription = this.web3.subscribe('newBlockHeaders', (err, result) => {
+    this.#newBlocksSubscription = this.web3.subscribe('newBlockHeaders', (err, result) => {
       if (err) {
         console.error(err);
         return;
       }
 
-      this.callables.forEach(fn => {
+      this.#callables.forEach(fn => {
         fn();
       });
     });
   }
 
-  _initCallInterval() {
-    if (this.intervalTracker != null || this.options.callInterval === 0) return;
+  #initCallInterval() {
+    if (this.#intervalTracker != null || this.options.callInterval === 0) return;
 
-    this.intervalTracker = setInterval(() => {
-      this.callables.forEach(fn => {
+    this.#intervalTracker = setInterval(() => {
+      this.#callables.forEach(fn => {
         fn();
       });
     }, this.options.callInterval);
   }
 
-  _getSubject(subjectHash, subjectCB){
-    if(this.subjects[subjectHash]) return this.subjects[subjectHash];
-    this.subjects[subjectHash] = subjectCB();
-    return this.subjects[subjectHash];
+  #getSubject(subjectHash, subjectCB){
+    if(this.#subjects[subjectHash]) return this.#subjects[subjectHash];
+    this.#subjects[subjectHash] = subjectCB();
+    return this.#subjects[subjectHash];
   }
 
-  #_addDistinctCallable(trackAttribute, cbBuilder, subject, subjectArg = undefined) {
-    return this._getSubject(trackAttribute, () => {
+  #addDistinctCallable(trackAttribute, cbBuilder, subject, subjectArg = undefined) {
+    return this.#getSubject(trackAttribute, () => {
       const sub = new subject(subjectArg);
       const cb = cbBuilder(sub);
       cb();
-      this.callables.push(cb);
+      this.#callables.push(cb);
       return sub.pipe(distinctUntilChanged((a, b) => equal(a, b)));
     });
   }
 
   trackEvent(contractInstance, eventName, filterConditions) {
     const subjectHash = hash({address: contractInstance.options.address, networkId: this.networkId, eventName, filterConditions}); 
-    return this._getSubject(subjectHash, () => {
-      let deleteFrom = this.latestBlockNumber - this.options.refreshLastNBlocks;
+    return this.#getSubject(subjectHash, () => {
+      let deleteFrom = this.#latestBlockNumber - this.options.refreshLastNBlocks;
       let returnSub = this.eventSyncer.track(contractInstance, eventName, filterConditions, deleteFrom, this.networkId);
   
       returnSub.map = (prop) => {
@@ -216,15 +216,15 @@ export default class Subspace {
     if(!this.isWebsocketProvider) console.warn("This method only works with websockets");
 
     const subjectHash = hash({inputsABI, options}); 
-    return this._getSubject(subjectHash, () => 
-      this.logSyncer.track(options, inputsABI, this.latestBlockNumber - this.options.refreshLastNBlocks, this.networkId)
+    return this.#getSubject(subjectHash, () => 
+      this.logSyncer.track(options, inputsABI, this.#latestBlockNumber - this.options.refreshLastNBlocks, this.networkId)
     );
   }
 
   trackProperty(contractInstance, propName, methodArgs = [], callArgs = {}) {
     const subjectHash = hash({address: contractInstance.options.address, networkId: this.networkId, propName, methodArgs, callArgs}); 
     
-    return this._getSubject(subjectHash, () => {
+    return this.#getSubject(subjectHash, () => {
       const subject = new ReplaySubject(1);
 
       if (!Array.isArray(methodArgs)) {
@@ -245,7 +245,7 @@ export default class Subspace {
   
       callContractMethod();
   
-      this.callables.push(callContractMethod);
+      this.#callables.push(callContractMethod);
   
       const returnSub = subject.pipe(distinctUntilChanged((a, b) => equal(a, b)));
   
@@ -301,40 +301,40 @@ export default class Subspace {
           subject.error(err);
           return;
         }
-        subject.next(balance);
+        subject.next(hexToDec(balance));
       });
     }
 
-    return this._addDistinctCallable(subjectHash, callFn, ReplaySubject, 1);
+    return this.#addDistinctCallable(subjectHash, callFn, ReplaySubject, 1);
   }
 
   trackBlock() {
     const blockCB = (subject) => () => {
       this.web3.getBlock('latest').then(block => {
-        if(this.latest10Blocks[this.latest10Blocks.length - 1].number === block.number) return;
+        if(this.#latest10Blocks[this.#latest10Blocks.length - 1].number === block.number) return;
 
-        this.latest10Blocks.push(block);
-        if(this.latest10Blocks.length > 10){
-          this.latest10Blocks.shift();
+        this.#latest10Blocks.push(block);
+        if(this.#latest10Blocks.length > 10){
+          this.#latest10Blocks.shift();
         }
         subject.next(block);
       }).catch(error => subject.error(error));
     };
-    return this._addDistinctCallable('blockObservable', blockCB, BehaviorSubject, this.latest10Blocks[this.latest10Blocks.length - 1]);
+    return this.#addDistinctCallable('blockObservable', blockCB, BehaviorSubject, this.#latest10Blocks[this.#latest10Blocks.length - 1]);
   }
 
   trackBlockNumber() {
     const blockNumberCB = (subject) => () => {
       this.web3.getBlockNumber().then(blockNumber => subject.next(blockNumber)).catch(error => subject.error(error));
     };
-    return this._addDistinctCallable('blockNumberObservable', blockNumberCB, ReplaySubject, 1);
+    return this.#addDistinctCallable('blockNumberObservable', blockNumberCB, ReplaySubject, 1);
   }
 
   trackGasPrice() {
     const gasPriceCB = (subject) => () => {
       this.web3.getGasPrice().then(gasPrice => subject.next(gasPrice)).catch(error => subject.error(error));
     };
-    return this._addDistinctCallable('gasPriceObservable', gasPriceCB, ReplaySubject, 1);
+    return this.#addDistinctCallable('gasPriceObservable', gasPriceCB, ReplaySubject, 1);
   }
 
   trackAverageBlocktime() {
@@ -342,8 +342,8 @@ export default class Subspace {
 
     const calcAverage = () => {
       const times = [];
-      for (let i = 1; i < this.latest10Blocks.length; i++) {
-        let time = this.latest10Blocks[i].timestamp - this.latest10Blocks[i - 1].timestamp;
+      for (let i = 1; i < this.#latest10Blocks.length; i++) {
+        let time = this.#latest10Blocks[i].timestamp - this.#latest10Blocks[i - 1].timestamp;
         times.push(time)
       }
       return times.length ? Math.round(times.reduce((a, b) => a + b) / times.length) * 1000 : 0;
@@ -351,14 +351,14 @@ export default class Subspace {
 
     const avgTimeCB = (subject) => () => subject.next(calcAverage());
     
-    return this._addDistinctCallable('blockTimeObservable', avgTimeCB, BehaviorSubject, calcAverage());
+    return this.#addDistinctCallable('blockTimeObservable', avgTimeCB, BehaviorSubject, calcAverage());
   }
 
   close(){
-    clearInterval(this.intervalTracker);
-    if (this.newBlocksSubscription) this.newBlocksSubscription.unsubscribe();
+    clearInterval(this.#intervalTracker);
+    if (this.#newBlocksSubscription) this.#newBlocksSubscription.unsubscribe();
     this.eventSyncer.close();
-    this.intervalTracker = null;
-    this.callables = [];
+    this.#intervalTracker = null;
+    this.#callables = [];
   }
 }
