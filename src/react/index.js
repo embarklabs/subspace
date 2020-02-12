@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import { isObservable } from "rxjs";
+import React, {Component} from "react";
+import {isObservable} from "rxjs";
 
 export function observe(WrappedComponent) {
   return class extends Component {
@@ -9,11 +9,11 @@ export function observe(WrappedComponent) {
     };
 
     unsubscribe = prop => {
-      const subscriptions = { ...this.state.subscriptions };
+      const subscriptions = {...this.state.subscriptions};
       if (subscriptions[prop]) subscriptions[prop].unsubscribe();
       delete subscriptions[prop];
 
-      this.setState({ subscriptions });
+      this.setState({subscriptions});
     };
 
     subscribeToProp = prop => {

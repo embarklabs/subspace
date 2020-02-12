@@ -1,5 +1,5 @@
-import { of, pipe }  from 'rxjs';
-import { map, pluck, scan } from 'rxjs/operators';
+import {pipe} from "rxjs";
+import {map, scan} from "rxjs/operators";
 
 export function $takeProps() {
   const args = Object.values(arguments);
@@ -10,7 +10,7 @@ export function $takeProps() {
         r[a] = v[a];
       });
       return r;
-    }),
+    })
   );
 }
 
@@ -22,33 +22,36 @@ of({a: 1, b:2, e: 1}, {a: 0, c: 1, b:3}, {a: 0, d: 1, b:1})
 */
 
 export function $average(cb) {
-    return pipe(
-      scan((accum, curr) => {
+  return pipe(
+    scan(
+      (accum, curr) => {
         let currentValue;
-        if (typeof cb === 'string' || cb instanceof String){
+        if (typeof cb === "string" || cb instanceof String) {
           currentValue = curr[cb];
-        } else if(typeof cb === "function") {
+        } else if (typeof cb === "function") {
           currentValue = cb(curr);
         } else {
           currentValue = curr;
         }
-  
+
         return {
           sum: accum.sum + currentValue,
           count: accum.count + 1
-        }
-      }, { sum: 0, count: 0 }),
-      map(o => o.sum / o.count)
-    );
-  }
+        };
+      },
+      {sum: 0, count: 0}
+    ),
+    map(o => o.sum / o.count)
+  );
+}
 
 export function $max(cb) {
   return pipe(
     scan((acc, curr) => {
       let currentValue;
-      if (typeof cb === 'string' || cb instanceof String){
+      if (typeof cb === "string" || cb instanceof String) {
         currentValue = curr[cb];
-      } else if(typeof cb === "function") {
+      } else if (typeof cb === "function") {
         currentValue = cb(curr);
       } else {
         currentValue = curr;
@@ -64,9 +67,9 @@ export function $min(cb) {
   return pipe(
     scan((acc, curr) => {
       let currentValue;
-      if (typeof cb === 'string' || cb instanceof String){
+      if (typeof cb === "string" || cb instanceof String) {
         currentValue = curr[cb];
-      } else if(typeof cb === "function") {
+      } else if (typeof cb === "function") {
         currentValue = cb(curr);
       } else {
         currentValue = curr;
@@ -83,9 +86,9 @@ export function $latest(num) {
     scan((acc, curr) => {
       let currentValue = curr;
 
-      acc.push(currentValue)
+      acc.push(currentValue);
       if (acc.length > num) {
-        acc.shift()
+        acc.shift();
       }
 
       return acc;
