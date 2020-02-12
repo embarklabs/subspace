@@ -112,9 +112,7 @@ class EventSyncer {
     const cb = this.callbackFactory(filters, eventKey);
     this.db.getEventsFor(eventKey)
            .filter(x => x.blockNumber >= (fromBlock || filters.fromBlock) && x.blockNumber <= toBlock)
-           .forEach(ev => {
-             cb(null, ev);
-           });
+           .forEach(ev => cb(null, ev));
   };
 
   subscribeToEvent = (eventKey, contractInstance, eventName) => (subscriptions, filters) => {

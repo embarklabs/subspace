@@ -152,9 +152,7 @@ class LogSyncer {
         throw new Error(err);
       }
 
-      logs.forEach(l => {
-        cb(null, l);
-      });
+      logs.forEach(l => cb(null, l));
     });
   }
 
@@ -186,9 +184,7 @@ class LogSyncer {
   };
 
   close() {
-    this.subscriptions.forEach(x => {
-      x.unsubscribe();
-    });
+    this.subscriptions.forEach(x => x.unsubscribe());
   }
 }
 

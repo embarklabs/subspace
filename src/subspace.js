@@ -337,7 +337,7 @@ export default class Subspace {
           }
           subject.next(block);
         })
-        .catch(subject.error);
+        .catch(error => subject.error(error));
     };
 
     return this._addDistinctCallable(
