@@ -1,4 +1,4 @@
-import { ReplaySubject, BehaviorSubject, Subject } from 'rxjs';
+import { ReplaySubject, BehaviorSubject } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
 import equal from 'fast-deep-equal';
 import Database  from './database/database.js';
@@ -33,8 +33,6 @@ export default class Subspace {
 
     // Stats
     this.latestBlockNumber = undefined;
-    this.latestGasPrice = undefined;
-    this.latestBlock = undefined;
     this.latest10Blocks = [];
 
     this.subjects = {};
@@ -45,7 +43,7 @@ export default class Subspace {
   }
 
   init() {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve) => {
       if (this.disableDatabase === true) {
         this._db = new NullDatabase("", this.events);
       } else {
@@ -58,9 +56,7 @@ export default class Subspace {
         this.networkId = netId;
       });
 
-
       const block = await this.web3.getBlock('latest');
-      const gasPrice = await this.web3.getGasPrice();
 
       // Preload <= 10 blocks to calculate avg block time
       if(block.number !== 0){
@@ -74,8 +70,6 @@ export default class Subspace {
 
       // Initial stats
       this.latestBlockNumber = block.number;
-      this.latestGasPrice = gasPrice;
-      this.latestBlock = block;
       this.latest10Blocks.push(block);
 
       if(this.isWebsocketProvider){
@@ -143,34 +137,6 @@ export default class Subspace {
     return SubspaceContract;
   }
 
-  // TODO: get contract abi/address instead
-  trackEvent(contractInstance, eventName, filterConditions) {
-    const subjectHash = hash({address: contractInstance.options.address, networkId: this.networkId, eventName, filterConditions}); 
-
-    if(this.subjects[subjectHash]) return this.subjects[subjectHash];
-
-    let deleteFrom = this.latestBlockNumber - this.options.refreshLastNBlocks;
-    let returnSub = this.eventSyncer.track(contractInstance, eventName, filterConditions, deleteFrom, this.networkId);
-
-    returnSub.map = (prop) => {
-      return returnSub.pipe(map((x) => {
-        if (typeof(prop) === "string") {
-          return x[prop];
-        }
-        if (Array.isArray(prop)) {
-          let newValues = {}
-          prop.forEach((p) => {
-            newValues[p] = x[p]
-          })
-          return newValues
-        }
-      }))
-    }
-
-    this.subjects[subjectHash] = returnSub;
-
-    return returnSub;
-  }
 
   clearDB(collection) {
     if (collection){
@@ -178,18 +144,6 @@ export default class Subspace {
     } else {
       // TODO: delete everything
     }
-  }
-
-  trackLogs(options, inputsABI) {
-    if(!this.isWebsocketProvider) console.warn("This method only works with websockets");
-
-    const subjectHash = hash({inputsABI, options}); 
-
-    if(this.subjects[subjectHash]) return this.subjects[subjectHash];
-
-    this.subjects[subjectHash] = this.logSyncer.track(options, inputsABI, this.latestBlockNumber - this.options.refreshLastNBlocks, this.networkId);
-    
-    return this.subjects[subjectHash];
   }
 
   _initNewBlocksSubscription() {
@@ -217,67 +171,141 @@ export default class Subspace {
     }, this.options.callInterval);
   }
 
+  _getSubject(subjectHash, subjectCB){
+    if(this.subjects[subjectHash]) return this.subjects[subjectHash];
+    this.subjects[subjectHash] = subjectCB();
+    return this.subjects[subjectHash];
+  }
+
+  #_addDistinctCallable(trackAttribute, cbBuilder, subject, subjectArg = undefined) {
+    return this._getSubject(trackAttribute, () => {
+      const sub = new subject(subjectArg);
+      const cb = cbBuilder(sub);
+      cb();
+      this.callables.push(cb);
+      return sub.pipe(distinctUntilChanged((a, b) => equal(a, b)));
+    });
+  }
+
+  trackEvent(contractInstance, eventName, filterConditions) {
+    const subjectHash = hash({address: contractInstance.options.address, networkId: this.networkId, eventName, filterConditions}); 
+    return this._getSubject(subjectHash, () => {
+      let deleteFrom = this.latestBlockNumber - this.options.refreshLastNBlocks;
+      let returnSub = this.eventSyncer.track(contractInstance, eventName, filterConditions, deleteFrom, this.networkId);
+  
+      returnSub.map = (prop) => {
+        return returnSub.pipe(map((x) => {
+          if (typeof(prop) === "string") {
+            return x[prop];
+          }
+          if (Array.isArray(prop)) {
+            let newValues = {}
+            prop.forEach((p) => {
+              newValues[p] = x[p]
+            })
+            return newValues
+          }
+        }))
+      };
+
+      return returnSub;
+    });
+  }
+
+  trackLogs(options, inputsABI) {
+    if(!this.isWebsocketProvider) console.warn("This method only works with websockets");
+
+    const subjectHash = hash({inputsABI, options}); 
+    return this._getSubject(subjectHash, () => 
+      this.logSyncer.track(options, inputsABI, this.latestBlockNumber - this.options.refreshLastNBlocks, this.networkId)
+    );
+  }
+
   trackProperty(contractInstance, propName, methodArgs = [], callArgs = {}) {
     const subjectHash = hash({address: contractInstance.options.address, networkId: this.networkId, propName, methodArgs, callArgs}); 
     
-    if(this.subjects[subjectHash]) return this.subjects[subjectHash];
+    return this._getSubject(subjectHash, () => {
+      const subject = new ReplaySubject(1);
 
-    const subject = new Subject();
+      if (!Array.isArray(methodArgs)) {
+        methodArgs = [methodArgs]
+      }
+  
+      const method = contractInstance.methods[propName].apply(contractInstance.methods[propName], methodArgs);
+      
+      const callContractMethod = () => {
+        method.call.apply(method.call, [callArgs, (err, result) => {
+          if (err) {
+            subject.error(err);
+            return;
+          }
+          subject.next(result);
+        }]);
+      };
+  
+      callContractMethod();
+  
+      this.callables.push(callContractMethod);
+  
+      const returnSub = subject.pipe(distinctUntilChanged((a, b) => equal(a, b)));
+  
+      returnSub.map = (prop) => {
+        return returnSub.pipe(map((x) => {
+          if (typeof(prop) === "string") {
+            return x[prop];
+          }
+          if (Array.isArray(prop)) {
+            let newValues = {}
+            prop.forEach((p) => {
+              newValues[p] = x[p]
+            })
+            return newValues
+          }
+        }))
+      }
 
-    if (!Array.isArray(methodArgs)) {
-      methodArgs = [methodArgs]
+      return returnSub;
+    });
+  }
+
+  trackBalance(address, erc20Address) {
+    if (!isAddress(address)) throw "invalid address"
+    if (erc20Address && !isAddress(erc20Address)) throw "invalid ERC20 contract address"
+
+    const subjectHash = hash({address, erc20Address}); 
+    
+    const getETHBalance = (cb) => {
+      const fn  = this.web3.getBalance;
+      fn.apply(fn, [address, cb]);
     }
 
-    const method = contractInstance.methods[propName].apply(contractInstance.methods[propName], methodArgs);
-    
-    const callContractMethod = () => {
-      method.call.apply(method.call, [callArgs, (err, result) => {
-        if (err) {
+    const getTokenBalance = (cb) => {
+      const fn  = this.web3.call;
+                  //  balanceOf
+      const data = "0x70a08231" + "000000000000000000000000" + stripHexPrefix(address); 
+      fn.apply(fn, [{to: erc20Address, data}, cb]);
+    }
+
+    let callFn;
+    if (!erc20Address){
+      callFn = subject => () => getETHBalance((err, balance) => {
+          if(err) {
+            subject.error(err);
+            return;
+          }
+          subject.next(balance);
+        });
+    } else {
+      callFn = subject => () => getTokenBalance((err, balance) => {
+        if(err) {
           subject.error(err);
           return;
         }
-        subject.next(result);
-      }]);
-    };
-
-    callContractMethod();
-
-    this.callables.push(callContractMethod);
-
-    const returnSub = subject.pipe(distinctUntilChanged((a, b) => equal(a, b)));
-
-    returnSub.map = (prop) => {
-      return returnSub.pipe(map((x) => {
-        if (typeof(prop) === "string") {
-          return x[prop];
-        }
-        if (Array.isArray(prop)) {
-          let newValues = {}
-          prop.forEach((p) => {
-            newValues[p] = x[p]
-          })
-          return newValues
-        }
-      }))
+        subject.next(balance);
+      });
     }
 
-    this.subjects[subjectHash] = returnSub;
-
-    return returnSub;
-  }
-
-  _addDistinctCallable(trackAttribute, cbBuilder, subject, subjectArg = undefined) {
-    if(this.subjects[trackAttribute]) return this.subjects[trackAttribute];
-    
-    const sub = new subject(subjectArg);
-
-    const cb = cbBuilder(sub);
-    cb();
-    this.callables.push(cb);
-
-    this.subjects[trackAttribute] = sub.pipe(distinctUntilChanged((a, b) => equal(a, b)));
-
-    return this.subjects[trackAttribute];
+    return this._addDistinctCallable(subjectHash, callFn, ReplaySubject, 1);
   }
 
   trackBlock() {
@@ -292,84 +320,38 @@ export default class Subspace {
         subject.next(block);
       }).catch(error => subject.error(error));
     };
-    return this._addDistinctCallable('blockObservable', blockCB, BehaviorSubject, this.latestBlock);
+    return this._addDistinctCallable('blockObservable', blockCB, BehaviorSubject, this.latest10Blocks[this.latest10Blocks.length - 1]);
   }
 
   trackBlockNumber() {
     const blockNumberCB = (subject) => () => {
       this.web3.getBlockNumber().then(blockNumber => subject.next(blockNumber)).catch(error => subject.error(error));
     };
-    return this._addDistinctCallable('blockNumberObservable', blockNumberCB, BehaviorSubject, this.latestBlockNumber);
+    return this._addDistinctCallable('blockNumberObservable', blockNumberCB, ReplaySubject, 1);
   }
 
   trackGasPrice() {
     const gasPriceCB = (subject) => () => {
       this.web3.getGasPrice().then(gasPrice => subject.next(gasPrice)).catch(error => subject.error(error));
     };
-    return this._addDistinctCallable('gasPriceObservable', gasPriceCB, BehaviorSubject, this.latestGasPrice);
+    return this._addDistinctCallable('gasPriceObservable', gasPriceCB, ReplaySubject, 1);
   }
 
   trackAverageBlocktime() {
+    this.trackBlock();
 
-    this.trackBlock()
-
-    const avgTimeCB = (subject) => () => {
+    const calcAverage = () => {
       const times = [];
       for (let i = 1; i < this.latest10Blocks.length; i++) {
         let time = this.latest10Blocks[i].timestamp - this.latest10Blocks[i - 1].timestamp;
         times.push(time)
       }
-      const average = times.length ? Math.round(times.reduce((a, b) => a + b) / times.length) * 1000 : 0;
-      subject.next(average);
-    };
-    return this._addDistinctCallable('blockTimeObservable', avgTimeCB, BehaviorSubject, 123456);
-  }
-
-
-  trackBalance(address, erc20Address) {
-    const sub = new ReplaySubject();
-
-    if (!isAddress(address)) throw "invalid address"
-    if (erc20Address && !isAddress(erc20Address)) throw "invalid ERC20 contract address"
-
-    let callFn;
-    if (!erc20Address){
-      callFn = () => {
-        const fn  = this.web3.getBalance;
-
-        fn.apply(fn, [address, (err, balance) => {
-          if(err) {
-            sub.error(err);
-            return;
-          }
-          sub.next(balance);
-        }]);
-      };
-    } else {
-      callFn = () => {
-        const fn  = this.web3.call;
-                  //  balanceOf
-        const data = "0x70a08231" + "000000000000000000000000" + stripHexPrefix(address); 
-        fn.apply(fn, [{to: erc20Address, data}, (err, result) => {
-          if (err) {
-            sub.error(err);
-            return;
-          }
-          sub.next(hexToDec(result));
-        }]);
-      };
+      return times.length ? Math.round(times.reduce((a, b) => a + b) / times.length) * 1000 : 0;
     }
 
-    // FIX ME: has issues immediatly getting the value
-    // this.web3.getBlock('latest').then(block => {
-    setTimeout(() => {
-      callFn();
-    }, 500);
-    // });
-
-    this.callables.push(callFn);
-
-    return sub.pipe(distinctUntilChanged((a, b) => equal(a, b)));
+    const avgTimeCB = (subject) => () => subject.next(calcAverage());
+    
+    return this._addDistinctCallable('blockTimeObservable', avgTimeCB, BehaviorSubject, calcAverage());
   }
 
   close(){
@@ -379,5 +361,4 @@ export default class Subspace {
     this.intervalTracker = null;
     this.callables = [];
   }
-
 }
