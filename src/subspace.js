@@ -352,8 +352,8 @@ export default class Subspace {
     const blockNumberCB = subject => () => {
       this.web3
         .getBlockNumber()
-        .then(subject.next)
-        .catch(subject.error);
+        .then(result => subject.next(result))
+        .catch(error => subject.error(error));
     };
     return this._addDistinctCallable("blockNumberObservable", blockNumberCB, ReplaySubject, 1);
   }
@@ -362,8 +362,8 @@ export default class Subspace {
     const gasPriceCB = subject => () => {
       this.web3
         .getGasPrice()
-        .then(subject.next)
-        .catch(subject.error);
+        .then(result => subject.next(result))
+        .catch(error => subject.error(error));
     };
     return this._addDistinctCallable("gasPriceObservable", gasPriceCB, ReplaySubject, 1);
   }
