@@ -49,7 +49,7 @@ class Database {
 
   getLastKnownEvent(eventKey) {
     const collection = this.db.getCollection(eventKey);
-    if (collection && collection.count()) {
+    if (collection?.count()) {
       return collection.max("blockNumber");
     } else {
       this.db.addCollection(eventKey);
@@ -59,7 +59,7 @@ class Database {
 
   getFirstKnownEvent(eventKey) {
     const collection = this.db.getCollection(eventKey);
-    if (collection && collection.count()) {
+    if (collection?.count()) {
       return collection.min("blockNumber");
     } else {
       this.db.addCollection(eventKey);
