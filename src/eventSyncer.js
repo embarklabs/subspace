@@ -13,11 +13,11 @@ class EventSyncer {
   }
 
   track(contractInstance, eventName, filters, gteBlockNum, networkId) {
-    const eventKey = hash(Object.assign({address: contractInstance.options.address, networkId}, filters || {}));
+    const eventKey = hash(Object.assign({address: contractInstance.options.address, networkId}, filters ?? {}));
 
     this.db.deleteNewestBlocks(eventKey, gteBlockNum);
 
-    let filterConditions = Object.assign({fromBlock: 0, toBlock: "latest"}, filters || {});
+    let filterConditions = Object.assign({fromBlock: 0, toBlock: "latest"}, filters ?? {});
     let lastKnownBlock = this.db.getLastKnownEvent(eventKey);
     let firstKnownBlock = this.db.getFirstKnownEvent(eventKey);
 

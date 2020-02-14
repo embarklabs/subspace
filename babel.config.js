@@ -23,7 +23,9 @@ module.exports = api => {
             }
           ],
           "@babel/plugin-proposal-class-properties",
-          "@babel/plugin-proposal-private-methods"
+          "@babel/plugin-proposal-private-methods",
+          "@babel/plugin-proposal-nullish-coalescing-operator",
+          "@babel/plugin-proposal-optional-chaining"
         ]
       },
       browser: {
@@ -48,7 +50,9 @@ module.exports = api => {
             }
           ],
           "@babel/plugin-proposal-class-properties",
-          "@babel/plugin-proposal-private-methods"
+          "@babel/plugin-proposal-private-methods",
+          "@babel/plugin-proposal-nullish-coalescing-operator",
+          "@babel/plugin-proposal-optional-chaining"
         ]
       },
       module: {
@@ -73,7 +77,9 @@ module.exports = api => {
             }
           ],
           "@babel/plugin-proposal-class-properties",
-          "@babel/plugin-proposal-private-methods"
+          "@babel/plugin-proposal-private-methods",
+          "@babel/plugin-proposal-nullish-coalescing-operator",
+          "@babel/plugin-proposal-optional-chaining"
         ]
       }
     },

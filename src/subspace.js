@@ -33,9 +33,9 @@ export default class Subspace {
     this.web3 = new Web3Eth(provider);
 
     this.options = {};
-    this.options.refreshLastNBlocks = options.refreshLastNBlocks || 12;
-    this.options.callInterval = options.callInterval || 0;
-    this.options.dbFilename = options.dbFilename || "subspace.db";
+    this.options.refreshLastNBlocks = options.refreshLastNBlocks ?? 12;
+    this.options.callInterval = options.callInterval ?? 0;
+    this.options.dbFilename = options.dbFilename ?? "subspace.db";
     this.options.disableDatabase = options.disableDatabase;
 
     this.networkId = undefined;
