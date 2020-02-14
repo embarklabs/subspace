@@ -167,14 +167,14 @@ export default class Subspace {
     }, this.options.callInterval);
   }
 
-  _getSubject(subjectHash, subjectCB) {
+  _getObservableSubject(subjectHash, subjectCB) {
     if (this.subjects[subjectHash]) return this.subjects[subjectHash];
-    this.subjects[subjectHash] = subjectCB();
+    this.subjects[subjectHash] = subjectCB().asObservable();
     return this.subjects[subjectHash];
   }
 
   _addDistinctCallable(trackAttribute, cbBuilder, SubjectType, subjectArg = undefined) {
-    return this._getSubject(trackAttribute, () => {
+    return this._getObservableSubject(trackAttribute, () => {
       const sub = new SubjectType(subjectArg);
       const cb = cbBuilder(sub);
       cb();
@@ -190,7 +190,7 @@ export default class Subspace {
       eventName,
       filterConditions
     });
-    return this._getSubject(subjectHash, () => {
+    return this._getObservableSubject(subjectHash, () => {
       let deleteFrom = this.latestBlockNumber - this.options.refreshLastNBlocks;
       let returnSub = this.eventSyncer.track(contractInstance, eventName, filterConditions, deleteFrom, this.networkId);
 
@@ -219,7 +219,7 @@ export default class Subspace {
     if (!this.isWebsocketProvider) console.warn("This method only works with websockets");
 
     const subjectHash = hash({inputsABI, options});
-    return this._getSubject(subjectHash, () =>
+    return this._getObservableSubject(subjectHash, () =>
       this.logSyncer.track(options, inputsABI, this.latestBlockNumber - this.options.refreshLastNBlocks, this.networkId)
     );
   }
@@ -233,7 +233,7 @@ export default class Subspace {
       callArgs
     });
 
-    return this._getSubject(subjectHash, () => {
+    return this._getObservableSubject(subjectHash, () => {
       const subject = new ReplaySubject(1);
 
       if (!Array.isArray(methodArgs)) {
