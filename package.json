@@ -34,7 +34,8 @@
     "build:react": "cross-env BABEL_ENV=browser babel ./src/react --out-dir ./react --source-maps --copy-files",
     "build:module": "cross-env BABEL_ENV=module babel ./src --out-dir ./module --source-maps --copy-files",
     "build:node": "babel ./src --out-dir ./dist --source-maps --copy-files",
-    "build": "npm-run-all clean build:*"
+    "build": "npm-run-all clean build:*",
+    "test": "jest"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
@@ -54,6 +55,8 @@
     "rimraf": "^3.0.1"
   },
   "dependencies": {
+    "babel-jest": "24.9.0",
+    "jest": "24.9.0",
     "@babel/runtime": "^7.8.4",
     "@babel/runtime-corejs3": "^7.8.4",
     "core-js": "^3.6.4",
@@ -70,5 +73,24 @@
     "graphql-tools": "^4.0.5",
     "react": "^16.9.0",
     "reactive-graphql": "^3.0.2"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "testEnvironment": "node",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/examples/"
+    ],
+    "testMatch": [
+      "**/test/*.spec.js"
+    ],
+    "transform": {
+      "\\.js$": [
+        "babel-jest",
+        {
+          "rootMode": "upward"
+        }
+      ]
+    }
   }
 }
