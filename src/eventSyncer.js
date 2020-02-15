@@ -67,7 +67,7 @@ class EventSyncer {
 
     if (this.isWebsocketProvider) {
       const fnSubscribe = this.subscribeToEvent(eventKey, contractInstance, eventName);
-      const eth_subscribe = this.eventScanner.scan(
+      const ethSubscription = this.eventScanner.scan(
         fnDBEvents,
         fnPastEvents,
         fnSubscribe,
@@ -75,25 +75,11 @@ class EventSyncer {
         lastKnownBlock,
         filterConditions
       );
-
-      const og_subscribe = sub.subscribe;
-      sub.subscribe = async (next, error, complete) => {
-        const s = og_subscribe.apply(sub, [next, error, complete]);
-        s.add(() => {
-          // Removing web3js subscription when rxJS unsubscribe is executed
-          eth_subscribe.then(susc => {
-            if (susc) {
-              susc.unsubscribe();
-            }
-          });
-        });
-        return s;
-      };
+      return [sub, ethSubscription];
     } else {
       this.eventScanner.scan(fnDBEvents, fnPastEvents, lastKnownBlock, filterConditions);
+      return [sub, undefined];
     }
-
-    return sub;
   }
 
   getPastEvents = (eventKey, contractInstance, eventName, filters) => async (fromBlock, toBlock, hardLimit) => {
