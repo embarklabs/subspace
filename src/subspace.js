@@ -167,14 +167,14 @@ export default class Subspace {
     }, this.options.callInterval);
   }
 
-  _getObservableSubject(subjectHash, subjectCB) {
+  _getObservable(subjectHash, subjectCB) {
     if (this.subjects[subjectHash]) return this.subjects[subjectHash];
     this.subjects[subjectHash] = subjectCB();
     return this.subjects[subjectHash];
   }
 
   _addDistinctCallable(trackAttribute, cbBuilder, SubjectType, subjectArg = undefined) {
-    return this._getObservableSubject(trackAttribute, () => {
+    return this._getObservable(trackAttribute, () => {
       const subject = new SubjectType(subjectArg);
       const cb = cbBuilder(subject);
       cb();
@@ -185,7 +185,9 @@ export default class Subspace {
   }
 
   _addCallableDispose(subjectHash, observable) {
-    observable.dispose = () => {
+    observable.dispose = complete => {
+      if(complete) this.subjects[subjectHash].complete();
+
       // Removing from callable list to avoid it being called after getting of the subject
       delete this.callables[subjectHash];
       delete this.subjects[subjectHash];
@@ -210,7 +212,7 @@ export default class Subspace {
       filterConditions
     });
 
-    return this._getObservableSubject(subjectHash, () => {
+    return this._getObservable(subjectHash, () => {
       const deleteFrom = this.latestBlockNumber - this.options.refreshLastNBlocks;
       const [subject, ethSubscription] = this.eventSyncer.track(contractInstance, eventName, filterConditions, deleteFrom, this.networkId);
 
@@ -241,7 +243,7 @@ export default class Subspace {
     if (!this.isWebsocketProvider) console.warn("This method only works with websockets");
 
     const subjectHash = hash({inputsABI, options});
-    return this._getObservableSubject(subjectHash, () => {
+    return this._getObservable(subjectHash, () => {
       const [subject, ethSubscription] = this.logSyncer.track(
         options,
         inputsABI,
@@ -262,7 +264,7 @@ export default class Subspace {
       callArgs
     });
 
-    return this._getObservableSubject(subjectHash, () => {
+    return this._getObservable(subjectHash, () => {
       const subject = new ReplaySubject(1);
 
       if (!Array.isArray(methodArgs)) {
