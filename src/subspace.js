@@ -1,5 +1,5 @@
-import {ReplaySubject, BehaviorSubject} from "rxjs";
-import {distinctUntilChanged, map} from "rxjs/operators";
+import {BehaviorSubject, from} from "rxjs";
+import {distinctUntilChanged, map, exhaustMap, shareReplay} from "rxjs/operators";
 import equal from "fast-deep-equal";
 import Database from "./database/database.js";
 import NullDatabase from "./database/nullDatabase.js";
@@ -13,8 +13,7 @@ import LogSyncer from "./logSyncer";
 import hash from "object-hash";
 
 export default class Subspace {
-  subjects = {};
-  callables = {};
+  observables = {};
 
   newBlocksSubscription = null;
   intervalTracker = null;
@@ -40,6 +39,7 @@ export default class Subspace {
 
     this.networkId = undefined;
     this.isWebsocketProvider = options.disableSubscriptions ? false : !!provider.on;
+    this.triggerSubject = new BehaviorSubject();
   }
 
   init() {
@@ -154,54 +154,37 @@ export default class Subspace {
         console.error(err);
         return;
       }
-
-      Object.values(this.callables).forEach(fn => fn());
+      this.triggerSubject.next();
     });
   }
 
   _initCallInterval() {
     if (this.intervalTracker != null || this.options.callInterval === 0) return;
-
-    this.intervalTracker = setInterval(() => {
-      Object.values(this.callables).forEach(fn => fn());
-    }, this.options.callInterval);
+    this.intervalTracker = setInterval(() => this.triggerSubject.next(), this.options.callInterval);
   }
 
-  _getObservable(subjectHash, subjectCB) {
-    if (this.subjects[subjectHash]) return this.subjects[subjectHash];
-    this.subjects[subjectHash] = subjectCB();
-    return this.subjects[subjectHash];
+  _getObservable(subjectHash, observableBuilder) {
+    if (this.observables[subjectHash]) return this.observables[subjectHash];
+    this.observables[subjectHash] = observableBuilder();
+    return this.observables[subjectHash];
   }
 
-  _addDistinctCallable(trackAttribute, cbBuilder, SubjectType, subjectArg = undefined) {
-    return this._getObservable(trackAttribute, () => {
-      const subject = new SubjectType(subjectArg);
-      const cb = cbBuilder(subject);
-      cb();
-      this.callables[trackAttribute] = cb;
+  _getDistinctObservableFromPromise(subjectName, promiseCB, cb) {
+    return this._getObservable(subjectName, () => {
+      let observable = this.triggerSubject.pipe(
+        exhaustMap(() => from(promiseCB())),
+        distinctUntilChanged((a, b) => equal(a, b))
+      );
 
-      return this._addCallableDispose(trackAttribute, subject.pipe(distinctUntilChanged((a, b) => equal(a, b))));
+      if(cb){
+        observable = observable.pipe(map(x => {
+          cb(x);
+          return x;
+        }));
+      }
+
+      return observable.pipe(shareReplay({refCount: true, bufferSize: 1}));
     });
-  }
-
-  _addCallableDispose(subjectHash, observable) {
-    observable.dispose = complete => {
-      if(complete) this.subjects[subjectHash].complete();
-
-      // Removing from callable list to avoid it being called after getting of the subject
-      delete this.callables[subjectHash];
-      delete this.subjects[subjectHash];
-    };
-    return observable;
-  }
-
-  _addETHDispose(subjectHash, subject, ethSubscription) {
-    subject.dispose = async () => {
-        // TODO: event syncer is still emitting data;
-        // TODO: delete subject hash
-
-        // if(ethSubscription) await ethSubscription.unsubscribe();
-    };
   }
 
   trackEvent(contractInstance, eventName, filterConditions) {
@@ -215,6 +198,8 @@ export default class Subspace {
     return this._getObservable(subjectHash, () => {
       const deleteFrom = this.latestBlockNumber - this.options.refreshLastNBlocks;
       const [subject, ethSubscription] = this.eventSyncer.track(contractInstance, eventName, filterConditions, deleteFrom, this.networkId);
+
+      // TODO: remove eth subscription
 
       subject.map = prop => {
         return returnSub.pipe(
@@ -233,8 +218,6 @@ export default class Subspace {
         );
       };
 
-      this._addETHDispose(subjectHash, subject, ethSubscription);
-
       return subject;
     });
   }
@@ -250,13 +233,13 @@ export default class Subspace {
         this.latestBlockNumber - this.options.refreshLastNBlocks,
         this.networkId
       );
-      this._addETHDispose(subjectHash, subject, ethSubscription);
+      // TODO: remove eth subscription
       return subject;
     });
   }
 
   trackProperty(contractInstance, propName, methodArgs = [], callArgs = {}) {
-    const subjectHash = hash({
+    const identifier = hash({
       address: contractInstance.options.address,
       networkId: this.networkId,
       propName,
@@ -264,156 +247,86 @@ export default class Subspace {
       callArgs
     });
 
-    return this._getObservable(subjectHash, () => {
-      const subject = new ReplaySubject(1);
-
+    const observable = this._getDistinctObservableFromPromise(identifier, () => {
       if (!Array.isArray(methodArgs)) {
         methodArgs = [methodArgs];
       }
-
       const method = contractInstance.methods[propName].apply(contractInstance.methods[propName], methodArgs);
-
-      const callContractMethod = () => {
-        method.call.apply(method.call, [
-          callArgs,
-          (err, result) => {
-            if (err) {
-              subject.error(err);
-              return;
-            }
-            subject.next(result);
-          }
-        ]);
-      };
-
-      callContractMethod();
-
-      this.callables[subjectHash] = callContractMethod;
-      
-      const retObservable = this._addCallableDispose(subjectHash, subject.pipe(distinctUntilChanged((a, b) => equal(a, b))));
-
-      retObservable.map = prop => {
-        return retObservable.pipe(
-          map(x => {
-            if (typeof prop === "string") {
-              return x[prop];
-            }
-            if (Array.isArray(prop)) {
-              let newValues = {};
-              prop.forEach(p => {
-                newValues[p] = x[p];
-              });
-              return newValues;
-            }
-          })
-        );
-      };
-
-      return retObservable;
+      return method.call.apply(method.call, [callArgs]);
     });
+
+    observable.map = prop => {
+      return observable.pipe(
+        map(x => {
+          if (typeof prop === "string") {
+            return x[prop];
+          }
+          if (Array.isArray(prop)) {
+            let newValues = {};
+            prop.forEach(p => {
+              newValues[p] = x[p];
+            });
+            return newValues;
+          }
+        })
+      );
+    };
+
+    return observable;
   }
 
   trackBalance(address, erc20Address) {
     if (!isAddress(address)) throw "invalid address";
     if (erc20Address && !isAddress(erc20Address)) throw "invalid ERC20 contract address";
 
-    const subjectHash = hash({address, erc20Address});
-
-    const getETHBalance = cb => {
-      const fn = this.web3.getBalance;
-      fn.apply(fn, [address, cb]);
-    };
-
-    const getTokenBalance = cb => {
-      const fn = this.web3.call;
-      //  balanceOf
-      const data = "0x70a08231" + "000000000000000000000000" + stripHexPrefix(address);
-      fn.apply(fn, [{to: erc20Address, data}, cb]);
-    };
-
-    let callFn;
-    if (!erc20Address) {
-      callFn = subject => () =>
-        getETHBalance((err, balance) => {
-          if (err) {
-            subject.error(err);
-            return;
-          }
-          subject.next(balance);
-        });
-    } else {
-      callFn = subject => () =>
-        getTokenBalance((err, balance) => {
-          if (err) {
-            subject.error(err);
-            return;
-          }
-          subject.next(hexToDec(balance));
-        });
-    }
-
-    return this._addDistinctCallable(subjectHash, callFn, ReplaySubject, 1);
-  }
-
-  trackBlock() {
-    const blockCB = subject => () => {
-      this.web3
-        .getBlock("latest")
-        .then(block => {
-          if (this.latest10Blocks[this.latest10Blocks.length - 1].number === block.number) return;
-
-          this.latest10Blocks.push(block);
-          if (this.latest10Blocks.length > 10) {
-            this.latest10Blocks.shift();
-          }
-          subject.next(block);
-        })
-        .catch(error => subject.error(error));
-    };
-
-    return this._addDistinctCallable(
-      "blockObservable",
-      blockCB,
-      BehaviorSubject,
-      this.latest10Blocks[this.latest10Blocks.length - 1]
-    );
+    address = toChecksumAddress(address);
+    erc20Address = toChecksumAddress(address);
+    
+    return this._getDistinctObservableFromPromise(hash({address, erc20Address}), () => {
+      if (!erc20Address) {
+        return this.web3.getBalance(address);
+      } else {
+                  //  balanceOf
+        const data = "0x70a08231" + "000000000000000000000000" + stripHexPrefix(address);
+        return new Promise((resolve, reject) => this.web3.call({to: erc20Address, data}).then(balance => resolve(hexToDec(balance))).catch(reject));
+      }
+    });
   }
 
   trackBlockNumber() {
-    const blockNumberCB = subject => () => {
-      this.web3
-        .getBlockNumber()
-        .then(result => subject.next(result))
-        .catch(error => subject.error(error));
-    };
-    return this._addDistinctCallable("blockNumberObservable", blockNumberCB, ReplaySubject, 1);
+    return this._getDistinctObservableFromPromise("blockNumber", () => this.web3.getBlockNumber());
+  }
+
+  trackBlock() {
+    return this._getDistinctObservableFromPromise("gasPrice", () => this.web3.getBlock("latest"), block => {
+      if (this.latest10Blocks[this.latest10Blocks.length - 1].number === block.number) return;
+      this.latest10Blocks.push(block);
+      if (this.latest10Blocks.length > 10) {
+        this.latest10Blocks.shift();
+      }
+    });
   }
 
   trackGasPrice() {
-    const gasPriceCB = subject => () => {
-      this.web3
-        .getGasPrice()
-        .then(result => subject.next(result))
-        .catch(error => subject.error(error));
-    };
-    return this._addDistinctCallable("gasPriceObservable", gasPriceCB, ReplaySubject, 1);
+    return this._getDistinctObservableFromPromise("gasPrice", () => this.web3.getGasPrice());
   }
 
   trackAverageBlocktime() {
-    this.trackBlock();
-
-    const calcAverage = () => {
-      const times = [];
-      for (let i = 1; i < this.latest10Blocks.length; i++) {
-        let time = this.latest10Blocks[i].timestamp - this.latest10Blocks[i - 1].timestamp;
-        times.push(time);
-      }
-      return times.length ? Math.round(times.reduce((a, b) => a + b) / times.length) * 1000 : 0;
-    };
-
-    const avgTimeCB = subject => () => subject.next(calcAverage());
-
-    return this._addDistinctCallable("blockTimeObservable", avgTimeCB, BehaviorSubject, calcAverage());
+    return this._getObservable("avgBlockTime", () => {
+      const calcAverage = () => {
+        const times = [];
+        for (let i = 1; i < this.latest10Blocks.length; i++) {
+          let time = this.latest10Blocks[i].timestamp - this.latest10Blocks[i - 1].timestamp;
+          times.push(time);
+        }
+        return times.length ? Math.round(times.reduce((a, b) => a + b) / times.length) * 1000 : 0;
+      };
+      
+      return this.trackBlock().pipe(
+        map(() => calcAverage()),
+        distinctUntilChanged((a, b) => equal(a, b))
+      );
+    });
   }
 
   close() {
@@ -421,6 +334,5 @@ export default class Subspace {
     if (this.newBlocksSubscription) this.newBlocksSubscription.unsubscribe();
     this.eventSyncer.close();
     this.intervalTracker = null;
-    this.callables = {};
   }
 }
