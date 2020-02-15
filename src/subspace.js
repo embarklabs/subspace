@@ -14,7 +14,7 @@ import hash from "object-hash";
 
 export default class Subspace {
   subjects = {};
-  callables = [];
+  callables = {};
 
   newBlocksSubscription = null;
   intervalTracker = null;
@@ -155,7 +155,7 @@ export default class Subspace {
         return;
       }
 
-      this.callables.forEach(fn => fn());
+      Object.values(this.callables).forEach(fn => fn());
     });
   }
 
@@ -163,24 +163,43 @@ export default class Subspace {
     if (this.intervalTracker != null || this.options.callInterval === 0) return;
 
     this.intervalTracker = setInterval(() => {
-      this.callables.forEach(fn => fn());
+      Object.values(this.callables).forEach(fn => fn());
     }, this.options.callInterval);
   }
 
   _getObservableSubject(subjectHash, subjectCB) {
     if (this.subjects[subjectHash]) return this.subjects[subjectHash];
-    this.subjects[subjectHash] = subjectCB().asObservable();
+    this.subjects[subjectHash] = subjectCB();
     return this.subjects[subjectHash];
   }
 
   _addDistinctCallable(trackAttribute, cbBuilder, SubjectType, subjectArg = undefined) {
     return this._getObservableSubject(trackAttribute, () => {
-      const sub = new SubjectType(subjectArg);
-      const cb = cbBuilder(sub);
+      const subject = new SubjectType(subjectArg);
+      const cb = cbBuilder(subject);
       cb();
-      this.callables.push(cb);
-      return sub.pipe(distinctUntilChanged((a, b) => equal(a, b)));
+      this.callables[trackAttribute] = cb;
+
+      return this._addCallableDispose(trackAttribute, subject.pipe(distinctUntilChanged((a, b) => equal(a, b))));
     });
+  }
+
+  _addCallableDispose(subjectHash, observable) {
+    observable.dispose = () => {
+      // Removing from callable list to avoid it being called after getting of the subject
+      delete this.callables[subjectHash];
+      delete this.subjects[subjectHash];
+    };
+    return observable;
+  }
+
+  _addETHDispose(subjectHash, subject, ethSubscription) {
+    subject.dispose = async () => {
+        // TODO: event syncer is still emitting data;
+        // TODO: delete subject hash
+
+        // if(ethSubscription) await ethSubscription.unsubscribe();
+    };
   }
 
   trackEvent(contractInstance, eventName, filterConditions) {
@@ -190,11 +209,12 @@ export default class Subspace {
       eventName,
       filterConditions
     });
-    return this._getObservableSubject(subjectHash, () => {
-      let deleteFrom = this.latestBlockNumber - this.options.refreshLastNBlocks;
-      let returnSub = this.eventSyncer.track(contractInstance, eventName, filterConditions, deleteFrom, this.networkId);
 
-      returnSub.map = prop => {
+    return this._getObservableSubject(subjectHash, () => {
+      const deleteFrom = this.latestBlockNumber - this.options.refreshLastNBlocks;
+      const [subject, ethSubscription] = this.eventSyncer.track(contractInstance, eventName, filterConditions, deleteFrom, this.networkId);
+
+      subject.map = prop => {
         return returnSub.pipe(
           map(x => {
             if (typeof prop === "string") {
@@ -211,7 +231,9 @@ export default class Subspace {
         );
       };
 
-      return returnSub;
+      this._addETHDispose(subjectHash, subject, ethSubscription);
+
+      return subject;
     });
   }
 
@@ -219,9 +241,16 @@ export default class Subspace {
     if (!this.isWebsocketProvider) console.warn("This method only works with websockets");
 
     const subjectHash = hash({inputsABI, options});
-    return this._getObservableSubject(subjectHash, () =>
-      this.logSyncer.track(options, inputsABI, this.latestBlockNumber - this.options.refreshLastNBlocks, this.networkId)
-    );
+    return this._getObservableSubject(subjectHash, () => {
+      const [subject, ethSubscription] = this.logSyncer.track(
+        options,
+        inputsABI,
+        this.latestBlockNumber - this.options.refreshLastNBlocks,
+        this.networkId
+      );
+      this._addETHDispose(subjectHash, subject, ethSubscription);
+      return subject;
+    });
   }
 
   trackProperty(contractInstance, propName, methodArgs = [], callArgs = {}) {
@@ -257,12 +286,12 @@ export default class Subspace {
 
       callContractMethod();
 
-      this.callables.push(callContractMethod);
+      this.callables[subjectHash] = callContractMethod;
+      
+      const retObservable = this._addCallableDispose(subjectHash, subject.pipe(distinctUntilChanged((a, b) => equal(a, b))));
 
-      const returnSub = subject.pipe(distinctUntilChanged((a, b) => equal(a, b)));
-
-      returnSub.map = prop => {
-        return returnSub.pipe(
+      retObservable.map = prop => {
+        return retObservable.pipe(
           map(x => {
             if (typeof prop === "string") {
               return x[prop];
@@ -278,7 +307,7 @@ export default class Subspace {
         );
       };
 
-      return returnSub;
+      return retObservable;
     });
   }
 
@@ -390,6 +419,6 @@ export default class Subspace {
     if (this.newBlocksSubscription) this.newBlocksSubscription.unsubscribe();
     this.eventSyncer.close();
     this.intervalTracker = null;
-    this.callables = [];
+    this.callables = {};
   }
 }
