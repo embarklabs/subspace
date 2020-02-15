@@ -67,24 +67,14 @@ class LogSyncer {
       this.events.emit("updateDB");
     });
 
-    const eth_subscribe = this._retrieveEvents(
+    const ethSubscription = this._retrieveEvents(
       eventKey,
       eventSummary.firstKnownBlock,
       eventSummary.lastKnownBlock,
       filterConditions
     );
 
-    const og_subscribe = sub.subscribe;
-    sub.subscribe = (next, error, complete) => {
-      const s = og_subscribe.apply(sub, [next, error, complete]);
-      s.add(() => {
-        // Removing web3js subscription when rxJS unsubscribe is executed
-        if (eth_subscribe) eth_subscribe.unsubscribe();
-      });
-      return s;
-    };
-
-    return sub;
+    return [sub, ethSubscription];
   }
 
   _retrieveEvents(eventKey, firstKnownBlock, lastKnownBlock, filterConditions) {
