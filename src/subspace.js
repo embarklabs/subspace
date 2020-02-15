@@ -5,7 +5,7 @@ import Database from "./database/database.js";
 import NullDatabase from "./database/nullDatabase.js";
 import Events from "events";
 import Web3Eth from "web3-eth";
-import {isAddress} from "./utils";
+import {isAddress, toChecksumAddress} from "./utils";
 import stripHexPrefix from "strip-hex-prefix";
 import {hexToDec} from "hex2dec";
 import EventSyncer from "./eventSyncer";
@@ -280,10 +280,11 @@ export default class Subspace {
     if (erc20Address && !isAddress(erc20Address)) throw "invalid ERC20 contract address";
 
     address = toChecksumAddress(address);
-    erc20Address = toChecksumAddress(address);
+    erc20Address = erc20Address ? toChecksumAddress(erc20Address) : null;
     
     return this._getDistinctObservableFromPromise(hash({address, erc20Address}), () => {
       if (!erc20Address) {
+        this.web3.getBalance(address).then(balance => console.log("Balance: ", balance));
         return this.web3.getBalance(address);
       } else {
                   //  balanceOf
