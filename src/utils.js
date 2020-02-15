@@ -1,4 +1,5 @@
 import createKeccakHash from "keccak";
+import {map} from "rxjs/operators";
 
 export function isAddress(address) {
   return /^(0x)?[0-9a-fA-F]{40}$/i.test(address);
@@ -23,4 +24,21 @@ export function toChecksumAddress(address) {
     }
   }
   return ret;
+}
+
+export function mapFunc(observable) {
+  return prop => observable.pipe(
+    map(x => {
+      if (typeof prop === "string") {
+        return x[prop];
+      }
+      if (Array.isArray(prop)) {
+        let newValues = {};
+        prop.forEach(p => {
+          newValues[p] = x[p];
+        });
+        return newValues;
+      }
+    })
+  );
 }

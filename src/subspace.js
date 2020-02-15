@@ -39,45 +39,39 @@ export default class Subspace {
     this.isWebsocketProvider = options.disableSubscriptions ? false : !!provider.on;
   }
 
-  init() {
-    return new Promise(async resolve => {
-      if (this.options.disableDatabase === true) {
-        this._db = new NullDatabase("", this.events);
-      } else {
-        this._db = new Database(this.options.dbFilename, this.events);
-      }
-      this.eventSyncer = new EventSyncer(this.web3, this.events, this._db, this.isWebsocketProvider);
-      this.logSyncer = new LogSyncer(this.web3, this.events, this._db);
+  async init() {
+    if (this.options.disableDatabase === true) {
+      this._db = new NullDatabase("", this.events);
+    } else {
+      this._db = new Database(this.options.dbFilename, this.events);
+    }
+    this.eventSyncer = new EventSyncer(this.web3, this.events, this._db, this.isWebsocketProvider);
+    this.logSyncer = new LogSyncer(this.web3, this.events, this._db);
 
-      this.web3.net.getId().then(netId => {
-        this.networkId = netId;
-      });
+    this.networkId = await this.web3.net.getId();
 
-      const block = await this.web3.getBlock("latest");
+    const block = await this.web3.getBlock("latest");
 
-      // Preload <= 10 blocks to calculate avg block time
-      if (block.number !== 0) {
-        const minBlock = Math.max(0, block.number - 9);
-        for (let i = minBlock; i < block.number; i++) {
-          this.latest10Blocks.push(this.web3.getBlock(i));
-        }
-
-        this.latest10Blocks = await Promise.all(this.latest10Blocks);
+    // Preload <= 10 blocks to calculate avg block time
+    if (block.number !== 0) {
+      const minBlock = Math.max(0, block.number - 9);
+      for (let i = minBlock; i < block.number; i++) {
+        this.latest10Blocks.push(this.web3.getBlock(i));
       }
 
-      // Initial stats
-      this.latestBlockNumber = block.number;
-      this.latest10Blocks.push(block);
+      this.latest10Blocks = await Promise.all(this.latest10Blocks);
+    }
 
-      if (this.isWebsocketProvider) {
-        this._initNewBlocksSubscription();
-      } else {
-        this.options.callInterval = this.options.callInterval || 1000;
-        this._initCallInterval();
-      }
+    // Initial stats
+    this.latestBlockNumber = block.number;
+    this.latest10Blocks.push(block);
 
-      resolve();
-    });
+    if (this.isWebsocketProvider) {
+      this._initNewBlocksSubscription();
+    } else {
+      this.options.callInterval = this.options.callInterval || 1000;
+      this._initCallInterval();
+    }
   }
 
   contract(contractInstance) {
