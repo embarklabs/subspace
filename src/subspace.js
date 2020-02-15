@@ -5,7 +5,7 @@ import Database from "./database/database.js";
 import NullDatabase from "./database/nullDatabase.js";
 import Events from "events";
 import Web3Eth from "web3-eth";
-import {isAddress, toChecksumAddress} from "./utils";
+import {isAddress, toChecksumAddress, mapFunc} from "./utils";
 import stripHexPrefix from "strip-hex-prefix";
 import {hexToDec} from "hex2dec";
 import EventSyncer from "./eventSyncer";
@@ -204,24 +204,9 @@ export default class Subspace {
       const deleteFrom = this.latestBlockNumber - this.options.refreshLastNBlocks;
       const [subject, ethSubscription] = this.eventSyncer.track(contractInstance, eventName, filterConditions, deleteFrom, this.networkId);
 
-      // TODO: remove eth subscription
+      subject.map = mapFunc(subject);
 
-      subject.map = prop => {
-        return returnSub.pipe(
-          map(x => {
-            if (typeof prop === "string") {
-              return x[prop];
-            }
-            if (Array.isArray(prop)) {
-              let newValues = {};
-              prop.forEach(p => {
-                newValues[p] = x[p];
-              });
-              return newValues;
-            }
-          })
-        );
-      };
+      // TODO: remove eth subscription
 
       return subject;
     });
@@ -260,22 +245,7 @@ export default class Subspace {
       return method.call.apply(method.call, [callArgs]);
     });
 
-    observable.map = prop => {
-      return observable.pipe(
-        map(x => {
-          if (typeof prop === "string") {
-            return x[prop];
-          }
-          if (Array.isArray(prop)) {
-            let newValues = {};
-            prop.forEach(p => {
-              newValues[p] = x[p];
-            });
-            return newValues;
-          }
-        })
-      );
-    };
+    observable.map = mapFunc(observable);
 
     return observable;
   }
