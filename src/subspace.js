@@ -31,7 +31,7 @@ export default class Subspace {
 
     this.options = {};
     this.options.refreshLastNBlocks = options.refreshLastNBlocks ?? 12;
-    this.options.callInterval = options.callInterval ?? 0;
+    this.options.callInterval = options.callInterval;
     this.options.dbFilename = options.dbFilename ?? "subspace.db";
     this.options.disableDatabase = options.disableDatabase;
 
@@ -69,7 +69,11 @@ export default class Subspace {
     if (this.isWebsocketProvider) {
       this._initNewBlocksSubscription();
     } else {
-      this.options.callInterval = this.options.callInterval || 1000;
+
+      if(!this.options.callInterval){
+        this.options.callInterval = Math.max(this._calcAverage(), 1000);
+      }
+
       this._initCallInterval();
     }
   }
@@ -135,6 +139,15 @@ export default class Subspace {
     } else {
       // TODO: delete everything
     }
+  }
+
+  _calcAverage(){
+    const times = [];
+    for (let i = 1; i < this.latest10Blocks.length; i++) {
+      let time = this.latest10Blocks[i].timestamp - this.latest10Blocks[i - 1].timestamp;
+      times.push(time);
+    }
+    return times.length ? Math.round(times.reduce((a, b) => a + b) / times.length) * 1000 : 0;
   }
 
   _initNewBlocksSubscription() {
@@ -268,7 +281,7 @@ export default class Subspace {
   }
 
   trackBlock() {
-    return this._getDistinctObservableFromPromise("gasPrice", () => this.web3.getBlock("latest"), block => {
+    return this._getDistinctObservableFromPromise("block", () => this.web3.getBlock("latest"), block => {
       if (this.latest10Blocks[this.latest10Blocks.length - 1].number === block.number) return;
       this.latest10Blocks.push(block);
       if (this.latest10Blocks.length > 10) {
@@ -283,17 +296,10 @@ export default class Subspace {
 
   trackAverageBlocktime() {
     return this._getObservable("avgBlockTime", () => {
-      const calcAverage = () => {
-        const times = [];
-        for (let i = 1; i < this.latest10Blocks.length; i++) {
-          let time = this.latest10Blocks[i].timestamp - this.latest10Blocks[i - 1].timestamp;
-          times.push(time);
-        }
-        return times.length ? Math.round(times.reduce((a, b) => a + b) / times.length) * 1000 : 0;
-      };
+      
       
       return this.trackBlock().pipe(
-        map(() => calcAverage()),
+        map(() => this._calcAverage()),
         distinctUntilChanged((a, b) => equal(a, b))
       );
     });
