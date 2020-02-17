@@ -41,8 +41,17 @@ class Database {
   }
 
   databaseInitialize(cb) {
-    let dbChanges = fromEvent(this.events, "updateDB");
-    dbChanges.subscribe(() => {
+    // TODO: save in the db results by using a combination of concatMap and scan, to save results in batches
+    fromEvent(this.events, "updateDB").subscribe(({eventKey, eventData}) => {
+      if (eventData.removed) { 
+        this.deleteEvent(eventKey, eventData.id);
+        return;
+      }
+
+      if (this.eventExists(eventKey, eventData.id)) return;
+
+      this.recordEvent(eventKey, eventData);
+
       this.db.saveDatabase();
     });
   }

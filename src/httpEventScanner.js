@@ -51,7 +51,7 @@ class HttpEventScanner {
 
       // Should exit?
       return (
-        (toBlockInPast && lastCachedBlock >= (toBlockFilter || 0)) ||
+        (toBlockInPast && lastCachedBlock >= toBlockFilter) ||
         lastCachedBlock > Math.max(lastBlockNumberAtLoad, toBlockInPast ? toBlockFilter || 0 : 0)
       );
     });
@@ -65,7 +65,7 @@ class HttpEventScanner {
         try {
           let toBlockLimit = await this.web3.getBlockNumber();
           if (toBlockLimit >= lastCachedBlock) {
-            await getPastEvents(lastCachedBlock, toBlockLimit, toBlockFilter || 0);
+            await getPastEvents(lastCachedBlock, toBlockLimit, toBlockFilter);
             lastCachedBlock = toBlockLimit + 1;
           }
         } catch (e) {
@@ -74,7 +74,7 @@ class HttpEventScanner {
 
         // Should exit?
         return (
-          filterConditions.toBlock !== "latest" && lastCachedBlock > Math.max(lastBlockNumberAtLoad, toBlockFilter || 0)
+          filterConditions.toBlock !== "latest" && lastCachedBlock > Math.max(lastBlockNumberAtLoad, toBlockFilter)
         );
       },
       1

@@ -23,6 +23,7 @@ class WsEventScanner {
         let filters = Object.assign({}, filterConditions, {
           fromBlock: filterConditions.fromBlock > lastKnownBlock ? filterConditions.fromBlock : lastKnownBlock + 1
         });
+
         return subscribe(this.subscriptions, filters);
       } else if (filterConditions.toBlock <= lastKnownBlock) {
         // emit DB Events [fromBlock, toBlock]
