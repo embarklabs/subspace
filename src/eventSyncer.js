@@ -1,7 +1,6 @@
 import {Observable} from "rxjs";
 import hash from "object-hash";
-import HttpEventScanner from "./httpEventScanner";
-import WsEventScanner from "./wsEventScanner";
+import EventScanner from "./eventScanner";
 
 class EventSyncer {
   constructor(web3, events, db, isWebsocketProvider) {
@@ -10,7 +9,7 @@ class EventSyncer {
     this.db = db;
 
     this.isWebsocketProvider = isWebsocketProvider;
-    this.eventScanner = isWebsocketProvider ? new WsEventScanner(web3) : new HttpEventScanner(web3);
+    this.eventScanner = new EventScanner(web3, isWebsocketProvider);
   }
 
   track(contractInstance, eventName, filters, gteBlockNum, networkId) {
@@ -20,7 +19,6 @@ class EventSyncer {
 
     let filterConditions = Object.assign({fromBlock: 0, toBlock: "latest"}, filters ?? {});
     let lastKnownBlock = this.db.getLastKnownEvent(eventKey);
-    let firstKnownBlock = this.db.getFirstKnownEvent(eventKey);
 
     const observable = new Observable(subscriber => {
       const cb = this.callbackFactory(subscriber, filters, eventKey, eventName);
@@ -28,20 +26,13 @@ class EventSyncer {
       const fnPastEvents = this.getPastEvents(cb, eventKey, contractInstance, eventName, filters);
       const fnSubscribe = this.isWebsocketProvider ? this.subscribeToEvent(cb, contractInstance, eventName) : null;
 
-      let ethSubscription;
-
-      if (this.isWebsocketProvider) {
-        ethSubscription = this.eventScanner.scan(
-          fnDBEvents,
-          fnPastEvents,
-          fnSubscribe,
-          firstKnownBlock,
-          lastKnownBlock,
-          filterConditions
-        );
-      } else {
-        this.eventScanner.scan(fnDBEvents, fnPastEvents, lastKnownBlock, filterConditions);
-      }
+      const ethSubscription = this.eventScanner.scan(
+        fnDBEvents,
+        fnPastEvents,
+        fnSubscribe,
+        lastKnownBlock,
+        filterConditions
+      );
 
       return () => {
         if (ethSubscription) {
@@ -62,34 +53,36 @@ class EventSyncer {
     events.forEach(ev => cb(null, ev));
     if (hardLimit && toBlock === hardLimit) {
       cb(null, null, true); // Complete observable
+      return true;
     }
+    return false;
   };
 
-  serveDBEvents = (cb, eventKey) => (filters, toBlock, fromBlock = null) => {
-    const events = this.db.getEventsFor(eventKey)
-                          .filter(x => x.blockNumber >= (fromBlock || filters.fromBlock) && x.blockNumber <= toBlock);
-    if(events.length){
-      events.forEach(ev => cb(null, ev));
-      const maxBlock = events.reduce(function(a, b) { return a.blockNumber >= b.blockNumber ? a : b }, {})
-      if(toBlock == maxBlock.blockNumber){
-        cb(null, null, true); // Complete observable
-      }
+  serveDBEvents = (cb, eventKey) => (toBlock, lastCachedBlock) => {
+    const events = this.db.getEventsFor(eventKey);
+    events.forEach(ev => cb(null, ev));
+
+    if(toBlock > 0 && lastCachedBlock >= toBlock) {
+      cb(null, null, true); // Complete observable
+      return true;
     }
+
+    return false;
   };
 
   subscribeToEvent = (cb, contractInstance, eventName) => (subscriptions, filters) => {
     const s = contractInstance.events[eventName](filters, (err, event) => cb(err, event));
     subscriptions.push(s);
-    // TODO: complete observable if necessary
+    // TODO: Complete observable if necessary
     return s;
   };
 
   callbackFactory = (subscriber, filterConditions, eventKey, eventName) => (err, event, complete = false) => {
-    if(complete){
+    if (complete) {
       subscriber.complete();
       return;
     }
-    
+
     if (err) {
       console.error(err);
       return;
