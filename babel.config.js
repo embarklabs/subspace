@@ -22,6 +22,8 @@ module.exports = api => {
               corejs: 3
             }
           ],
+          "@babel/plugin-transform-react-jsx",
+          "@babel/plugin-proposal-export-default-from",
           "@babel/plugin-proposal-class-properties",
           "@babel/plugin-proposal-private-methods",
           "@babel/plugin-proposal-nullish-coalescing-operator",
@@ -49,6 +51,8 @@ module.exports = api => {
               useESModules: true
             }
           ],
+          "@babel/plugin-transform-react-jsx",
+          "@babel/plugin-proposal-export-default-from",
           "@babel/plugin-proposal-class-properties",
           "@babel/plugin-proposal-private-methods",
           "@babel/plugin-proposal-nullish-coalescing-operator",
@@ -76,6 +80,8 @@ module.exports = api => {
               useESModules: true
             }
           ],
+          "@babel/plugin-transform-react-jsx",
+          "@babel/plugin-proposal-export-default-from",
           "@babel/plugin-proposal-class-properties",
           "@babel/plugin-proposal-private-methods",
           "@babel/plugin-proposal-nullish-coalescing-operator",
