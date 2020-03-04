@@ -30,10 +30,10 @@
   "scripts": {
     "lint": "eslint 'src/**/*.js'",
     "clean": "rimraf dist; rimraf lib; rimraf module; rimraf react;",
-    "build:browser": "cross-env BABEL_ENV=browser babel ./src --out-dir ./lib --source-maps --copy-files --ignore src/react/*",
+    "build:browser": "cross-env BABEL_ENV=browser babel ./src --out-dir ./lib --source-maps --copy-files --ignore ./src/react/**/*",
     "build:react": "cross-env BABEL_ENV=browser babel ./src/react --out-dir ./react --source-maps --copy-files",
-    "build:module": "cross-env BABEL_ENV=module babel ./src --out-dir ./module --source-maps --copy-files",
-    "build:node": "babel ./src --out-dir ./dist --source-maps --copy-files",
+    "build:module": "cross-env BABEL_ENV=module babel ./src --out-dir ./module --source-maps --copy-files --ignore ./src/react/**/*",
+    "build:node": "babel ./src --out-dir ./dist --source-maps --copy-files --ignore ./src/react/**/*",
     "build": "npm-run-all clean build:*",
     "test": "jest"
   },
@@ -41,10 +41,12 @@
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.8.4",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-proposal-export-default-from": "^7.8.3",
     "@babel/plugin-proposal-nullish-coalescing-operator": "^7.8.3",
     "@babel/plugin-proposal-optional-chaining": "^7.8.3",
     "@babel/plugin-proposal-private-methods": "^7.8.3",
     "@babel/plugin-transform-runtime": "^7.8.3",
+    "@babel/plugin-transform-react-jsx": "^7.8.3",
     "@babel/preset-env": "^7.8.4",
     "babel-eslint": "^10.0.3",
     "babel-jest": "24.9.0",
@@ -64,16 +66,17 @@
     "hex2dec": "^1.1.2",
     "keccak": "^3.0.0",
     "lokijs": "^1.5.6",
-    "object-hash": "^2.0.1",
-    "rxjs": "^6.5.2",
-    "web3-eth": "^1.2.6"
+    "object-hash": "^2.0.1"
   },
   "peerDependencies": {
     "graphql": "^14.4.2",
     "graphql-tag": "^2.10.1",
     "graphql-tools": "^4.0.5",
     "react": "^16.9.0",
-    "reactive-graphql": "^3.0.2"
+    "react-dom": "^16.9.0",
+    "reactive-graphql": "^3.0.2",
+    "rxjs": "^6.5.2",
+    "web3": "^1.2.1"
   },
   "jest": {
     "collectCoverage": true,
