@@ -3,33 +3,6 @@ module.exports = api => {
 
   return {
     env: {
-      development: {
-        presets: [
-          [
-            "@babel/preset-env",
-            {
-              corejs: 3,
-              shippedProposals: true,
-              targets: { node: "current" },
-              useBuiltIns: "usage"
-            }
-          ]
-        ],
-        plugins: [
-          [
-            "@babel/plugin-transform-runtime",
-            {
-              corejs: 3
-            }
-          ],
-          "@babel/plugin-transform-react-jsx",
-          "@babel/plugin-proposal-export-default-from",
-          "@babel/plugin-proposal-class-properties",
-          "@babel/plugin-proposal-private-methods",
-          "@babel/plugin-proposal-nullish-coalescing-operator",
-          "@babel/plugin-proposal-optional-chaining"
-        ]
-      },
       browser: {
         presets: [
           [
@@ -38,7 +11,7 @@ module.exports = api => {
               corejs: 3,
               modules: false,
               shippedProposals: true,
-              targets: { browsers: "defaults" },
+              targets: {browsers: "defaults"},
               useBuiltIns: "usage"
             }
           ]
@@ -51,12 +24,12 @@ module.exports = api => {
               useESModules: true
             }
           ],
-          "@babel/plugin-transform-react-jsx",
           "@babel/plugin-proposal-export-default-from",
           "@babel/plugin-proposal-class-properties",
           "@babel/plugin-proposal-private-methods",
           "@babel/plugin-proposal-nullish-coalescing-operator",
-          "@babel/plugin-proposal-optional-chaining"
+          "@babel/plugin-proposal-optional-chaining",
+          "@babel/plugin-transform-react-jsx"
         ]
       },
       module: {
@@ -67,7 +40,7 @@ module.exports = api => {
               corejs: 3,
               modules: false,
               shippedProposals: true,
-              targets: { node: "current" },
+              targets: {node: "current"},
               useBuiltIns: "usage"
             }
           ]
@@ -80,12 +53,12 @@ module.exports = api => {
               useESModules: true
             }
           ],
-          "@babel/plugin-transform-react-jsx",
           "@babel/plugin-proposal-export-default-from",
           "@babel/plugin-proposal-class-properties",
           "@babel/plugin-proposal-private-methods",
           "@babel/plugin-proposal-nullish-coalescing-operator",
-          "@babel/plugin-proposal-optional-chaining"
+          "@babel/plugin-proposal-optional-chaining",
+          "@babel/plugin-transform-react-jsx"
         ]
       }
     },

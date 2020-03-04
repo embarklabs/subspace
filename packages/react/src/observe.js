@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {isObservable} from "rxjs";
 
-export function observe(WrappedComponent) {
+export default function observe(WrappedComponent) {
   return class extends Component {
     state = {
       observedValues: {},

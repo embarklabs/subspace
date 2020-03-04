@@ -4,7 +4,7 @@ const Subspace = require('../dist/index.js').default;
 const ganache = require("ganache-core");
 
 console.log("The following error is emitted by ganache - https://github.com/trufflesuite/ganache-core/issues/267")
-let eth = new Web3Eth(ganache.provider());
+let eth = new Web3Eth("http://localhost:8545");
 
 async function run() {
   let accounts = await eth.getAccounts();
@@ -30,45 +30,28 @@ async function run() {
   await mine(eth);
   await mine(eth); 
   await mine(eth);
+
+  setTimeout(async () => {
+    setInterval(async () => {
+      await RatingContract.methods.doRating(1, 1).send({from: accounts[0]})
+    }, 2000);
+  }, 3000)
   await mine(eth);
-  await RatingContract.methods.doRating(8, 5).send({from: accounts[0]})
   
   const subspace = new Subspace(eth.currentProvider);
   await subspace.init()
 
+  
   // Testing single block with a event
-  subspace.trackEvent(RatingContract, 'Rating', {fromBlock: 3, toBlock: 3}).subscribe((v) => {
-    console.log("A", v)
-  });
-
-  // Testing blocks that have no events in between
-  subspace.trackEvent(RatingContract, 'Rating', {fromBlock: 8, toBlock: 11}).subscribe((v) => {
-    console.log("B", v)
-  });
-
-  // Testing blocks that begin with no events
-  subspace.trackEvent(RatingContract, 'Rating', {fromBlock: 12, toBlock: 15}).subscribe((v) => {
-    console.log("C", v)
-  });
-
-  // Testing all blocks
-  subspace.trackEvent(RatingContract, 'Rating', {}).subscribe((v) => {
-    console.log("D", v)
-  });
-
-  // Testing blocks that end in no events
-  subspace.trackEvent(RatingContract, 'Rating', {fromBlock: 14, toBlock: 18}).subscribe((v) => {
-    console.log("E", v)
+  subspace.trackEvent(RatingContract, 'Rating', {fromBlock: 3}).subscribe({
+    next(x) { console.log('got value ', x)},
+    error(err) { console.log("ERROR")},
+    complete() { console.log('done')}
   });
 
 
-  setTimeout(() => {
-    // Testing if events come from the DB instead of a subscription
-    subspace.trackEvent(RatingContract, 'Rating', {fromBlock: 7, toBlock: 11}).subscribe((v) => {
-      console.log("E", v)
-    });
-  }, 5000);
+  console.log(".....")
 
 }
 
-run()
+run();

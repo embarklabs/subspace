@@ -12,7 +12,7 @@ https://subspace.status.im
 ### Install
 Subspace can be used in browser, node and native script environments. You can install it through `npm` or `yarn`:
 ```
-npm install --save @embarklabs/subspace
+npm install --save @embarklabs/subspace web3 rxjs
 ```
 
 ### Usage

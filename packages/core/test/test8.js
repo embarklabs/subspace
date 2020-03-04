@@ -9,7 +9,10 @@ async function run() {
 
   subspace.trackBlockNumber().subscribe((v) => console.log("Blocknumber", v));
   subspace.trackGasPrice().subscribe((v) => console.log("GasPrice", v));
-  subspace.trackBlock().subscribe((v) => console.log("Block.difficulty", v.difficulty));
+  subspace.trackBlock().subscribe((v) => {
+    console.log("V", v);
+    console.log("Block.difficulty", v.difficulty);
+  });
   subspace.trackAverageBlocktime().subscribe((v) => console.log("Blocktime", v));
 }
 

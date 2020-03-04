@@ -4,9 +4,9 @@ phoenix.db
 subspace.db
 TODO
 test.js
-/dist/
-/react/
-/lib/
-/module/
+dist/
+lib/
+module/
 /examples/react-example1/src/contract.json
-/coverage/
+coverage/
+lerna-debug.log

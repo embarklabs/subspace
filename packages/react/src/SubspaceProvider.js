@@ -1,17 +1,17 @@
 import React, {useState, useEffect} from "react";
 import PropTypes from "prop-types";
-import Subspace from "../index";
+import Subspace from "@embarklabs/subspace";
 import SubspaceContext from "./subspaceContext";
 
-const SubspaceProvider = ({children, provider}) => {
+function SubspaceProvider({children, web3}){
   const [subspace, setSubspace] = useState();
 
   useEffect(() => {
-    const s = new Subspace(provider);
+    const s = new Subspace(web3);
     s.init();
 
     setSubspace(s);
-  }, [provider]);
+  }, [web3]);
 
   if (!subspace) return null;
 
@@ -24,7 +24,7 @@ SubspaceProvider.defaultProps = {
 
 SubspaceProvider.propTypes = {
   children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
-  provider: PropTypes.object.isRequired
+  web3: PropTypes.object.isRequired
 };
 
 export default SubspaceProvider;
