@@ -1,10 +1,10 @@
-const Web3Eth = require('web3-eth');
+const Web3 = require('web3');
 const Subspace = require('../dist/index.js').default;
 
-let eth = new Web3Eth("https://mainnet.infura.io/v3/562ba55287324547adbdd59b1dabc869");
+let web3 = new Web3("https://mainnet.infura.io/v3/562ba55287324547adbdd59b1dabc869");
 
 async function run() {
-  const subspace = new Subspace(eth.currentProvider);
+  const subspace = new Subspace(web3);
   await subspace.init()
 
   subspace.trackBlockNumber().subscribe((v) => console.log("Blocknumber", v));

@@ -1,10 +1,10 @@
-const Web3Eth = require('web3-eth');
+const Web3 = require('web3-eth');
 const Subspace = require('../dist/index.js').default;
 
-let eth = new Web3Eth("wss://mainnet.infura.io/ws/v3/_____________");
+let ethweb3 = new Web3("wss://mainnet.infura.io/ws/v3/_____________");
 
 async function run() { 
-  const subspace = new Subspace(eth.currentProvider);
+  const subspace = new Subspace(web3);
   await subspace.init()
 
   // Testing single block with a event

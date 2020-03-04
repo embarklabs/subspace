@@ -1,9 +1,9 @@
 const { map, scan, last, distinctUntilChanged } = require('rxjs/operators');
-const Web3Eth = require('web3-eth');
+const Web3 = require('web3');
 const {deployEscrowContract} = require('./utils-web3');
 const Subspace = require('../dist/index.js').default;
 
-let eth = new Web3Eth("ws://localhost:8545");
+let web3 = new Web3("ws://localhost:8545");
 
 let myscan = scan((acc, curr) => {
   acc.push(curr);
@@ -13,8 +13,8 @@ let myscan = scan((acc, curr) => {
 let mymap = map(arr => arr.reduce((acc, current) => acc + current, 0) / arr.length)
 
 async function run() {
-  let accounts = await eth.getAccounts();
-  var EscrowContract = await deployEscrowContract(eth)
+  let accounts = await web3.eth.getAccounts();
+  var EscrowContract = await deployEscrowContract(web3.eth)
 
   await EscrowContract.methods.createEscrow(1, accounts[0], accounts[1]).send({from: accounts[0]})
   await EscrowContract.methods.createEscrow(1, accounts[1], accounts[2]).send({from: accounts[0]})
@@ -27,7 +27,7 @@ async function run() {
     // console.dir(event)
   })
 
-  const subspace = new Subspace(eth.currentProvider);
+  const subspace = new Subspace(web3);
 
   await subspace.init()
   console.dir("getting escrows created by " + accounts[0])
