@@ -108,23 +108,25 @@ async function run() {
   var SimpleStorageContract = await deployContract()
   console.dir(SimpleStorageContract.options.address)
 
+  console.log("F")
+  const subspace = new Subspace(eth.currentProvider);
+console.log("B")
+  await subspace.init();
+console.log("C")
+  await SimpleStorageContract.methods.set(2, 500).send({ from: accounts[0], gas: 4700000 })
+console.log("A")
+  subspace.trackProperty(SimpleStorageContract, 'get', [2], {from: "0x0000000000000000000000000000000000000012"} ).map("1").subscribe((v) => {
+    console.dir("value is ")
+    console.dir(v)
+  })
+
   setTimeout(async () => {
-    await SimpleStorageContract.methods.set(0, 100).send({ from: accounts[0], gas: 4700000 })
     await SimpleStorageContract.methods.set(2, 200).send({ from: accounts[0] })
     await SimpleStorageContract.methods.set(1, 200).send({ from: accounts[0] })
     await SimpleStorageContract.methods.set(0, 300).send({ from: accounts[0] })
     await SimpleStorageContract.methods.set(2, 300).send({ from: accounts[0] })
     await SimpleStorageContract.methods.set(0, 300).send({ from: accounts[0] })
-  }, 2000)
-
-  const subspace = new Subspace(eth.currentProvider);
-
-  await subspace.init();
-
-  subspace.trackProperty(SimpleStorageContract, 'get', [2], {from: "0x0000000000000000000000000000000000000012"} ).pipe().subscribe((v) => {
-    console.dir("value is ")
-    console.dir(v)
-  })
+  }, 2000);
 
 }
 

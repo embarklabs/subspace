@@ -4,7 +4,6 @@ import equal from "fast-deep-equal";
 import Database from "./database/database.js";
 import NullDatabase from "./database/nullDatabase.js";
 import Events from "events";
-import Web3Eth from "web3-eth";
 import {isAddress, toChecksumAddress, mapFunc} from "./utils";
 import stripHexPrefix from "strip-hex-prefix";
 import {hexToDec} from "hex2dec";
@@ -20,14 +19,14 @@ export default class Subspace {
   latestBlockNumber = undefined;
   latest10Blocks = [];
 
-  constructor(provider, options = {}) {
-    if (!provider.on) {
+  constructor(web3, options = {}) {
+    if (!web3?.currentProvider?.on) {
       // https://github.com/ethereum/web3.js/blob/1.x/packages/web3-core-subscriptions/src/subscription.js#L205
       console.warn("subspace: the current provider doesn't support subscriptions. Falling back to http polling");
     }
 
     this.events = new Events();
-    this.web3 = new Web3Eth(provider);
+    this.web3 = web3;
 
     this.options = {};
     this.options.refreshLastNBlocks = options.refreshLastNBlocks ?? 12;
@@ -36,7 +35,7 @@ export default class Subspace {
     this.options.disableDatabase = options.disableDatabase;
 
     this.networkId = undefined;
-    this.isWebsocketProvider = options.disableSubscriptions ? false : !!provider.on;
+    this.isWebsocketProvider = options.disableSubscriptions ? false : !!web3?.currentProvider?.on;
   }
 
   async init() {
@@ -45,18 +44,18 @@ export default class Subspace {
     } else {
       this._db = new Database(this.options.dbFilename, this.events);
     }
-    this.eventSyncer = new EventSyncer(this.web3, this.events, this._db, this.isWebsocketProvider);
-    this.logSyncer = new LogSyncer(this.web3, this.events, this._db);
+    this.eventSyncer = new EventSyncer(this.web3.eth, this.events, this._db, this.isWebsocketProvider);
+    this.logSyncer = new LogSyncer(this.web3.eth, this.events, this._db);
 
-    this.networkId = await this.web3.net.getId();
+    this.networkId = await this.web3.eth.net.getId();
 
-    const block = await this.web3.getBlock("latest");
+    const block = await this.web3.eth.getBlock("latest");
 
     // Preload <= 10 blocks to calculate avg block time
     if (block.number !== 0) {
       const minBlock = Math.max(0, block.number - 9);
       for (let i = minBlock; i < block.number; i++) {
-        this.latest10Blocks.push(this.web3.getBlock(i));
+        this.latest10Blocks.push(this.web3.eth.getBlock(i));
       }
 
       this.latest10Blocks = await Promise.all(this.latest10Blocks);
@@ -85,16 +84,16 @@ export default class Subspace {
 
     let address = (contractInstance.options && contractInstance.options.address) || contractInstance.address || contractInstance.deployedAddress;
     let abi = (contractInstance.options && contractInstance.options.jsonInterface) || contractInstance.abi || contractInstance.abiDefinition;
-    let from = (contractInstance.options && contractInstance.options.from) || contractInstance.from || contractInstance.defaultAddress || this.web3.defaultAccount;
+    let from = (contractInstance.options && contractInstance.options.from) || contractInstance.from || contractInstance.defaultAddress || this.web3.eth.defaultAccount;
     let gas = (contractInstance.options && contractInstance.options.gas) || contractInstance.gas || contractInstance.gas || "800000";
 
-    const SubspaceContract = new this.web3.Contract(abi, {from, gas});
+    const SubspaceContract = new this.web3.eth.Contract(abi, {from, gas});
     SubspaceContract.options.address = address;
     SubspaceContract.options.from = from;
 
     if (!from) {
       setTimeout(async () => {
-        const accounts = await this.web3.getAccounts();
+        const accounts = await this.web3.eth.getAccounts();
         SubspaceContract.options.from = accounts[0];
       }, 100);
     }
@@ -156,7 +155,7 @@ export default class Subspace {
     const newBlockObservable = new Observable(observer => {
       observer.next(); // initial tick;
       
-      const newBlocksSubscription = this.web3.subscribe("newBlockHeaders", err => {
+      const newBlocksSubscription = this.web3.eth.subscribe("newBlockHeaders", err => {
         if (err) {
           observer.error(err);
           return;
@@ -266,22 +265,22 @@ export default class Subspace {
     
     return this._getDistinctObservableFromPromise(hash({address, erc20Address}), () => {
       if (!erc20Address) {
-        this.web3.getBalance(address).then(balance => console.log("Balance: ", balance));
-        return this.web3.getBalance(address);
+        this.web3.eth.getBalance(address).then(balance => console.log("Balance: ", balance));
+        return this.web3.eth.getBalance(address);
       } else {
                     //  balanceOf
         const data = "0x70a08231000000000000000000000000" + stripHexPrefix(address);
-        return new Promise((resolve, reject) => this.web3.call({to: erc20Address, data}).then(balance => resolve(hexToDec(balance))).catch(reject));
+        return new Promise((resolve, reject) => this.web3.eth.call({to: erc20Address, data}).then(balance => resolve(hexToDec(balance))).catch(reject));
       }
     });
   }
 
   trackBlockNumber() {
-    return this._getDistinctObservableFromPromise("blockNumber", () => this.web3.getBlockNumber());
+    return this._getDistinctObservableFromPromise("blockNumber", () => this.web3.eth.getBlockNumber());
   }
 
   trackBlock() {
-    return this._getDistinctObservableFromPromise("block", () => this.web3.getBlock("latest"), block => {
+    return this._getDistinctObservableFromPromise("gasPrice", () => this.web3.eth.getBlock("latest"), block => {
       if (this.latest10Blocks[this.latest10Blocks.length - 1].number === block.number) return;
       this.latest10Blocks.push(block);
       if (this.latest10Blocks.length > 10) {
@@ -291,7 +290,7 @@ export default class Subspace {
   }
 
   trackGasPrice() {
-    return this._getDistinctObservableFromPromise("gasPrice", () => this.web3.getGasPrice());
+    return this._getDistinctObservableFromPromise("gasPrice", () => this.web3.eth.getGasPrice());
   }
 
   trackAverageBlocktime() {
