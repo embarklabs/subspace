@@ -209,13 +209,13 @@ export default class Subspace {
 
     return this._getObservable(subjectHash, () => {
       const deleteFrom = this.latestBlockNumber - this.options.refreshLastNBlocks;
-      const [subject, ethSubscription] = this.eventSyncer.track(contractInstance, eventName, filterConditions, deleteFrom, this.networkId);
+      const observable = this.eventSyncer
+        .track(contractInstance, eventName, filterConditions, deleteFrom, this.networkId)
+        .pipe(shareReplay({refCount: true}));
 
-      subject.map = mapFunc(subject);
+      observable.map = mapFunc(observable);
 
-      // TODO: remove eth subscription
-
-      return subject;
+      return observable;
     });
   }
 
