@@ -13,7 +13,7 @@ store.subscribe(() => console.log("=====\n", store.getState()))
 const run = async () => {
   const MyContractInstance = await MyContract.getInstance(); //
 
-  const subspace = new Subspace(web3.currentProvider);
+  const subspace = new Subspace(web3);
   await subspace.init();
     
   subspace.trackEvent(MyContractInstance, "MyEvent", {filter: {}, fromBlock: 1 })

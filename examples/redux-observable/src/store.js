@@ -39,7 +39,7 @@ const initSubspaceEpic = action$ =>
   action$.pipe(
     ofType(INIT_SUBSPACE),
     mergeMap(() => {
-      subspace = new Subspace(web3.currentProvider);
+      subspace = new Subspace(web3);
       return subspace.init();
     }),
     mapTo(subspaceReady())

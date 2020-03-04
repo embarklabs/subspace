@@ -1,4 +1,4 @@
-const Subspace = require('@embarklabs/subspace');
+const Subspace = require('@embarklabs/subspace').default;
 const web3 = require('./web3');
 const MyContract = require('./MyContract');
 const { pluck } = require('rxjs/operators');
@@ -7,7 +7,7 @@ const gql = require("graphql-tag");
 const { graphql } = require("reactive-graphql");
 
 const run = (async ()  => {
-  const subspace = new Subspace(web3.currentProvider);
+  const subspace = new Subspace(web3);
   await subspace.init();
 
   const MyContractInstance = await MyContract.getInstance();
