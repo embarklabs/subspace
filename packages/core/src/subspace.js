@@ -150,7 +150,7 @@ export default class Subspace {
   }
 
   _initNewBlocksSubscription() {
-    if(this.options.callInterval !== 0) return;
+    if(this.options.callInterval) return;
 
     const newBlockObservable = new Observable(observer => {
       observer.next(); // initial tick;
@@ -182,6 +182,7 @@ export default class Subspace {
 
   _getDistinctObservableFromPromise(subjectName, promiseCB, cb) {
     return this._getObservable(subjectName, () => {
+
       let observable = this.intervalObservable.pipe(
         exhaustMap(() => from(promiseCB())),
         distinctUntilChanged((a, b) => equal(a, b))
@@ -280,7 +281,7 @@ export default class Subspace {
   }
 
   trackBlock() {
-    return this._getDistinctObservableFromPromise("gasPrice", () => this.web3.eth.getBlock("latest"), block => {
+    return this._getDistinctObservableFromPromise("block", () => this.web3.eth.getBlock("latest"), block => {
       if (this.latest10Blocks[this.latest10Blocks.length - 1].number === block.number) return;
       this.latest10Blocks.push(block);
       if (this.latest10Blocks.length > 10) {
