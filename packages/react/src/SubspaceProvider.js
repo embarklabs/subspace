@@ -3,20 +3,26 @@ import PropTypes from "prop-types";
 import Subspace from "@embarklabs/subspace";
 import SubspaceContext from "./subspaceContext";
 
-function SubspaceProvider({children, web3}){
+function SubspaceProvider({children, web3}) {
   const [subspace, setSubspace] = useState();
 
   useEffect(() => {
-    const s = new Subspace(web3);
-    s.init();
+    let s;
+    (async () => {
+      s = new Subspace(web3);
+      await s.init();
+      setSubspace(s);
+    })();
 
-    setSubspace(s);
+    return () => {
+      if(s) s.close();
+    };
   }, [web3]);
 
   if (!subspace) return null;
 
   return <SubspaceContext.Provider value={subspace}>{children}</SubspaceContext.Provider>;
-};
+}
 
 SubspaceProvider.defaultProps = {
   children: null
