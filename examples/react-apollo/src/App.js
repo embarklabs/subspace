@@ -1,99 +1,58 @@
-import React from "react";
-import Subspace from "@embarklabs/subspace";
-import { graphql } from "reactive-graphql";
-import gql from "graphql-tag";
-import { makeExecutableSchema } from "graphql-tools";
-import { ApolloClient } from "apollo-client";
-import { ApolloProvider, Query } from "react-apollo";
-import { InMemoryCache } from "apollo-cache-inmemory";
-import { ApolloLink } from "apollo-link";
-import { rxjs } from "apollo-link-rxjs";
-import web3 from './web3';
-import MyContract from './MyContract';
+import {ApolloProvider} from "@apollo/react-hooks";
+import {SubspaceProvider, useSubspace} from "@embarklabs/subspace-react";
+import {InMemoryCache} from "apollo-cache-inmemory";
+import ApolloClient from "apollo-client";
+import {ReactiveSchemaLink} from "apollo-link-reactive-schema";
+import React, {useEffect, useState} from "react";
+import Web3 from "web3";
+import getInstance from "./ContractDeployer";
+import getSchema from "./schema";
+import MyEvent from "./MyEvent";
 
-const MY_QUERY = gql`
-  query {
-    myEvents {
-      someValue,
-      anotherValue
-    }
-  }
-`;
+const Main = () => {
+  const subspace = useSubspace();
+  const [MyContractInstance, setContractInstance] = useState();
+  const [client, setClient] = useState();
 
-const typeDefs = `
-  type MyEvent {
-    someValue: Int
-    anotherValue: String
-  }
-  type Query {
-    myEvents: MyEvent!
-  }
-`;
+  useEffect(() => {
+    getInstance(subspace.web3).then(instance => {
+      setContractInstance(subspace.contract(instance));
+    });
+  }, [subspace]);
 
-let MyContractInstance;
+  useEffect(() => {
+    if (!MyContractInstance) return;
 
-class App extends React.Component {
-  state = {
-    client: null
-  };
-
-  async componentDidMount() {
-    const subspace = new Subspace(web3.currentProvider);
-    await subspace.init();
-
-    MyContractInstance = await MyContract.getInstance();
-
-    const resolvers = {
-      Query: {
-        myEvents: () => {
-          return subspace.trackEvent(MyContractInstance, 'MyEvent', {filter: {}, fromBlock: 1})
-        }
-      }
-    };
-
-    const schema = makeExecutableSchema({ typeDefs, resolvers });
-
-    const client = new ApolloClient({
-      // If addTypename:true, the query will fail due to __typename
-      // being added to the schema. reactive-graphql does not
-      // support __typename at this moment.
-      cache: new InMemoryCache({ addTypename: false }),
-      link: ApolloLink.from([
-              rxjs({}),
-              new ApolloLink(operation => graphql(schema, operation.query))
-            ])
+    const c = new ApolloClient({
+      cache: new InMemoryCache(),
+      link: new ReactiveSchemaLink({schema: getSchema(MyContractInstance)})
     });
 
-    this.setState({ client });
-  }
+    setClient(c);
+  }, [subspace, MyContractInstance]);
 
-  createTrx = () => {
-    MyContractInstance.methods
-      .myFunction()
-      .send({ from: web3.eth.defaultAccount });
+  const createTrx = () => {
+    if (!MyContractInstance) return;
+    MyContractInstance.methods.myFunction().send({from: subspace.web3.eth.defaultAccount});
   };
 
-  render() {
-    if (!this.state.client) return <h1>Loading</h1>;
+  if (!client) return <div>Loading...</div>;
 
-    return (
-      <ApolloProvider client={this.state.client}>
-        <button onClick={this.createTrx}>Create a Transaction</button>
-        <Query query={MY_QUERY}>
-          {({ loading, error, data }) => {
-            if (loading) return <div>Loading...</div>;
-            if (error) {
-              console.error(error);
-              return <div>Error :(</div>;
-            }
-            return (
-              <p>The data returned by the query: {JSON.stringify(data)}</p>
-            );
-          }}
-        </Query>
-      </ApolloProvider>
-    );
-  }
-}
+  return (
+    <ApolloProvider client={client}>
+      <button onClick={createTrx}>Create a Transaction</button>
+      <MyEvent />
+    </ApolloProvider>
+  );
+};
+
+const App = () => {
+  const web3 = new Web3("ws://localhost:8545");
+  return (
+    <SubspaceProvider web3={web3}>
+      <Main />
+    </SubspaceProvider>
+  );
+};
 
 export default App;
