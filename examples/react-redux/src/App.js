@@ -1,55 +1,61 @@
-import React from "react";
-import Subspace from "@embarklabs/subspace";
-import web3 from './web3';
-import MyContract from './MyContract';
-import { connect } from "react-redux";
-import { myAction } from './actions';
-import PropTypes from 'prop-types';
+import React, {useState, useEffect} from "react";
+import {SubspaceProvider, useSubspace} from "@embarklabs/subspace-react";
+import Web3 from "web3";
+import {connect} from "react-redux";
+import {myAction} from "./actions";
+import getInstance from "./ContractDeployer";
 
-let MyContractInstance;
-let eventSubscription;
+const FormComponent = ({data, myAction}) => {
+  const subspace = useSubspace();
+  const [MyContractInstance, setContractInstance] = useState();
 
-class App extends React.Component {
-  async componentDidMount() {
-    MyContractInstance = await MyContract.getInstance();
+  useEffect(() => {
+    getInstance(subspace.web3).then(instance => {
+      setContractInstance(subspace.contract(instance));
+    });
+  }, [subspace]);
 
-    const subspace = new Subspace(web3.currentProvider);
-    await subspace.init();
-    eventSubscription = subspace.trackEvent(MyContractInstance, "MyEvent", { filter: {}, fromBlock: 1 })
-                                   .subscribe(this.props.myAction);
-  }
+  useEffect(() => {
+    if (!MyContractInstance) return;
+    const subscription = MyContractInstance.events.MyEvent.track({filter: {}, fromBlock: 1}).subscribe(myAction);
 
-  componentWillUnmount(){
-    eventSubscription.unsubscribe();
-  }
+    return () => {
+      // Clean up the subscription
+      subscription.unsubscribe();
+    };
+  }, [subspace, MyContractInstance, myAction]);
 
-  createTrx = () => {
-    MyContractInstance.methods
-      .myFunction()
-      .send({ from: web3.eth.defaultAccount });
+  const createTrx = () => {
+    if (!MyContractInstance) return;
+    MyContractInstance.methods.myFunction().send({from: subspace.web3.eth.defaultAccount});
   };
 
-  render() {
-    const { data } = this.props;
-    
-    return (
-      <div>
-        <button onClick={this.createTrx}>Create a Transaction</button>
-        <ul>
-          <li><b>someValue: </b> {data.someValue}</li>
-          <li><b>anotherValue: </b> {data.anotherValue}</li>
-        </ul>
-      </div>
-    );
-  }
-}
-
-App.propTypes = {
-  data: PropTypes.object,
-  myAction: PropTypes.func
+  return (
+    <div>
+      <button onClick={createTrx} disabled={!MyContractInstance}>
+        Create a Transaction
+      </button>
+      <ul>
+        <li>
+          <b>someValue: </b> {data.someValue}
+        </li>
+        <li>
+          <b>anotherValue: </b> {data.anotherValue}
+        </li>
+      </ul>
+    </div>
+  );
 };
 
-export default connect(
-  ({ data }) => ({ data }),
-  { myAction }
-)(App);
+const Form = connect(({data}) => ({data}), {myAction})(FormComponent);
+
+const App = () => {
+  const web3 = new Web3("ws://localhost:8545");
+  return (
+    <SubspaceProvider web3={web3}>
+      <Form />
+    </SubspaceProvider>
+  );
+};
+
+export default App;

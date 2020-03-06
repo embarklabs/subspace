@@ -10,10 +10,14 @@
     "redux": "^4.0.4",
     "web3": "^1.2.1"
   },
+  "devDependencies": {
+    "customize-cra": "^0.9.1",
+    "react-app-rewired": "^2.1.5"
+  },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
