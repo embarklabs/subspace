@@ -1,14 +1,11 @@
 import React from "react";
-import { observe } from "@embarklabs/subspace/react";
+import { observe } from "@embarklabs/subspace-react";
 
 const ProductComponent = ({ maxRating, minRating, averageRating, title, balance, last5Ratings }) => {
   // Handle initial state when no data is available
   // if (!maxRating && !minRating && !averageRating) {
     // return <p>No data</p>;
   // }
-
-  console.dir("last5Ratings")
-  console.dir(last5Ratings)
 
   return <ul>
     <li><b>title: </b> {title}</li>

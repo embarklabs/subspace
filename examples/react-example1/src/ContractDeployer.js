@@ -1,0 +1,18 @@
+import {abi, address} from './contract.json'
+
+const getInstance = async web3 => {
+	if(!web3.eth.defaultAccount){
+		const accounts = await web3.eth.getAccounts();
+		web3.eth.defaultAccount = accounts[0];
+  }
+
+  const MyContract = new web3.eth.Contract(abi, {from: web3.eth.default,  gas: "800000"});
+  
+  MyContract.options.address = address;
+	MyContract.options.from = web3.eth.defaultAccount;
+  
+  return MyContract;
+}
+
+
+export default getInstance;

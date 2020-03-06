@@ -1,5 +1,5 @@
 {
-  "name": "observables",
+  "name": "react-example-1",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -10,12 +10,16 @@
     "rxjs": "^6.5.2",
     "web3": "^1.2.1"
   },
+  "devDependencies": {
+    "customize-cra": "^0.9.1",
+    "react-app-rewired": "^2.1.5"
+  },
   "scripts": {
-    "start": "react-scripts start",
-    "deploy": "node deploy.js",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+    "eject": "react-scripts eject",
+    "deploy": "node deploy.js"
   },
   "eslintConfig": {
     "extends": "react-app"
