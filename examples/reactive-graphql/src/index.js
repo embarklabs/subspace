@@ -1,12 +1,12 @@
-const Subspace = require('@embarklabs/subspace').default;
-const web3 = require('./web3');
-const MyContract = require('./MyContract');
-const { pluck } = require('rxjs/operators');
-const { makeExecutableSchema } = require("graphql-tools");
+const Subspace = require("@embarklabs/subspace").default;
+const web3 = require("./web3");
+const MyContract = require("./MyContract");
+const {pluck} = require("rxjs/operators");
+const {makeExecutableSchema} = require("graphql-tools");
 const gql = require("graphql-tag");
-const { graphql } = require("reactive-graphql");
+const {graphql} = require("reactive-graphql");
 
-const run = (async ()  => {
+const run = async () => {
   const subspace = new Subspace(web3);
   await subspace.init();
 
@@ -31,12 +31,12 @@ const run = (async ()  => {
   const resolvers = {
     Query: {
       myEvents: () => {
-        return subspace.trackEvent(MyContractInstance, 'MyEvent', {filter: {}, fromBlock: 1})
+        return subspace.trackEvent(MyContractInstance, "MyEvent", {filter: {}, fromBlock: 1});
       }
     }
   };
 
-  const schema = makeExecutableSchema({ typeDefs, resolvers });
+  const schema = makeExecutableSchema({typeDefs, resolvers});
 
   const query = gql`
     query {
@@ -47,11 +47,10 @@ const run = (async ()  => {
     }
   `;
 
-  const stream = graphql(schema, query).pipe(pluck('data', 'myEvents'));
+  const stream = graphql(schema, query).pipe(pluck("data", "myEvents"));
   stream.subscribe(x => {
-    console.log(x)
+    console.log(x);
   });
-  
-});
- 
+};
+
 run();
