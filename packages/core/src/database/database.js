@@ -78,7 +78,7 @@ class Database {
 
   getEventsFor(eventKey) {
     let children = this.db.getCollection(eventKey);
-    return children.find();
+    return children ? children.find() : [];
   }
 
   eventExists(eventKey, eventId) {
