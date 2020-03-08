@@ -7,11 +7,11 @@ Simple application using a vue to receive a stream of emitted events. This app w
 - `yarn` or `npm` installed.
 
 ## Install
-In the parent folder, install, build and link the package with `yarn` or `npm`
+In the root folder, install, build and link the packages with `yarn` or `npm`
 ```
 yarn
-yarn build:dev
-yarn link
+yarn bootstrap
+yarn link --cwd packages/core
 ```
 Then in the current folder link `@embarklabs/subspace`, and install the packages
 ```
