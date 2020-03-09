@@ -27,6 +27,7 @@
   "main": "./dist/index.js",
   "browser": "./lib/index.js",
   "module": "./module/index.js",
+  "types": "types/index.d.ts",
   "scripts": {
     "clean": "rimraf dist; rimraf lib; rimraf module;",
     "build:browser": "cross-env BABEL_ENV=browser babel ./src --out-dir ./lib --source-maps --copy-files",
