@@ -24,6 +24,7 @@
     "url": "https://github.com/embarklabs/subspace/issues"
   },
   "license": "MIT",
+  "types": "types/index.d.ts",
   "main": "./lib/index.js",
   "module": "./module/index.js",
   "scripts": {
