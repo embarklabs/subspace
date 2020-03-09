@@ -28,14 +28,14 @@ const Subspace = require('@embarklabs/subspace');
 
 
 ### Initializing the library
-To interact with the EVM, Subspace requires web3.js and a valid websockets provider.
+To interact with the EVM, Subspace requires web3.js
 
 ```js
-const subspace = new Subspace(web3.currentProvider);
+const subspace = new Subspace(web3);
 await subspace.init();
 ```
 
-In addition to the provider, `Subspace` also accepts an `options` object with settings that can change its behavior:
+In addition to the web3 object, `Subspace` also accepts an `options` object with settings that can change its behavior:
 - `dbFilename` - Name of the database where the information will be stored (default `subspace.db`)
 - `callInterval` - Interval of time in milliseconds to query a contract/address to determine changes in state or balance (default: `undefined`. Obtain data every block).
 - `refreshLastNBlocks` - Ignores last N blocks (from current block), stored in the local db and refresh them via a web3 subscription. Useful for possible reorgs (default: `12`),
