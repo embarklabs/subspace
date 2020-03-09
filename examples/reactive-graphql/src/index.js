@@ -30,9 +30,7 @@ const run = async () => {
 
   const resolvers = {
     Query: {
-      myEvents: () => {
-        return subspace.trackEvent(MyContractInstance, "MyEvent", {filter: {}, fromBlock: 1});
-      }
+      myEvents: () => subspace.trackEvent(MyContractInstance, "MyEvent", {filter: {}, fromBlock: 1})
     }
   };
 

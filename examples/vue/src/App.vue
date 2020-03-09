@@ -22,7 +22,7 @@ export default {
   created: async function(){
     this.MyContractInstance = await MyContract.getInstance(); 
 
-    const subspace = new Subspace(web3.currentProvider);
+    const subspace = new Subspace(web3);
     await subspace.init();
 
     this.myEventObservable$ = subspace.trackEvent(this.MyContractInstance, "MyEvent", {filter: {}, fromBlock: 1 });
