@@ -56,7 +56,7 @@ export default {
   created: async function(){
     this.MyContractInstance = ...; // TODO: obtain a web3.eth.contract instance
 
-    const subspace = new Subspace("wss://localhost:8545"); // Use a valid provider (geth, parity, infura...)
+    const subspace = new Subspace(web3);
     await subspace.init();
 
     this.myEventObservable$ = subspace.trackEvent(this.MyContractInstance, "MyEvent", {filter: {}, fromBlock: 1 });

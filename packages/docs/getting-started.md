@@ -22,18 +22,18 @@ const Subspace = require('@embarklabs/subspace');
 
 
 ## Connecting to a web3 provider
-To interact with the EVM, **Subspace** requires a valid Web3 provider. 
+To interact with the EVM, **Subspace** requires a valid Web3 object, connected to a provider
 
 ```js
-const subspace = new Subspace(web3.currentProvider);
+const subspace = new Subspace(web3);
 await subspace.init();
 ```
 
 In addition to the provider, `Subspace` also accepts an `options` object with settings that can change its behavior:
 - `dbFilename` - Name of the database where the information will be stored (default `'subspace.db'`)
-- `callInterval` - Interval of time in milliseconds to query a contract/address to determine changes in state or balance (default: `undefined`. Obtains data every block).
+- `callInterval` - Interval of time in milliseconds to query a contract/address to determine changes in state or balance. It's only used with HttpProviders (default: `undefined`. Obtains data every block using the average block time as an interval).
 - `refreshLastNBlocks` - Ignores last N blocks (from current block), stored in the local db and refresh them via a web3 subscription. Useful for possible reorgs (default: 12),
-- `disableSubscriptions` - Subspace by default will attempt to use websocket subscriptions if the current provider supports them, otherwise it will use polling because it asumes the provider is an HttpProvider. This functionality can be disabled by passing true to this option. (default: undefined)
+- `disableSubscriptions` - Subspace by default will attempt to use websocket subscriptions if the current provider supports them, otherwise it will use polling because it asumes the provider is an HttpProvider. This functionality can be disabled by passing true to this option. (default: `undefined`)
 
 
 ## Enhancing your contract objects
@@ -88,13 +88,13 @@ The subscription will be triggered whenever the title changes
 ## Tracking events
 You can track events and react to their returned values.
 ```js
-const eventObservable$ = Contract.event.eventName().track();
+const eventObservable$ = Contract.event.eventName.track();
 ```
 
 Example:
 
 ```js
-const rating$ = Product.events.Rating().track().map("rating")).pipe(map(x => parseInt(x)));
+const rating$ = Product.events.Rating.track().map("rating")).pipe(map(x => parseInt(x)));
 rating$.subscribe((rating) => console.log("rating received: " + rating));
 
 
@@ -112,7 +112,7 @@ For e.g: if you needed to get the average rating of the last 5 events:
 ```js
 import { $average, $latest } from "@embarklabs/subspace";
 
-const rating$ = Product.events.Rating().track().map("rating")).pipe(map(x => parseInt(x)));
+const rating$ = Product.events.Rating.track().map("rating")).pipe(map(x => parseInt(x)));
 
 rating$.pipe($latest(5), $average()).subscribe((rating) => {
   console.log("average rating of the last 5 events is " + rating)
@@ -212,6 +212,6 @@ If **Subspace** is not needed anymore, you need can invoke `close()` to dispose 
 subspace.close();
 ```
 ::: warning What about subscriptions created with our observables?
-Any subscription created via the tracking methods must be unsubscribed manually (in the current version).
+`close()` will dispose any web3 subscription created when using a Subspace tracking method, however any subscription to an observable must still be unsubscribed manually. The npm package `subsink` can be used to clear all the observables' subscriptions at once.
 :::
 

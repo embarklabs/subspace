@@ -19,7 +19,7 @@ import { myAction } from './actions';
 const run = async () => {
   const MyContractInstance = ...; // TODO: obtain a web3.eth.contract instance
 
-  const subspace = new Subspace("ws://localhost:8545"); // Use a valid provider (geth, parity, infura...)
+  const subspace = new Subspace(web3);
   await subspace.init();
     
   subspace.trackEvent(MyContractInstance, "MyEvent", {filter: {}, fromBlock: 1 })
