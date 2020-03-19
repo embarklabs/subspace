@@ -1,5 +1,0 @@
-Subspace
-===
-- core
-- react
-- docs
