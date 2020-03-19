@@ -1,0 +1,5 @@
+.u-text-color-focus {
+  color: get-color(red, 900); }
+
+.u-text-color-quiet {
+  color: get-color(gray, 500); }

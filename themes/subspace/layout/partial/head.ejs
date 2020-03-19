@@ -1,0 +1,29 @@
+<head>
+  <meta charset="UTF-8">
+  <title><% if (page.title) { %><%= __(page.title) %> | <% } %><%= __(config.title) %></title>
+  <meta name="description" content="<% if (page.description) { %><%= __(page.description) %> | <% } %><%= __(config.description) %>">
+  <meta http-equiv="X-UA-Compatible<% if (page.title) { %><%= __(page.title) %> | <% } %><%= __(config.title) %>" content="IE=Edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Canonical links -->
+  <link rel="canonical" href="<%= url %>">
+
+  <!-- Icon -->
+  <meta name="msapplication-TileColor" content="#080E1A">
+  <link rel="icon" type="image/png" href="<%= url_for('images/favicon.png') %>" sizes="32x32" />
+
+  <link rel="apple-touch-icon" sizes="76x76" href="<%= url_for('images/apple-touch-icon-60x60-precomposed.png') %>">
+  <link rel="apple-touch-icon" sizes="76x76" href="<%= url_for('images/apple-touch-icon-76x76-precomposed.png') %>">
+  <link rel="apple-touch-icon" sizes="120x120" href="<%= url_for('images/apple-touch-icon-120x120-precomposed.png') %>">
+  <link rel="apple-touch-icon" sizes="152x152" href="<%= url_for('images/apple-touch-icon-152x152-precomposed.png') %>">
+  <link rel="apple-touch-icon" sizes="180x180" href="<%= url_for('images/apple-touch-icon-precomposed.png') %>">
+  <link rel="apple-touch-icon" href="<%= url_for('images/apple-touch-icon-precomposed.png') %>">
+  <!-- CSS -->
+  <%- css('css/application') %>
+  <!-- endbuild -->
+
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+
+  <meta property="og:image" content="/img/share.png?v=0.0.5" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.4/styles/dracula.min.css">
+</head>
+<body>

@@ -1,0 +1,62 @@
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-family: get-font(headingFamily);
+  line-height: 1.2;
+
+  &:first-child {
+    margin-top: 0;
+  }
+
+  + p {
+    margin-top: get-stack-spacing(s);
+  }
+}
+
+.h2 {
+  font-size: 42px;
+}
+
+.h3 {
+  font-size: 36px;
+}
+
+.h4 {
+  font-size: 28px;
+}
+
+.h5 {
+  font-size: 24px;
+}
+
+.h6 {
+  font-size: get-font(size);
+  font-weight: bold;
+}
+
+.a-subtitle {
+  font-size: 2.1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.a-paragraph {
+  font-size: get-font(size);
+}
+
+.a-title {
+  font-size: 3.4rem;
+  font-weight: bold;
+
+  @include respond(medium) {
+    font-size: 4.2rem;
+  }
+
+  strong {
+    font-weight: bold;
+  }
+}

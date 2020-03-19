@@ -1,0 +1,12 @@
+/// Layout Color
+/// Get the color of a layout colors
+/// @group Colors
+/// @param {string} $key
+@function get-layout-color($key) {
+  @if map-has-key($layoutColors, $key) {
+    @return map-get($layoutColors, $key);
+  }
+
+  @warn "The key #{$key} is not in the map ’$layer’";
+  @return null;
+}

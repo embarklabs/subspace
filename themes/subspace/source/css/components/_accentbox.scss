@@ -1,0 +1,11 @@
+.c-accentbox {
+  overflow: hidden;
+  padding: get-inset-spacing(l) 0;
+  border-radius: $global-border-radius;
+  background: get-brand(primary);
+  color: get-color(unique, white);
+
+  @include respond(large) {
+    padding: get-inset-spacing(xl) 0;
+  }
+}

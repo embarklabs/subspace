@@ -1,0 +1,10 @@
+.c-notification {
+  padding: 24px;
+  background-color: get-color(gray, 100);
+  border-left: 8px solid get-brand(primary);
+
+  &--warning {
+    background-color: get-color(yellow, 300);
+    border-color: get-color(yellow, 900);
+  }
+}

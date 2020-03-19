@@ -1,0 +1,195 @@
+$mobile-first: true !default;
+
+/// Color Scheme
+/// The global colors for this project
+/// @group Colors
+$colorscheme: (
+  unique: (
+    black: #000,
+    white: #fff
+  ),
+  yellow: (
+    900: #e7c000,
+    300: #fff7d4
+  ),
+  red: (
+    900: #F1645D,
+    800: #F2746D,
+    700: #F4837D,
+    600: #F5928E,
+    500: #F7A29E,
+    400: #F8B2AE,
+    300: #F9C1BE,
+    200: #FBD0CE,
+    100: #FCE0DF
+  ),
+  green: (
+    lighter: #EAFAEF,
+    base: #09D9B9,
+    900: #398689,
+    800: #619EA1,
+    700: #74AAAC,
+    600: #88B6B8,
+    500: #9CC2C4,
+    400: #B0CFD0,
+    300: #C4DBDC,
+    200: #D7E7E7,
+    100: #EBF3F3
+  ),
+  gray: (
+    lightest: #F5F6FA,
+    darkest: #333,
+    medium: #ccc,
+    base: #6C7992,
+    900: #041A39,
+    800: #364861,
+    700: #4F5F74,
+    600: #687688,
+    500: #818C9C,
+    400: #9BA3B0,
+    300: #B4BAC4,
+    200: #CDD1D7,
+    100: #E6E8EB
+  ),
+  blue: (
+    lighter: #6E7786,
+    light: #253148,
+    base: #0E1C36
+  )
+) !default;
+
+/// Brand Colors
+/// The typical brand colors
+/// @group Colors
+$brandColors: (
+  primary: get-color(red, 900),
+  primaryGradation: get-color(red, 500),
+  secondary: get-color(gray, 900),
+  secondaryGradation: get-color(gray, 300),
+) !default;
+
+$insetSpacing: (
+  xs: 4px,
+  s: 8px,
+  m: 16px,
+  l: 32px,
+  xl: 64px
+) !default;
+
+$insetSquishSpacing: (
+  s: 8px 4px,
+  m: 8px 16px,
+  l: 16px 24px
+) !default;
+
+$insetStretchSpacing: (
+  s: 12px 8px,
+  m: 24px 16px
+) !default;
+
+$stackSpacing: (
+  xxs: 2px,
+  xs: 4px,
+  s: 8px,
+  m: 16px,
+  l: 32px,
+  xl: 64px
+) !default;
+
+$inlineSpacing: (
+  xxs: 2px,
+  xs: 4px,
+  s: 8px,
+  m: 16px,
+  l: 32px,
+  xl: 64px
+) !default;
+
+/// Notification Colors
+/// Different types of notifications
+/// @group Colors
+$semanticColors: (
+  errorLight: #FDE0E0,
+  error: #F46363,
+  successLight: #E8F5DA,
+  success: #69a22b,
+  warningLight: #FFF6E9,
+  warning: #ff9900,
+  positive: #8CCE44,
+  negative: #F46363
+) !default;
+
+$layoutColors: (
+  quite: get-color(gray, lightest),
+  spotlight: get-brand(secondary),
+  accent: get-brand(primary)
+) !default;
+
+/// Social Media Colors
+/// The colors of some social networks
+/// @group Colors
+$socialMediaColors: (
+  instagram: #000,
+  facebook: #4266b3,
+  youtube: #ff0001,
+  twitter: #1da1f2
+) !default;
+
+/// Default Font Settings
+/// Global font settings like colors, families, size, etc.
+/// @group Fonts
+$fontSettings: (
+  color: get-color(gray, darkest),
+  baseFamily: (-apple-system, BlinkMacSystemFont, "Segoe UI", 'Roboto', Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"),
+  headingFamily: ('Roboto', Helvetica, sans-serif),
+  size: 17px
+) !default;
+
+/// Typography
+
+/// Breakpoints
+/// Different sizes to create breakpoints
+/// @group Layout
+$breakpoints: (
+  small: 480px,
+  medium: 600px,
+  large: 767px,
+  xLarge: 1023px,
+) !default;
+
+/// Indecies
+/// The global map to show all indecies to handle a solid layer architecture
+$indecies: (
+  navigationList: 10
+) !default;
+
+/// Global Space between components
+/// @group Layout
+$component-space: get-spacing(large);
+$container-space: get-spacing(x-large);
+$max-wrapper-width: 1200px !default;
+$max-wrapper-width-medium: 720px !default;
+$max-cols: 12 !default;
+$gutter-width: get-inline-spacing(m) !default;
+$prevent-spacing: get-inset-spacing(m) !default;
+
+/// Standard Border Radius
+/// @type String
+/// @group Border
+$global-border-radius: 8px !default;
+
+/// Rounded Border Radius
+/// @type String
+/// @group Border
+$global-rounded-border-radius: 250px !default;
+
+/// Standard Border Color
+/// @type Color
+/// @group Border
+$global-border-color: get-color(gray, 100) !default;
+
+/// Link Color
+/// @type Color
+$global-link-color: get-brand(primary) !default;
+
+$form-gutter: get-stack-spacing(m) !default;

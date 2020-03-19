@@ -1,0 +1,9 @@
+.c-ghostbox {
+  padding: get-inset-spacing(l) 0;
+  border-radius: $global-border-radius;
+  background: get-brand(primaryGradation);
+
+  @include respond(large) {
+    padding: get-inset-spacing(xl) 0;
+  }
+}

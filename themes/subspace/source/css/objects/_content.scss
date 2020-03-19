@@ -1,0 +1,16 @@
+// Content Area for Standard Content 
+.o-content {
+  h2[id] {
+    margin-bottom: 16px;
+    margin-top: 48px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid $global-border-color;
+  }
+  h3,
+  h4 {
+    margin-top: 32px;
+  }
+  .c-notification {
+    margin-top: 24px;
+  }
+}

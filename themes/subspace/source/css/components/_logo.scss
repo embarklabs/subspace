@@ -1,0 +1,16 @@
+.a-logo {
+  display: inline-block;
+  height: 27px;
+  vertical-align: top;
+  width: 112px;
+  background: url(../images/logo.svg);
+  background-repeat: no-repeat;
+  background-size: 100%;
+  color: transparent;
+  font-size: 0;
+
+  @include respond(medium) {
+    height: 52px;
+    width: 225px;
+  }
+}

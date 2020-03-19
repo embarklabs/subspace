@@ -1,0 +1,9 @@
+/// Create Column
+/// Creating the width for columns
+/// @group Layout
+/// @param {number} $column
+/// @param {number} $max-columns [12]
+@mixin column($column, $max-columns: 12) {
+  $size: (100%/$max-columns)*$column;
+  width: calc(#{$size} - #{$gutter-width};
+}
