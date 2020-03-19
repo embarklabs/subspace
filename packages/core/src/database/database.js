@@ -59,17 +59,16 @@ class Database {
     return this.db.serialize();
   }
 
-  async restore(serializedDb, forced) {
+  restore(serializedDb, forced) {
     return new Promise((resolve, reject) => {
       const collections = this.db.listCollections();
-      if (!collections.length || forced) {
+      if (!collections?.length || forced) {
         this.db.loadJSON(serializedDb);
         this.db.saveDatabase(err => {
           if(err) {
             reject(err);
-          } else {
-            resolve();
           }
+          resolve();
         });
       }
     });
