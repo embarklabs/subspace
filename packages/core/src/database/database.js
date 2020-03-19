@@ -41,9 +41,8 @@ class Database {
   }
 
   databaseInitialize(cb) {
-    // TODO: save in the db results by using a combination of concatMap and scan, to save results in batches
     fromEvent(this.events, "updateDB").subscribe(({eventKey, eventData}) => {
-      if (eventData.removed) { 
+      if (eventData.removed) {
         this.deleteEvent(eventKey, eventData.id);
         return;
       }
@@ -53,6 +52,26 @@ class Database {
       this.recordEvent(eventKey, eventData);
 
       this.db.saveDatabase();
+    });
+  }
+
+  serialize() {
+    return this.db.serialize();
+  }
+
+  async restore(serializedDb, forced) {
+    return new Promise((resolve, reject) => {
+      const collections = this.db.listCollections();
+      if (!collections.length || forced) {
+        this.db.loadJSON(serializedDb);
+        this.db.saveDatabase(err => {
+          if(err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
+      }
     });
   }
 
@@ -99,9 +118,10 @@ class Database {
   deleteEvent(eventKey, eventId) {
     const collection = this.db.getCollection(eventKey);
     if (collection)
-      collection.chain()
-                .find({id: eventId})
-                .remove();
+      collection
+        .chain()
+        .find({id: eventId})
+        .remove();
   }
 
   deleteNewestBlocks(eventKey, gteBlockNum) {
@@ -109,9 +129,10 @@ class Database {
 
     const collection = this.db.getCollection(eventKey);
     if (collection)
-      collection.chain()
-                .find({blockNumber: {$gte: gteBlockNum}})
-                .remove();
+      collection
+        .chain()
+        .find({blockNumber: {$gte: gteBlockNum}})
+        .remove();
   }
 }
 
