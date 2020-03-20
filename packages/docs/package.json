@@ -1,15 +1,8 @@
 {
-  "name": "@embarklabs/subspace-docs",
+  "name": "subspace-docs",
   "version": "0.0.1",
   "description": "Subspace Website",
   "main": "index.js",
-  "scripts": {
-    "clean": "rimraf .vuepress/dist",
-    "build": "vuepress build",
-    "push-dir": "push-dir --dir=.vuepress/dist --branch=gh-pages",
-    "publish": "npm-run-all clean build push-dir",
-    "start": "vuepress dev"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/embarklabs/subspace-docs.git"
@@ -31,9 +24,29 @@
       "homepage": "https://github.com/richard-ramos"
     }
   ],
-  "homepage": "https://github.com/embarklabs/subspace",
-  "devDependencies": {
-    "push-dir": "^0.4.1",
-    "vuepress": "^1.0.3"
+  "homepage": "https://github.com/embarklabs/subspace-docs#readme",
+  "scripts": {
+    "build": "hexo generate",
+    "clean": "hexo clean",
+    "deploy": "hexo deploy",
+    "server": "hexo server"
+  },
+  "hexo": {
+    "version": "4.2.0"
+  },
+  "dependencies": {
+    "hexo": "^4.0.0",
+    "hexo-autoprefixer": "^2.0.0",
+    "hexo-generator-archive": "^1.0.0",
+    "hexo-generator-category": "^1.0.0",
+    "hexo-generator-i18n": "^0.0.7",
+    "hexo-generator-index": "^1.0.0",
+    "hexo-generator-tag": "^1.0.0",
+    "hexo-prism-plus": "^1.1.0",
+    "hexo-renderer-ejs": "^1.0.0",
+    "hexo-renderer-marked": "^2.0.0",
+    "hexo-renderer-sass": "^0.4.0",
+    "hexo-renderer-stylus": "^1.1.0",
+    "hexo-server": "^1.0.0"
   }
 }

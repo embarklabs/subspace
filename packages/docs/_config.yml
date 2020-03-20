@@ -15,7 +15,7 @@ permalink_defaults:
   lang: en
 i18n_dir: :lang
 
-source_dir: source/packages/docs
+source_dir: src
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
@@ -41,8 +41,7 @@ highlight:
 
 autoprefixer:
   enable: true
-  browsers:
-    - 'last 2 versions'
+  
 node_sass:
   outputStyle: nested
   precision: 5
