@@ -1,0 +1,127 @@
+
+
+<main>
+  <div class="o-row-xl">
+    <div class="o-constrained-medium" id="why">
+      <div class="o-heading" id="learn"> 
+        <p class="a-subtitle u-text-color-focus"><%- __('home.features.tagline') %></p>
+        <h2 class="a-title">
+          <%- __('home.features.title') %>
+        </h2>
+      </div>
+      <article class="o-distance">
+        <h3 class="h3"><%- __('home.features.items.itemA.title') %></h3>
+        <p class="u-text-color-quiet o-distance-xs"><%- __('home.features.items.itemA.subtitle') %></p>
+        <a href="<%- url_for_lang('getting-started.html#Tracking-events') %>" title="" class="o-media-short o-distance-s">
+          <svg class="icon icon--smaller o-media-short__icon" width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0)">
+            <path d="M16.5297 13.7273L13.433 10.6306C14.3759 9.21922 14.7601 7.50753 14.5108 5.82854C14.2616 4.14954 13.3967 2.62329 12.0844 1.54665C10.7722 0.470017 9.10639 -0.0800194 7.41105 0.00353402C5.71572 0.0870875 4.11207 0.798257 2.91204 1.99871C1.71201 3.19916 1.00141 4.80306 0.918454 6.49843C0.8355 8.1938 1.38613 9.85941 2.46323 11.1713C3.54033 12.4832 5.06689 13.3475 6.74597 13.5961C8.42505 13.8448 10.1366 13.46 11.5477 12.5166L14.6444 15.6126C14.8965 15.8586 15.2348 15.9963 15.587 15.9963C15.9393 15.9963 16.2775 15.8586 16.5297 15.6126C16.7797 15.3626 16.9201 15.0235 16.9201 14.67C16.9201 14.3164 16.7797 13.9773 16.5297 13.7273ZM7.75369 2.00331C8.70963 2.00331 9.64411 2.28678 10.4389 2.81787C11.2338 3.34897 11.8533 4.10383 12.2191 4.98701C12.5849 5.87018 12.6806 6.842 12.4942 7.77958C12.3077 8.71715 11.8473 9.57837 11.1714 10.2543C10.4954 10.9303 9.6342 11.3906 8.69663 11.5771C7.75905 11.7636 6.78723 11.6679 5.90405 11.3021C5.02088 10.9362 4.26601 10.3167 3.73492 9.5219C3.20383 8.72706 2.92036 7.79259 2.92036 6.83664C2.92177 5.5552 3.43145 4.32664 4.33757 3.42052C5.24369 2.5144 6.47224 2.00472 7.75369 2.00331Z" fill="#F1645D"/>
+            </g>
+            <defs>
+            <clipPath id="clip0">
+            <rect x="0.92041" width="16" height="16" fill="white"/>
+            </clipPath>
+            </defs>
+          </svg>
+
+          <span class="u-text-strong">View details</span>
+        </a>
+        <pre><code class="language-js">import { $average, $latest } from "@embarklabs/subspace";
+
+const rating$ = Product.events.Rating.track().map("rating"));
+
+rating$.pipe($latest(5), $average()).subscribe((rating) => {
+  console.log("average rating of the last 5 events is " + rating)
+});</code></pre>
+      </article>
+      <article class="o-distance">
+        <h3 class="h3"><%- __('home.features.items.itemB.title') %></h3>
+        <p class="u-text-color-quiet o-distance-xs"><%- __('home.features.items.itemB.subtitle') %></p>
+        <a href="<%- url_for_lang('getting-started.html#Tracking-state') %>" title="" class="o-media-short o-distance-s">
+          <svg class="icon icon--smaller o-media-short__icon" width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0)">
+            <path d="M16.5297 13.7273L13.433 10.6306C14.3759 9.21922 14.7601 7.50753 14.5108 5.82854C14.2616 4.14954 13.3967 2.62329 12.0844 1.54665C10.7722 0.470017 9.10639 -0.0800194 7.41105 0.00353402C5.71572 0.0870875 4.11207 0.798257 2.91204 1.99871C1.71201 3.19916 1.00141 4.80306 0.918454 6.49843C0.8355 8.1938 1.38613 9.85941 2.46323 11.1713C3.54033 12.4832 5.06689 13.3475 6.74597 13.5961C8.42505 13.8448 10.1366 13.46 11.5477 12.5166L14.6444 15.6126C14.8965 15.8586 15.2348 15.9963 15.587 15.9963C15.9393 15.9963 16.2775 15.8586 16.5297 15.6126C16.7797 15.3626 16.9201 15.0235 16.9201 14.67C16.9201 14.3164 16.7797 13.9773 16.5297 13.7273ZM7.75369 2.00331C8.70963 2.00331 9.64411 2.28678 10.4389 2.81787C11.2338 3.34897 11.8533 4.10383 12.2191 4.98701C12.5849 5.87018 12.6806 6.842 12.4942 7.77958C12.3077 8.71715 11.8473 9.57837 11.1714 10.2543C10.4954 10.9303 9.6342 11.3906 8.69663 11.5771C7.75905 11.7636 6.78723 11.6679 5.90405 11.3021C5.02088 10.9362 4.26601 10.3167 3.73492 9.5219C3.20383 8.72706 2.92036 7.79259 2.92036 6.83664C2.92177 5.5552 3.43145 4.32664 4.33757 3.42052C5.24369 2.5144 6.47224 2.00472 7.75369 2.00331Z" fill="#F1645D"/>
+            </g>
+            <defs>
+            <clipPath id="clip0">
+            <rect x="0.92041" width="16" height="16" fill="white"/>
+            </clipPath>
+            </defs>
+          </svg>
+
+          <span class="u-text-strong">View details</span>
+        </a>
+        <pre><code class="language-js">const productTitle$ = ProductList.methods.products(0).track().map("title");
+  productTitle$.subscribe((title) => console.log("product title is " + title));
+});</code></pre>
+      </article>
+      <article class="o-distance">
+        <h3 class="h3"><%- __('home.features.items.itemC.title') %></h3>
+        <p class="u-text-color-quiet o-distance-xs"><%- __('home.features.items.itemC.subtitle') %></p>
+        <a href="<%- url_for_lang('getting-started.html#Tracking-balances') %>" title="" class="o-media-short o-distance-s">
+          <svg class="icon icon--smaller o-media-short__icon" width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0)">
+            <path d="M16.5297 13.7273L13.433 10.6306C14.3759 9.21922 14.7601 7.50753 14.5108 5.82854C14.2616 4.14954 13.3967 2.62329 12.0844 1.54665C10.7722 0.470017 9.10639 -0.0800194 7.41105 0.00353402C5.71572 0.0870875 4.11207 0.798257 2.91204 1.99871C1.71201 3.19916 1.00141 4.80306 0.918454 6.49843C0.8355 8.1938 1.38613 9.85941 2.46323 11.1713C3.54033 12.4832 5.06689 13.3475 6.74597 13.5961C8.42505 13.8448 10.1366 13.46 11.5477 12.5166L14.6444 15.6126C14.8965 15.8586 15.2348 15.9963 15.587 15.9963C15.9393 15.9963 16.2775 15.8586 16.5297 15.6126C16.7797 15.3626 16.9201 15.0235 16.9201 14.67C16.9201 14.3164 16.7797 13.9773 16.5297 13.7273ZM7.75369 2.00331C8.70963 2.00331 9.64411 2.28678 10.4389 2.81787C11.2338 3.34897 11.8533 4.10383 12.2191 4.98701C12.5849 5.87018 12.6806 6.842 12.4942 7.77958C12.3077 8.71715 11.8473 9.57837 11.1714 10.2543C10.4954 10.9303 9.6342 11.3906 8.69663 11.5771C7.75905 11.7636 6.78723 11.6679 5.90405 11.3021C5.02088 10.9362 4.26601 10.3167 3.73492 9.5219C3.20383 8.72706 2.92036 7.79259 2.92036 6.83664C2.92177 5.5552 3.43145 4.32664 4.33757 3.42052C5.24369 2.5144 6.47224 2.00472 7.75369 2.00331Z" fill="#F1645D"/>
+            </g>
+            <defs>
+            <clipPath id="clip0">
+            <rect x="0.92041" width="16" height="16" fill="white"/>
+            </clipPath>
+            </defs>
+          </svg>
+
+          <span class="u-text-strong">View details</span>
+        </a>
+        <pre><code class="language-js">const address = "0x0001020304050607080900010203040506070809";
+
+subspace.trackBalance(address).subscribe((balance) => {
+  console.log("ETH balance is ", balance)
+});
+
+subspace.trackBalance(address, "0x744d70fdbe2ba4cf95131626614a1763df805b9e").subscribe((balance) => {
+  console.log("SNT balance is ", balance)
+});</code></pre>
+      </article>
+      <article class="o-distance">
+        <h3 class="h3"><%- __('home.features.items.itemD.title') %></h3>
+        <p class="u-text-color-quiet o-distance-xs"><%- __('home.features.items.itemD.subtitle') %></p>
+        <a href="<%- url_for_lang('react.html') %>" title="" class="o-media-short o-distance-s">
+          <svg class="icon icon--smaller o-media-short__icon" width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0)">
+            <path d="M16.5297 13.7273L13.433 10.6306C14.3759 9.21922 14.7601 7.50753 14.5108 5.82854C14.2616 4.14954 13.3967 2.62329 12.0844 1.54665C10.7722 0.470017 9.10639 -0.0800194 7.41105 0.00353402C5.71572 0.0870875 4.11207 0.798257 2.91204 1.99871C1.71201 3.19916 1.00141 4.80306 0.918454 6.49843C0.8355 8.1938 1.38613 9.85941 2.46323 11.1713C3.54033 12.4832 5.06689 13.3475 6.74597 13.5961C8.42505 13.8448 10.1366 13.46 11.5477 12.5166L14.6444 15.6126C14.8965 15.8586 15.2348 15.9963 15.587 15.9963C15.9393 15.9963 16.2775 15.8586 16.5297 15.6126C16.7797 15.3626 16.9201 15.0235 16.9201 14.67C16.9201 14.3164 16.7797 13.9773 16.5297 13.7273ZM7.75369 2.00331C8.70963 2.00331 9.64411 2.28678 10.4389 2.81787C11.2338 3.34897 11.8533 4.10383 12.2191 4.98701C12.5849 5.87018 12.6806 6.842 12.4942 7.77958C12.3077 8.71715 11.8473 9.57837 11.1714 10.2543C10.4954 10.9303 9.6342 11.3906 8.69663 11.5771C7.75905 11.7636 6.78723 11.6679 5.90405 11.3021C5.02088 10.9362 4.26601 10.3167 3.73492 9.5219C3.20383 8.72706 2.92036 7.79259 2.92036 6.83664C2.92177 5.5552 3.43145 4.32664 4.33757 3.42052C5.24369 2.5144 6.47224 2.00472 7.75369 2.00331Z" fill="#F1645D"/>
+            </g>
+            <defs>
+            <clipPath id="clip0">
+            <rect x="0.92041" width="16" height="16" fill="white"/>
+            </clipPath>
+            </defs>
+          </svg>
+
+          <span class="u-text-strong">View details</span>
+        </a>
+        <pre><code class="language-javascript"><script type="text/plain" class="">import { observe } from "@embarklabs/subspace/react";
+
+const ProductComponent = ({ maxRating, minRating, averageRating }) => {
+  return <ul>
+    <li><b>minimum rating: </b> {minRating}</li>
+    <li><b>maximum rating: </b> {maxRating}</li>
+    <li><b>average rating: </b> {averageRating}</li>
+  </ul>;
+};
+
+const ReactiveProductComponent = observe(ProductComponent);
+const Product = subspace.contract({abi, address});
+const rating$ = Product.events.Rating.track().map("rating").pipe(map(x => parseInt(x)));
+
+ReactDOM.render(
+  <ReactiveProductComponent
+    maxRating={rating$.pipe($max())}
+    minRating={rating$.pipe($min())}
+    averageRating={rating$.pipe($average())}
+  />,
+  document.getElementById('hello-example')
+);</script></code></pre>
+      </article>
+    </div>
+  </div>
+</main>

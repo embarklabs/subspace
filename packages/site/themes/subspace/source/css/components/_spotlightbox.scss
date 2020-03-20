@@ -1,0 +1,36 @@
+.c-spotlightbox {
+  padding: get-inset-spacing(l) 0;
+  background: linear-gradient(180deg, #0A0F40 0%, rgba(4, 26, 57, 0) 100%), #041A39;
+  background-image: url(../images/circles.png);
+  background-position: center;
+  background-size: contain;
+  transition: background-size .5s;
+  transition-delay: .5s;
+  color: get-color(unique, white);
+
+  @include respond(large) {
+    padding: get-inset-spacing(xl) 0;
+  }
+
+  a:not(.a-button) {
+    color: get-color(unique, white);
+
+    &:hover {
+      color: get-color(blue, lighter);
+    }
+  }
+
+  .icon {
+    fill: #fff;
+  }
+
+  a .icon:hover {
+    opacity: .6;
+  }
+
+  &__item {
+    padding: get-inset-spacing(l);
+    border-radius: $global-border-radius;
+    background: rgba(get-color(gray, 800), .5);
+  }
+}

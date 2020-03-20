@@ -1,0 +1,12 @@
+/// Font-Settings
+/// Get a value of the default font settings
+/// @group Fonts
+/// @param {string} $key
+@function get-font($key) {
+  @if map-has-key($fontSettings, $key) {
+    @return map-get($fontSettings, $key);
+  }
+
+  @warn "The key #{$key} is not in the map ’$fontSettings’";
+  @return null;
+}

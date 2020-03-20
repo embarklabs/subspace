@@ -1,0 +1,12 @@
+/// Notification Color
+/// Get the color of a notification type
+/// @group Colors
+/// @param {string} $key
+@function get-notification-color($key) {
+  @if map-has-key($notificationColors, $key) {
+    @return map-get($notificationColors, $key);
+  }
+
+  @warn "The key #{$key} is not in the map ’$brandColors’";
+  @return null;
+}

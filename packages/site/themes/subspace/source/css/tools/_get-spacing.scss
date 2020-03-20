@@ -1,0 +1,48 @@
+/// Spacing
+/// Get the value for spacing
+/// @group Colors
+/// @param {string} $key
+@function get-inset-spacing($key) {
+  @if map-has-key($insetSpacing, $key) {
+    @return map-get($insetSpacing, $key);
+  }
+
+  @warn "The key #{$key} is not in the map ’$brandColors’";
+  @return null;
+}
+
+@function get-inset-squish-spacing($key) {
+  @if map-has-key($insetSquishSpacing, $key) {
+    @return map-get($insetSquishSpacing, $key);
+  }
+
+  @warn "The key #{$key} is not in the map ’$brandColors’";
+  @return null;
+}
+
+@function get-inset-stretch-spacing($key) {
+  @if map-has-key($insetStretchSpacing, $key) {
+    @return map-get($insetStretchSpacing, $key);
+  }
+
+  @warn "The key #{$key} is not in the map ’$brandColors’";
+  @return null;
+}
+
+@function get-stack-spacing($key) {
+  @if map-has-key($stackSpacing, $key) {
+    @return map-get($stackSpacing, $key);
+  }
+
+  @warn "The key #{$key} is not in the map ’$brandColors’";
+  @return null;
+}
+
+@function get-inline-spacing($key) {
+  @if map-has-key($inlineSpacing, $key) {
+    @return map-get($inlineSpacing, $key);
+  }
+
+  @warn "The key #{$key} is not in the map ’$brandColors’";
+  @return null;
+}

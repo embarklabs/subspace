@@ -1,0 +1,63 @@
+.icon {
+  height: 48px;
+  width: 48px;
+  fill: get-brand(primary);
+
+  &--small {
+    height: 32px;
+    width: 32px;
+  }
+
+  &--smaller {
+    height: 16px;
+    width: 16px;
+  }
+
+  &--large {
+    height: 64px;
+    width: 64px;
+  }
+}
+
+.o-banner {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+
+  @include respond(medium) {
+    flex-direction: row;
+  }
+
+  &__item {
+    margin-top: 24px;
+
+    @include respond(medium) {
+      margin-left: 24px;
+      margin-top: 0;
+    }
+  }
+}
+
+.c-divider {
+  display: block;
+  height: 1px;
+  width: 100%;
+}
+
+.c-box {
+  padding: 12px;
+  border: 2px solid;
+  border-radius: $global-border-radius;
+}
+
+.u-background-color-light {
+  background-color: get-color(gray, 800);
+}
+
+.u-border-color-light {
+  border-color: get-color(gray, 800);
+}
+
+.u-inline-block {
+  display: inline-block;
+}

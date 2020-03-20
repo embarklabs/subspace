@@ -1,0 +1,8 @@
+/// List Reset
+/// Reset the styles for standard lists
+/// @group Helper
+@mixin list-reset() {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

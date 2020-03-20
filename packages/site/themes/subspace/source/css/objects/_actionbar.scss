@@ -1,0 +1,23 @@
+.o-actionbar {
+  display: flex;
+  flex-direction: column;
+  margin-left: - get-inline-spacing(m);
+  margin-top: get-stack-spacing(m);
+
+  @include respond(medium) {
+    flex-direction: row;
+  }
+
+  &__item {
+    margin-top: get-stack-spacing(m);
+    padding-left: get-inline-spacing(m);
+
+    @include respond(medium) {
+      margin-top: 0;
+    }
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+}

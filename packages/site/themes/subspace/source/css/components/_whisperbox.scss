@@ -1,0 +1,19 @@
+.c-whisperbox {
+  padding: get-inset-spacing(l) 0;
+  border-radius: $global-border-radius;
+  background-color: get-layout-color(quite);
+  background-position: bottom center;
+  background-repeat: no-repeat;
+  background-size: 75%;
+  transition: background-size .5s;
+  transition-delay: .6s;
+
+  @include respond(large) {
+    padding: get-inset-spacing(xl) 0;
+    background-image: url(../images/circles-background.jpg);
+  }
+
+  &.is-active {
+    background-size: 150%;
+  }
+}

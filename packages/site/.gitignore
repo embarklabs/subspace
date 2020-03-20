@@ -1,0 +1,13 @@
+node_modules/
+.vscode/
+phoenix.db
+subspace.db
+TODO
+test.js
+dist/
+lib/
+module/
+/examples/react-example1/src/contract.json
+coverage/
+lerna-debug.log
+.DS_Store

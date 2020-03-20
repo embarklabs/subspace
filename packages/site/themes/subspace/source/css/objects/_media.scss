@@ -1,0 +1,9 @@
+.o-media-short {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+
+  &__icon {
+    margin-right: 8px;
+  }
+}

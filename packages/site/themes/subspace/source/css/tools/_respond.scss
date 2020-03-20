@@ -1,0 +1,17 @@
+/// Respond
+/// Using this for breakpoints
+/// @group Layout
+/// @param {string} $name
+@mixin respond($name) {
+  $value: map-get($breakpoints, $name);
+
+  @if($mobile-first) {
+    @media screen and (min-width: $value) {
+      @content;
+    }
+  } @else {
+    @media screen and (max-width: $value) {
+      @content;
+    }
+  }
+}

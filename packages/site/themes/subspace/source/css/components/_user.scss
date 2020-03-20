@@ -1,0 +1,16 @@
+.c-user {
+  padding: get-inset-spacing(l);
+  background: get-layout-color(quite);
+  text-align: center;
+
+  &__avatar {
+    max-width: 125px;
+    border-radius: $global-rounded-border-radius;
+  }
+
+  &__subtitle {
+    margin-top: get-stack-spacing(xs);
+    color: get-color(gray);
+    font-size: 1.8rem;
+  }
+}
