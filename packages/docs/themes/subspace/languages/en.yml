@@ -59,4 +59,4 @@ home:
         subtitle: You can also track changes in both ETH and ERC20 token balances
       itemD:
         title: React integration
-        subtitle: Subspace can make any react component compatible with observables so you easily reactive components
+        subtitle: Subspace can make any React component compatible with observables
