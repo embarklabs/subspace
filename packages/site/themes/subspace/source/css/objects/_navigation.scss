@@ -1,0 +1,117 @@
+.o-navigation {
+  @include respond(large) {
+    margin-left: - get-inline-spacing(l);
+  }
+  &__item {
+    margin-top: get-stack-spacing(l);
+
+    @include respond(large) {
+      margin-left: get-inline-spacing(l);
+      margin-top: 0;
+    }
+
+    &.is-active {
+      position: relative;
+
+      &:before {
+        content: '';
+        display: block;
+        bottom: -3px;
+        height: 3px;
+        left: 0;
+        position: absolute;
+        width: 100%;
+        background: get-brand(primary);
+      }
+    }
+  }
+
+  &__close {
+    position: absolute;
+    right: get-inset-spacing(m);
+    top: get-inset-spacing(m);
+
+    @include respond(large) {
+      display: none;
+    }
+
+    .icon {
+      height: 24px;
+      width: 24px;
+    }
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    left: 0;
+    min-height: 100%;
+    padding: get-inline-spacing(l);
+    position: fixed;
+    top: 0;
+    width: 320px;
+    z-index: get-index(navigationList);
+
+    @include respond(large) {
+      align-items: center;
+      flex-direction: row;
+      margin-left: - get-inline-spacing(m);
+      padding: 0;
+      position: static;
+      width: auto;
+    }
+  }
+}
+
+.c-navigation {
+  text-transform: uppercase;
+
+  a {
+    color: inherit;
+    font-weight: bold;
+
+    &:hover,
+    &.is-active {
+      color: get-brand(primary);
+    }
+  }
+
+  &__trigger {
+    display: block;
+    line-height: 0;
+
+    @include respond(large) {
+      display: none;
+    }
+
+    .icon {
+      height: 32px;
+      width: 32px;
+    }
+  }
+  &__list {
+    background: get-color(gray, 900);
+    box-shadow: 0 0 20px rgba(0,0,0,.2);
+    font-size: 1.6rem;
+    transform: translateX(-100%);
+    transition: all .3s;
+
+    @include respond(large) {
+      background: transparent;
+      box-shadow: none;
+      transform: translateX(0);
+    }
+
+    .a-logo {
+      margin-bottom: 24px;
+      
+      @include respond(large) {
+        display: none;
+      }
+    }
+
+    &.is-active {
+      transform: translateX(0);
+    }
+  }
+}

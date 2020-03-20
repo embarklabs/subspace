@@ -1,0 +1,65 @@
+docs:
+  - title: How it works
+    path: how-it-works.html
+    
+  - title: Getting Started
+    path: getting-started.html
+    children:
+      - title: Installation
+        path: '#Installation'
+      - title: Importing the library
+        path: '#Importing-the-library'
+      - title: Connecting to a web3 provider
+        path: '#Connecting-to-a-web3-provider'
+      - title: Enhancing your contract objects
+        path: '#Enhancing-your-contract-objects'
+      - title: Reacting to data
+        path: '#Reacting-to-data'
+      - title: Tracking state
+        path: '#Tracking-state'
+      - title: Tracking events
+        path: '#Tracking-events'
+      - title: Tracking balances
+        path: '#Tracking-balances'
+      - title: Getting block data, gas prices and block time
+        path: '#Getting-block-data-gas-prices-and-block-time'
+      - title: Subscriptions
+        path: '#Subscriptions'
+      - title: Cleanup
+        path: '#Cleanup'
+
+  - title: Integrations
+    path: 'empty'
+    children:
+      - title: Overview
+        path: integrations-overview.html
+      - title: React
+        path: react.html
+      - title: Vue
+        path: vue.html
+      - title: Redux
+        path: 'empty'
+        children:
+          - title: redux
+            path: redux.html
+          - title: redux-observable
+            path: redux-observable.html
+      - title: reactive-graphql
+        path: reactive-graphql.html
+      - title: apollo-client
+        path: apollo-client.html
+
+  - title: Tutorial
+    path: tutorial.html
+
+  - title: API
+    path: api.html
+    children:
+      - title: General
+        path: '#general'
+      - title: Contract methods
+        path: '#Contract-methods'
+      - title: Blocks, gas price and block time
+        path: '#Blocks-gas-price-and-block-time'
+      - title: Low level API for data tracking
+        path: '#Low-level-API-for-data-tracking'

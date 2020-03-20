@@ -1,0 +1,49 @@
+# Hexo Configuration
+## Docs: https://hexo.io/docs/configuration.html
+## Source: https://github.com/hexojs/hexo/
+
+# Site
+title: SUBSPACE
+description: Reactive ÐApp Development
+author: Status Research & Development GmbH
+
+language: [en, de]
+locale: en
+i18n:
+  type: [page, post]
+permalink_defaults:
+  lang: en
+i18n_dir: :lang
+
+source_dir: source/packages/docs
+
+# URL
+## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
+url: http://localhost:4000
+root: /
+permalink: :year/:month/:day/:title/
+post_asset_folder: true
+
+# Pagination
+## Set per_page to 0 to disable pagination
+per_page: 0
+
+# Extensions
+## Plugins: https://hexo.io/plugins/
+## Themes: https://hexo.io/themes/
+theme: subspace
+
+prism_plus:
+  enable: true
+
+highlight:
+  enable: false
+
+autoprefixer:
+  enable: true
+  browsers:
+    - 'last 2 versions'
+node_sass:
+  outputStyle: nested
+  precision: 5
+  sourceComments: false

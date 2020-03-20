@@ -1,0 +1,15 @@
+.o-teaser {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: no-wrap;
+  justify-content: center;
+
+  &__symbol {
+    display: block;
+  }
+
+  &__content {
+    margin-top: get-stack-spacing(m);
+  }
+}

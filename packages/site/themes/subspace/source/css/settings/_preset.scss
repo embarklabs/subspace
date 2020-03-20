@@ -1,0 +1,269 @@
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+html {
+  box-sizing: border-box;
+  min-height: 100%;
+  -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 10px;
+  font-weight: normal;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  color: get-font(color);
+  font-family: get-font(baseFamily);
+  font-size: get-font(size);
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+s {
+  font-size: 14px;
+}
+
+input,
+textarea,
+select {
+  display: block;
+  margin: get-stack-spacing(xs) 0 0;
+  padding: 12px 16px;
+  width: 100%;
+  border-radius: 0;
+  border: 1px solid $global-border-color !important;
+  box-shadow: none;
+  color: get-font(color);
+  font-family: get-font(baseFamily);
+  font-size: get-font(size);
+  line-height: 1;
+
+  &:placeholder {
+    color: rgba(get-font(color), .3);
+  }
+
+  &:first-child {
+    margin-top: 0;
+  }
+
+  &:focus,
+  &:active {
+    outline: 1px solid get-brand(primary);
+    border-color: transparent;
+    background: rgba(get-color(unique, white), .8)
+  }
+
+  &.is-error {
+    border-color: get-semantic-color(error);
+  }
+  &.is-success {
+    border-color: get-semantic-color(success);
+  }
+}
+
+input[type="tel"],
+input[type="text"],
+input[type="password"],
+input[type="email"],
+textarea {
+  appearance: none;
+}
+
+input {
+  &[type="checkbox"],
+  &[type="radio"] {
+    width: auto;
+  }
+}
+
+textarea {
+  min-height: 100px;
+  line-height: 1.425;
+}
+
+label {
+  display: block;
+  margin-top: $form-gutter;
+  color: get-color(gray);
+  font-size: 1.5rem;
+  line-height: 1.2;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+form {
+  margin-top: $component-space;
+}
+
+fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+legend {
+  font-family: get-font(headingFamily);
+  font-weight: bold;
+  line-height: 1.2;
+}
+
+nav {
+  ul,
+  ol {
+    list-style: none;
+    margin-left: 0;
+    padding-left: 0;
+  }
+}
+
+img {
+  height: auto;
+  max-width: 100%;
+  border: none;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+p {
+  margin: get-stack-spacing(m) 0 0;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+code {
+  padding: 2px 4px;
+  border-radius: $global-border-radius;
+  background: get-color(gray, 100);
+  color: get-color(gray, 700);
+
+  &[class] {
+    background: transparent;
+  }
+}
+
+a {
+  cursor: pointer;
+  position: relative;
+  color: $global-link-color;
+  text-decoration: none;
+
+  &:hover,
+  &:visited,
+  &:focus,
+  &:visited {
+    text-decoration: none;
+  }
+
+  &:hover {
+  }
+  &.icon:hover {
+    text-decoration: none;
+  }
+}
+
+ol, ul {
+  margin-bottom: 9px;
+  margin-left: get-inline-spacing(m);
+  margin-right: 0;
+  margin-top: get-stack-spacing(s);
+  padding-left: 16px;
+  line-height: 1.5;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+ul {
+  list-style-type: disc;
+}
+
+li {
+  margin-top: get-stack-spacing(xs);
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+figure {
+  margin: get-stack-spacing(s) 0 0;
+  border-radius: 0;
+  line-height: 1;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+// Name: HR
+hr {
+  height: 1px;
+  margin-top: $container-space;
+  background: $global-border-color;
+  border: none;
+}
+
+blockquote {
+  margin: 32px 0 0;
+  padding-top: 16px;
+  position: relative;
+  color: get-color(gray);
+  font-family: get-font(headingFamily);
+  font-size: 2.4rem;
+  font-weight: bold;
+  line-height: 1.425;
+
+  @include respond(large) {
+    font-size: 2.8rem;
+  }
+
+  &:before {
+    content: '';
+    width: 30px;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: get-color(gray);
+  }
+
+  cite {
+    display: block;
+    margin-top: get-stack-spacing(s);
+    font-family: get-font(baseFamily);
+    font-size: 2.2rem;
+    font-weight: normal;
+    font-style: normal;
+  }
+}
+
+// Video
+video {
+  height: auto;
+  max-width: 100%;
+  width: 100%;
+  overflow: hidden;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+table {
+  margin-top: $component-space;
+}

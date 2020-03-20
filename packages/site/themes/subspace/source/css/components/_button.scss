@@ -1,0 +1,49 @@
+.a-button {
+  cursor: pointer;
+  display: inline-block;
+  padding: get-inset-squish-spacing(l);
+  vertical-align: top;
+  -webkit-appearance: none;
+  border: 2px solid transparent;
+  border-radius: $global-border-radius;
+  background: get-brand(primary);
+  box-shadow: 0;
+  color: get-color(unique, white);
+  font-size: get-font(size);
+  font-weight: bold;
+  line-height: 1;
+  text-align: center;
+
+  &:hover {
+    border-color: get-brand(primary);
+    background: transparent;
+    color: get-brand(primary);
+  }
+
+  // Ghost Button
+  &--ghost {
+    background: transparent;
+    border-color: get-color(unique, white);
+    color: get-color(unique, white);
+
+    &:hover {
+
+    }
+  }
+
+  // Negative
+  &--negative {
+    background: get-color(unique, white);
+    color: get-brand(primary);
+
+    &:hover {
+      border-color: get-color(unique, white);
+      background: transparent;
+      color: get-color(unique, white);
+    }
+  }
+
+  &--rounded {
+    border-radius: $global-rounded-border-radius;
+  }
+}

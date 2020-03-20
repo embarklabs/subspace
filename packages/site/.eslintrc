@@ -1,0 +1,45 @@
+{
+  "env": {
+    "node": true,
+    "browser": true,
+    "jest": true
+  },
+  "parser": "babel-eslint",
+  "plugins": ["standard", "babel"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "rules": {
+    "arrow-parens": ["error", "as-needed"],
+    "standard/object-curly-even-spacing": [2, "never"],
+    "standard/array-bracket-even-spacing": [2, "either"],
+    "standard/computed-property-even-spacing": [2, "even"],
+    "standard/no-callback-literal": [2, ["cb", "callback"]],
+    "babel/new-cap": 1,
+    "babel/camelcase": 1,
+    "babel/no-invalid-this": 1,
+    "babel/object-curly-spacing": 0,
+    "babel/quotes": 1,
+    "babel/semi": 1,
+    "babel/no-unused-expressions": 1,
+    "babel/valid-typeof": 1,
+    "comma-dangle": "off",
+    "object-curly-newline": "off",
+    "quotes": "off",
+    "semi": "off",
+    "object-curly-spacing": "off",
+    "import/no-extraneous-dependencies": "off",
+    "max-len": ["error", { "code": 120} ],
+    "no-undef": "off"
+  },
+  "overrides": []
+}

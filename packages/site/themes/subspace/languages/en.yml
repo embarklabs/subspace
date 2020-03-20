@@ -1,0 +1,62 @@
+menubutton: Get Keycard
+
+header:
+  menu:
+    why:
+      title: Why
+    features:
+      title: Features
+    security:
+      title: Security
+    docs:
+      title: Docs
+    about:
+      title: About us
+
+  title: Reactive App Development
+  subtitle: A powerful tool for building dApps in your favorite reactive framework
+  button:
+    primary: Learn more
+    secondary: Getting started
+
+footer:
+  resources:
+    title: Resources
+    links:
+      itemA: Getting started
+      itemB: Integrations
+      itemC: API
+
+  bottomtext: MIT Licensed | Subspace is part of the Status Network
+
+
+home:
+  title: Homepage
+  description: dasdsa
+  block:
+    doing:
+      itemA:
+        title: Automatic Syncing
+        subtitle: Subspace saves state to a local database ensuring your dApp always syncs from the last known point, even after reload.
+      itemB:
+        title: Reactive
+        subtitle: Methods are provided to track and subscribe to events, contract & state balances, and react to changes via observables
+      itemC:
+        title: Framework Agnostic
+        subtitle: No matter your favorite JS framework, you can use Subspace to simplify your development process. It works with React or Angular in the browser, and of course plays well with nodejs
+  features:
+    tagline: Features
+    title: You’ll love the thoughtful architecture of Subspace
+    items:
+      itemA:
+        title: Event Tracking & Event Sourcing
+        subtitle: You can track events and react to their values. With Subspace observables doing event sourcing is easy.
+      itemB:
+        title: Tracking State
+        subtitle: You can track changes to a contract state variable, by specifying the view function and arguments to call and query the contract.
+      itemC:
+        title: Tracking balances
+        subtitle: You can also track changes in both ETH and ERC20 token balances
+      itemD:
+        title: React integration
+        subtitle: Subspace can make any react component compatible with observables so you easily reactive components

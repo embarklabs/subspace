@@ -1,0 +1,88 @@
+<header role="banner" class="o-header">
+    <div class="o-header__container c-spotlightbox">
+      <div class="o-constrained">
+        <div class="o-header__top js-header">
+          <div><a href="<%- show_lang() %>/" class="a-logo">Keycard</a></div>
+          <nav role="navigation" class="o-navigation c-navigation">
+            <a href="#" class="c-navigation__trigger js-navigation-open">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon"><title>navigation-menu</title><rect x="0.5" y="2.5" width="23" height="3" rx="1" ry="1"/><rect x="0.5" y="10.5" width="23" height="3" rx="1" ry="1"/><rect x="0.5" y="18.5" width="23" height="3" rx="1" ry="1"/></svg>
+            </a>
+            <div class="o-navigation__list c-navigation__list js-navigation-list">
+              <a href="<%- show_lang() %>/" class="a-logo"></a>
+              <a href="#" class="o-navigation__close js-navigation-close">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon"><title>close</title><path d="M14.3,12.179a.25.25,0,0,1,0-.354l9.263-9.262A1.5,1.5,0,0,0,21.439.442L12.177,9.7a.25.25,0,0,1-.354,0L2.561.442A1.5,1.5,0,0,0,.439,2.563L9.7,11.825a.25.25,0,0,1,0,.354L.439,21.442a1.5,1.5,0,0,0,2.122,2.121L11.823,14.3a.25.25,0,0,1,.354,0l9.262,9.263a1.5,1.5,0,0,0,2.122-2.121Z"/></svg>
+              </a>
+              <a href="<%- url_for_lang('getting-started.html') %>" title="Getting started"
+                class="o-navigation__item <% if(is_current('getting-started.html')) { %>is-active<% } %>">
+                Getting started
+              </a>
+              <a href="<%- url_for_lang('integrations-overview.html') %>" title="Getting started"
+                class="o-navigation__item <% if(is_current('integrations-overview.html')) { %>is-active<% } %>">
+                Integrations
+              </a>
+              <a href="<%- url_for_lang('api.html') %>" title="Getting started"
+                class="o-navigation__item <% if(is_current('api.html')) { %>is-active<% } %>">
+                API
+              </a>
+            </div>
+          </nav>
+        </div>
+        <% if (page.layout = is_home()) { %>
+          <span class="c-divider u-background-color-light o-distance-m"></span>
+        <% } %>
+      </div>
+      <% if (page.layout = is_home()) { %>
+        <div class="o-constrained">
+          <div class="o-header__body">
+            <div class="o-header__content">
+              <h1 class="a-title"><strong><%- __('header.title') %></strong></h1>
+              <p class="u-text-color-quiet u-text-l"><%- __('header.subtitle') %></p>
+              <div class="o-actionbar o-center">
+                <div class="o-actionbar__item">
+                  <a href="#learn" class="a-button a-button--ghost" title="<%= __('header.button.primary') %>"><%= __('header.button.primary') %></a>
+                </div>
+                <div class="o-actionbar__item">
+                  <a href="<%- url_for_lang('getting-started.html') %>" class="a-button a-button--primary"><%= __('header.button.secondary') %></a>
+                </div>
+              </div>
+              <div class="o-grid o-distance">
+                <div class="c-spotlightbox__item o-grid__column-1-1 o-grid__column-small-1-2 o-grid__column-large-1-3">
+                  <div class="o-teaser">
+                    <span class="o-teaser__symbol">
+                      <svg class="icon icon--large" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>webpage-live</title><path d="M10.25,5.875v-5a.75.75,0,0,0-1.5,0v5a.75.75,0,0,0,1.5,0Z"/><path d="M12,.125a.75.75,0,0,0-.75.75v1.7A6.593,6.593,0,0,0,12.707,6.04l.169.251a.75.75,0,0,0,1.248,0l.169-.251A6.593,6.593,0,0,0,15.75,2.572V.875a.75.75,0,0,0-1.5,0v1.7a3.355,3.355,0,0,1-.533,1.583.25.25,0,0,1-.434,0,3.355,3.355,0,0,1-.533-1.583V.875A.75.75,0,0,0,12,.125Z"/><path d="M5,.125a.75.75,0,0,0-.75.75v4A1.752,1.752,0,0,0,6,6.625H7a.75.75,0,0,0,0-1.5H6a.25.25,0,0,1-.25-.25v-4A.75.75,0,0,0,5,.125Z"/><path d="M18.25,1.875a.25.25,0,0,1,.25-.25h1a.75.75,0,0,0,0-1.5h-1a1.752,1.752,0,0,0-1.75,1.75v3a1.752,1.752,0,0,0,1.75,1.75h1a.75.75,0,0,0,0-1.5h-1a.25.25,0,0,1,0-.5h1a.75.75,0,0,0,0-1.5h-1a.25.25,0,0,1-.25-.25Z"/><path d="M21,7.375a1,1,0,0,0-1,1v13a.5.5,0,0,1-.5.5H4.5a.5.5,0,0,1-.5-.5v-13a1,1,0,0,0-2,0v13.5a2,2,0,0,0,2,2H20a2,2,0,0,0,2-2V8.375A1,1,0,0,0,21,7.375Z"/><circle cx="7" cy="12.375" r="1.5"/><path d="M17.75,12.375a.75.75,0,0,0-.75-.75H10.5a.75.75,0,0,0,0,1.5H17A.75.75,0,0,0,17.75,12.375Z"/><circle cx="7" cy="17.875" r="1.5"/><path d="M10.5,17.125a.75.75,0,0,0,0,1.5H16a.75.75,0,0,0,0-1.5Z"/></svg>
+                    </span>
+                    <div class="o-teaser__content">
+                      <h3 class="h5"><%- __('home.block.doing.itemB.title') %></h3>
+                      <p class="u-text-color-quiet"><%- __('home.block.doing.itemB.subtitle') %></p>
+                    </div>
+                  </div>
+                </div>
+                <div class="c-spotlightbox__item o-grid__column-1-1 o-grid__column-small-1-2 o-grid__column-large-1-3">
+                  <div class="o-teaser">
+                    <span class="o-teaser__symbol">
+                      <svg class="icon icon--large" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>programming-team-chat-3</title><path d="M7.524,22.092a.25.25,0,0,0-.06-.322A3.929,3.929,0,0,0,5,20.9a3.98,3.98,0,0,0-3.791,2.774.253.253,0,0,0,.037.224.25.25,0,0,0,.2.1H6.623a.25.25,0,0,0,.244-.194l.031-.139A5.531,5.531,0,0,1,7.524,22.092Z"/><path d="M19,20.9a3.91,3.91,0,0,0-2.12.626.249.249,0,0,0-.074.348,5.417,5.417,0,0,1,.777,1.793l.031.139a.25.25,0,0,0,.244.194h4.7a.25.25,0,0,0,.2-.1.253.253,0,0,0,.037-.224A3.98,3.98,0,0,0,19,20.9Z"/><path d="M15.793,24a.249.249,0,0,0,.238-.326,3.976,3.976,0,0,0-7.594.043A.219.219,0,0,0,8.646,24Z"/><circle cx="5" cy="17.578" r="2.436"/><circle cx="19" cy="17.578" r="2.436"/><path d="M20.37,1.753A1.75,1.75,0,0,0,18.621,0l-13,0A1.75,1.75,0,0,0,3.87,1.75V8.505a3.754,3.754,0,0,0,1.1,2.652L8.09,14.28a.748.748,0,0,0,.53.22.735.735,0,0,0,.287-.057.748.748,0,0,0,.463-.693V11a.5.5,0,0,1,.5-.5h8.75a1.749,1.749,0,0,0,1.75-1.75ZM9.151,6.72A.75.75,0,1,1,8.09,7.78l-2-2a.749.749,0,0,1,0-1.06l2-2A.75.75,0,0,1,9.151,3.78L7.858,5.073a.25.25,0,0,0,0,.354Zm4.64-3.135-2,4a.75.75,0,1,1-1.342-.67l2-4a.75.75,0,1,1,1.342.67Zm4.36,1.135a.749.749,0,0,1,0,1.06l-2,2A.75.75,0,0,1,15.09,6.72l1.293-1.293a.25.25,0,0,0,0-.354L15.09,3.78a.75.75,0,0,1,1.061-1.06Z"/><path d="M13.611,19.591a2.432,2.432,0,1,0-1.37.423A2.433,2.433,0,0,0,13.611,19.591Z"/></svg>
+                    </span>
+                    <div class="o-teaser__content">
+                      <h3 class="h5"><%- __('home.block.doing.itemC.title') %></h3>
+                      <p class="u-text-color-quiet"><%- __('home.block.doing.itemC.subtitle') %></p>
+                    </div>
+                  </div>
+                </div>
+                <div class="c-spotlightbox__item o-grid__column-1-1 o-grid__column-small-1-2 o-grid__column-large-1-3">
+                  <div class="o-teaser">
+                    <span class="o-teaser__symbol">
+                      <svg class="icon icon--large" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>server-sync</title><path d="M0,3.5A2.5,2.5,0,0,0,2.5,6h17A2.5,2.5,0,0,0,22,3.5v-1A2.5,2.5,0,0,0,19.5,0H2.5A2.5,2.5,0,0,0,0,2.5ZM3.635,3A1.115,1.115,0,1,1,4.75,4.114,1.115,1.115,0,0,1,3.635,3ZM7.5,3A1.115,1.115,0,1,1,8.615,4.114,1.114,1.114,0,0,1,7.5,3Z"/><path d="M17.5,9.5a8.17,8.17,0,0,1,3.783.926A.493.493,0,0,0,22,9.982V9.5A2.5,2.5,0,0,0,19.5,7H2.5A2.5,2.5,0,0,0,0,9.5v1A2.5,2.5,0,0,0,2.5,13h8.019a.491.491,0,0,0,.393-.2A8.233,8.233,0,0,1,17.5,9.5ZM9.729,10A1.115,1.115,0,1,1,8.615,8.885,1.115,1.115,0,0,1,9.729,10ZM5.865,10A1.115,1.115,0,1,1,4.75,8.885,1.115,1.115,0,0,1,5.865,10Z"/><path d="M2.5,20H8.925a.5.5,0,0,0,.491-.593,8.24,8.24,0,0,1,.434-4.73A.5.5,0,0,0,9.386,14H2.5A2.5,2.5,0,0,0,0,16.5v1A2.5,2.5,0,0,0,2.5,20Zm1.135-3A1.115,1.115,0,1,1,4.75,18.114,1.115,1.115,0,0,1,3.635,17Z"/><path d="M11.854,23.033l.969-.97a.25.25,0,0,1,.359.006,6.086,6.086,0,0,0,10.21-2.2,1,1,0,0,0-1.893-.649,4.09,4.09,0,0,1-6.918,1.42.249.249,0,0,1,.008-.344l1.721-1.722a.5.5,0,0,0-.353-.854H11.5a.5.5,0,0,0-.5.5v4.457a.485.485,0,0,0,.068.224.45.45,0,0,0,.087.112.47.47,0,0,0,.154.126A.5.5,0,0,0,11.854,23.033Z"/><path d="M22.121,12.906a.251.251,0,0,1-.358,0,6.1,6.1,0,0,0-10.2,2.227,1,1,0,0,0,1.893.648,4.092,4.092,0,0,1,6.9-1.445.249.249,0,0,1-.007.346l-1.659,1.66a.5.5,0,0,0,.353.853H23.5a.5.5,0,0,0,.5-.5V12.234a.5.5,0,0,0-.309-.462.485.485,0,0,0-.455.061c-.029.018-.064.022-.09.048Z"/></svg>
+                    </span>
+                    <div class="o-teaser__content">
+                      <h3 class="h5"><%- __('home.block.doing.itemA.title') %></h3>
+                      <p class="u-text-color-quiet"><%- __('home.block.doing.itemA.subtitle') %></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </header>
