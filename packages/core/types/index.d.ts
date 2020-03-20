@@ -19,6 +19,8 @@ export default class Subspace {
   trackGasPrice(): Observable<string>;
   trackAverageBlocktime(): Observable<number>;
   close(): void;
+  snapshot(): string;
+  async loadSnapshot(serializedDb: string): void;
 }
 
 export interface ContractLike {

@@ -33,6 +33,7 @@ export default class Subspace {
     this.options.callInterval = options.callInterval;
     this.options.dbFilename = options.dbFilename ?? "subspace.db";
     this.options.disableDatabase = options.disableDatabase;
+    this.options.snapshot = options.snapshot;
 
     this.networkId = undefined;
     this.isWebsocketProvider = options.disableSubscriptions ? false : !!web3?.currentProvider?.on;
@@ -44,6 +45,11 @@ export default class Subspace {
     } else {
       this._db = new Database(this.options.dbFilename, this.events);
     }
+    
+    if(this.options.snapshot) {
+      await this._db.restore(this.options.snapshot);
+    }
+
     this.eventSyncer = new EventSyncer(this.web3.eth, this.events, this._db, this.isWebsocketProvider);
     this.logSyncer = new LogSyncer(this.web3.eth, this.events, this._db);
 
@@ -307,5 +313,13 @@ export default class Subspace {
 
   close() {
     this.eventSyncer.close();
+  }
+
+  snapshot() {
+    return this._db.serialize();
+  }
+
+  async loadSnapshot(serializedDb) {
+    return this._db.restore(serializedDb, true);
   }
 }
