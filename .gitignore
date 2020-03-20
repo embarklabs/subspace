@@ -10,3 +10,4 @@ module/
 /examples/react-example1/src/contract.json
 coverage/
 lerna-debug.log
+.DS_Store
