@@ -14,7 +14,7 @@ const gql = require("graphql-tag");
 const { graphql } = require("reactive-graphql");
 
 const run = async () => {
-  const subspace = new Subspace(web3.currentProvider); // Use a valid provider (geth, parity, infura...)
+  const subspace = new Subspace(web3);
   await subspace.init();
 
   const MyContractInstance = ...; // TODO: obtain a web3.eth.contract instance
@@ -31,9 +31,7 @@ const run = async () => {
 
   const resolvers = {
     Query: {
-      myEvents: () => {
-        return subspace.trackEvent(MyContractInstance, 'MyEvent', { filter: {}, fromBlock: 1 })
-      }
+      myEvents: () => subspace.trackEvent(MyContractInstance, 'MyEvent', { filter: {}, fromBlock: 1 })
     }
   };
 
@@ -59,5 +57,5 @@ run();
 ```
 
 <div class="c-notification">
-This example is available in [Github](https://github.com/embarklabs/subspace/tree/master/examples/reactive-graphql)
+This example is available in <a href="https://github.com/embarklabs/subspace/tree/master/examples/reactive-graphql" target="_blank">Github</a>
 </div>

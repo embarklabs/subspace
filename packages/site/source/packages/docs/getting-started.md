@@ -1,4 +1,3 @@
-
 ---
 title: Getting Started
 ---
@@ -26,18 +25,18 @@ const Subspace = require('@embarklabs/subspace');
 
 
 ## Connecting to a web3 provider
-To interact with the EVM, **Subspace** requires a valid Web3 provider. 
+To interact with the EVM, **Subspace** requires a valid Web3 object, connected to a provider
 
 ```js
-const subspace = new Subspace(web3.currentProvider);
+const subspace = new Subspace(web3);
 await subspace.init();
 ```
 
 In addition to the provider, `Subspace` also accepts an `options` object with settings that can change its behavior:
 - `dbFilename` - Name of the database where the information will be stored (default `'subspace.db'`)
-- `callInterval` - Interval of time in milliseconds to query a contract/address to determine changes in state or balance (default: `undefined`. Obtains data every block).
+- `callInterval` - Interval of time in milliseconds to query a contract/address to determine changes in state or balance. It's only used with HttpProviders (default: `undefined`. Obtains data every block using the average block time as an interval).
 - `refreshLastNBlocks` - Ignores last N blocks (from current block), stored in the local db and refresh them via a web3 subscription. Useful for possible reorgs (default: 12),
-- `disableSubscriptions` - Subspace by default will attempt to use websocket subscriptions if the current provider supports them, otherwise it will use polling because it asumes the provider is an HttpProvider. This functionality can be disabled by passing true to this option. (default: undefined)
+- `disableSubscriptions` - Subspace by default will attempt to use websocket subscriptions if the current provider supports them, otherwise it will use polling because it asumes the provider is an HttpProvider. This functionality can be disabled by passing true to this option. (default: `undefined`)
 
 
 ## Enhancing your contract objects
@@ -57,8 +56,8 @@ const myRXContract = subspace.contract({abi: ...., address: '0x1234...CDEF'})
 Once it's initialized, you can use **Subspace**'s methods to track the contract state, events and balances. These functions return RxJS Observables which you can subscribe to, and obtain and transform the observed data via operators.
 
 <div class="c-notification">
-What is an Observable?
-The `Observable` type can be used to model push-based data sources such as DOM events, timer intervals, and sockets. In addition, observables are:
+<h3>What is an Observable?</h3>
+The <code>Observable</code> type can be used to model push-based data sources such as DOM events, timer intervals, and sockets. In addition, observables are:
 - Compositional: Observables can be composed with higher-order combinators.
 - Lazy: Observables do not start emitting data until an observer has subscribed.
 </div>
@@ -72,8 +71,9 @@ You can track changes to a contract state variable, by specifying the view funct
 const stateObservable$ = Contract.methods.functionName(functionArgs).track();
 ```
 
-<div class="c-notification">Tracking the public variables of a contract
-State variables implicity create a `view` function when they're defined as `public`. The `functionName` would be the same as the variable name, and `functionArgs` will have a value when the type is a `mapping` or `array` (since these require an index value to query them).
+<div class="c-notification">
+<h3>Tracking the public variables of a contract</h3>
+State variables implicity create a <code>view</code> function when they're defined as <code>public</code>. The <code>functionName</code> would be the same as the variable name, and <code>functionArgs</code> will have a value when the type is a <code>mapping</code> or array (since these require an index value to query them).
 </div>
 
 Example:
@@ -93,13 +93,13 @@ The subscription will be triggered whenever the title changes
 ## Tracking events
 You can track events and react to their returned values.
 ```js
-const eventObservable$ = Contract.event.eventName().track();
+const eventObservable$ = Contract.event.eventName.track();
 ```
 
 Example:
 
 ```js
-const rating$ = Product.events.Rating().track().map("rating")).pipe(map(x => parseInt(x)));
+const rating$ = Product.events.Rating.track().map("rating")).pipe(map(x => parseInt(x)));
 rating$.subscribe((rating) => console.log("rating received: " + rating));
 
 
@@ -117,7 +117,7 @@ For e.g: if you needed to get the average rating of the last 5 events:
 ```js
 import { $average, $latest } from "@embarklabs/subspace";
 
-const rating$ = Product.events.Rating().track().map("rating")).pipe(map(x => parseInt(x)));
+const rating$ = Product.events.Rating.track().map("rating")).pipe(map(x => parseInt(x)));
 
 rating$.pipe($latest(5), $average()).subscribe((rating) => {
   console.log("average rating of the last 5 events is " + rating)
@@ -154,7 +154,7 @@ const myBalanceObservable$ = Contract.trackBalance(tokenAddress);
 ```
 
 <div class="c-notification c-notification--warning">
-Balances are returned as a string containing the value in *wei*.
+Balances are returned as a string containing the value in <strong>wei</strong>.
 </div>
 
 
@@ -217,7 +217,7 @@ If **Subspace** is not needed anymore, you need can invoke `close()` to dispose 
 subspace.close();
 ```
 <div class="c-notification c-notification--warning">
-What about subscriptions created with our observables?
-Any subscription created via the tracking methods must be unsubscribed manually (in the current version).
+<h3>What about subscriptions created with our observables?</h3>
+<code>close()</code> will dispose any web3 subscription created when using a Subspace tracking method, however any subscription to an observable must still be unsubscribed manually. The npm package <code>subsink</code> can be used to clear all the observables' subscriptions at once.
 </div>
 

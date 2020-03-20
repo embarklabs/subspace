@@ -25,7 +25,7 @@ const myEpic = action$ =>
 ```
 
 <div class="c-notification">
-An example is available in [Github](https://github.com/embarklabs/subspace/tree/master/examples/redux-observable)
+An example is available in <a href="https://github.com/embarklabs/subspace/tree/master/examples/redux-observable" target="_blank">Github</a>
 </div>
 
 #### Further read

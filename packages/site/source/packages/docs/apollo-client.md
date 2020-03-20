@@ -1,23 +1,17 @@
 # apollo-client
-To use **Subspace** with `apollo-client`, a composed `ApolloLink` must be defined using the `apollo-link-rxjs` and `reactive-graphl` npm packages. Notice that the `addTypename` option of `InMemoryCache` must be set `false`.
+To use **Subspace** with `apollo-client`, a `ReactiveSchemaLink` from `apollo-link-reactive-schema` must be used with a custom schema.
 
 ```js
-import { ApolloClient } from "apollo-client";
-import { InMemoryCache } from "apollo-cache-inmemory";
-import { ApolloLink } from "apollo-link";
-import { rxjs as rxJsLink } from "apollo-link-rxjs";
-import { graphql } from "reactive-graphql";
+import {InMemoryCache} from "apollo-cache-inmemory";
+import ApolloClient from "apollo-client";
+import {ReactiveSchemaLink} from "apollo-link-reactive-schema";
 
+const schema = makeExecutableSchema({typeDefs, resolvers});
 const client = new ApolloClient({
-  // If addTypename:true, the query will fail due to __typename
-  // being added to the schema. reactive-graphql does not
-  // support __typename at this moment.
-  cache: new InMemoryCache({ addTypename: false }),
-  link: ApolloLink.from([
-          rxJsLink({}),
-          new ApolloLink(operation => graphql(schema, operation.query))
-        ])
+  cache: new InMemoryCache(),
+  link: new ReactiveSchemaLink({schema)})
 });
+
 ```
 
 ### Example
@@ -25,17 +19,16 @@ const client = new ApolloClient({
 ```js{35-45}
 import { ApolloClient } from "apollo-client";
 import { InMemoryCache } from "apollo-cache-inmemory";
-import { ApolloLink } from "apollo-link";
-import { rxjs as rxJsLink } from "apollo-link-rxjs";
-import { graphql } from "reactive-graphql";
+import {ReactiveSchemaLink} from "apollo-link-reactive-schema";
+import Subspace from "@embarklabs/subspace";
 
 // ...
 
 // Initialize Subspace
-const subspace = new Subspace(web3.currentProvider); // Use a valid provider (geth, parity, infura...)
+const subspace = new Subspace(web3);
 await subspace.init();
 
-const MyContractInstance = ...; // TODO: obtain a web3.eth.contract instance
+const MyContractInstance = ...; // TODO: obtain a web3.eth.Contract instance
 
 const typeDefs = `
   type MyEvent {
@@ -49,28 +42,20 @@ const typeDefs = `
 
 const resolvers = {
   Query: {
-    myEvents: () => {
-      return subspace.trackEvent(MyContractInstance, 'MyEvent', {filter: {}, fromBlock: 1})
-    }
+    myEvents: () => subspace.trackEvent(MyContractInstance, 'MyEvent', {filter: {}, fromBlock: 1})
   }
 };
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
 const client = new ApolloClient({
-  // If addTypename:true, the query will fail due to __typename
-  // being added to the schema. reactive-graphql does not
-  // support __typename at this moment.
-  cache: new InMemoryCache({ addTypename: false }),
-  link: ApolloLink.from([
-          rxJsLink({}),
-          new ApolloLink(operation => graphql(schema, operation.query))
-        ])
+  cache: new InMemoryCache(),
+  link: new ReactiveSchemaLink({schema)})
 });
 ```
 
 
 <div class="c-notification">
-Using react-apollo
-A practical example can also be found in `examples/react-apollo`.
+<h3>Using Apollo with Subspace</h3>
+A practical example can also be found in <code>examples/react-apollo</code>.
 </div>

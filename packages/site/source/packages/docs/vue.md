@@ -4,7 +4,7 @@ Vue provides the official npm package `vue-rx` that provides RxJS integration, w
 ### Example
 
 <div class="c-notification">
-This example is available in [Github](https://github.com/embark-framework/subspace/tree/master/examples/vue)
+This example is available in <a href="https://github.com/embark-framework/subspace/tree/master/examples/vue" target="_blank">Github</a>
 </div>
 
 
@@ -56,7 +56,7 @@ export default {
   created: async function(){
     this.MyContractInstance = ...; // TODO: obtain a web3.eth.contract instance
 
-    const subspace = new Subspace("wss://localhost:8545"); // Use a valid provider (geth, parity, infura...)
+    const subspace = new Subspace(web3);
     await subspace.init();
 
     this.myEventObservable$ = subspace.trackEvent(this.MyContractInstance, "MyEvent", {filter: {}, fromBlock: 1 });

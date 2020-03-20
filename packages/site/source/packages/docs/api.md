@@ -2,14 +2,14 @@
 
 ## General
 
-### `new Subspace(web3Provider [, options])`
+### `new Subspace(web3 [, options])`
 Constructor. 
 
 **Parameters**
-1. `web3Provider` - `Object`: a valid web3 provider.
+1. `web3` - `Object`: a `web3.js` object.
 2. `options` - `Object` (optional): Options used to initialize Subspace
 	- `dbFilename` - `String` (optional): Name of the database where the information will be stored (default `'subspace.db'`)
-	- `callInterval` - `Number` (optional): - Interval of time in milliseconds to poll a contract/address to determine changes in state or balance (default: `undefined`. Obtains data every block. If using a HttpProvider, the default is: `1000`)
+    - `callInterval` - Interval of time in milliseconds to query a contract/address to determine changes in state or balance. It's only used with HttpProviders (default: `undefined`. Obtains data every block using the average block time as an interval).
     - `refreshLastNBlocks` - Ignores last N blocks (from current block), stored in the local db and refresh them via a web3 subscription. Useful for possible reorgs (default: 12),
     - `disableSubscriptions` - Subspace by default will attempt to use websocket subscriptions if the current provider supports them, otherwise it will use polling because it asumes the provider is an HttpProvider. This functionality can be disabled by passing true to this option. (default: undefined)
 
