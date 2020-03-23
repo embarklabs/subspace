@@ -104,14 +104,14 @@ export default class Subspace {
       }, 100);
     }
 
-    SubspaceContract.trackEvent = (eventName, filterConditionsOrCb) => {
-      return this.trackEvent(SubspaceContract, eventName, filterConditionsOrCb);
+    SubspaceContract.trackEvent = (eventName, filterConditions) => {
+      return this.trackEvent(SubspaceContract, eventName, filterConditions);
     };
 
     Object.keys(SubspaceContract.events).forEach(ev => {
       if (!SubspaceContract.options.jsonInterface.find(x => x.type === "event" && x.name == ev)) return;
-      SubspaceContract.events[ev].track = filterConditionsOrCb =>
-        this.trackEvent(SubspaceContract, ev, filterConditionsOrCb);
+      SubspaceContract.events[ev].track = filterConditions =>
+        this.trackEvent(SubspaceContract, ev, filterConditions);
     });
 
     SubspaceContract.trackProperty = (propName, methodArgs, callArgs) => {
