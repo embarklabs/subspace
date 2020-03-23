@@ -22,7 +22,7 @@ class EventSyncer {
 
     const observable = new Observable(subscriber => {
       const cb = this.callbackFactory(subscriber, filters, eventKey, eventName);
-      const fnDBEvents = this.serveDBEvents(cb, eventKey);
+      const fnDBEvents = this.serveDBEvents(cb, eventKey, !filterConditions.saveToDb);
       const fnPastEvents = this.getPastEvents(cb, eventKey, contractInstance, eventName, filters);
       const fnSubscribe = this.isWebsocketProvider ? this.subscribeToEvent(cb, contractInstance, eventName) : null;
 
@@ -58,7 +58,9 @@ class EventSyncer {
     return false;
   };
 
-  serveDBEvents = (cb, eventKey) => (toBlock, lastCachedBlock) => {
+  serveDBEvents = (cb, eventKey, fromDB) => (toBlock, lastCachedBlock) => {
+    if(!fromDB) return false; 
+
     const events = this.db.getEventsFor(eventKey);
     events.forEach(ev => cb(null, ev));
 
@@ -116,7 +118,9 @@ class EventSyncer {
 
     subscriber.next(eventData.returnValues);
 
-    this.events.emit("updateDB", {eventKey, eventData});
+    if (filterConditions && !!filterConditions.saveToDb) {
+      this.events.emit("updateDB", {eventKey, eventData});
+    }
   };
 
   close() {
