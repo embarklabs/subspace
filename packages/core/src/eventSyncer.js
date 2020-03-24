@@ -116,7 +116,7 @@ class EventSyncer {
       removed: event.removed
     };
 
-    subscriber.next(eventData.returnValues);
+    subscriber.next({blockNumber: event.blockNumber, ...eventData.returnValues});	
 
     if (filterConditions && !!filterConditions.saveToDb) {
       this.events.emit("updateDB", {eventKey, eventData});
