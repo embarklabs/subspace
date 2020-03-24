@@ -34,20 +34,22 @@
     "build": "npm-run-all clean build:*"
   },
   "devDependencies": {
+    "react": "^16.9.0",
     "rxjs": "^6.5.2",
-    "web3": "^1.2.1",
-    "react": "^16.9.0"
+    "web3": "^1.2.1"
   },
   "dependencies": {
     "@babel/runtime": "^7.8.4",
-    "core-js": "^3.6.4",
     "@babel/runtime-corejs3": "^7.8.4",
-    "@embarklabs/subspace": "^2.0.0"
+    "@embarklabs/subspace": "^2.0.0",
+    "core-js": "^3.6.4",
+    "prop-types": "^15.7.2",
+    "strip-hex-prefix": "^1.0.0"
   },
   "peerDependencies": {
+    "react": "^16.9.0",
     "rxjs": "^6.5.2",
-    "web3": "^1.2.1",
-    "react": "^16.9.0"
+    "web3": "^1.2.1"
   },
   "jest": {
     "collectCoverage": true,
