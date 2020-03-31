@@ -1,0 +1,46 @@
+{
+  "name": "subspace-demo",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": "https://acolytec3.github.io/subspace-demo",
+  "dependencies": {
+    "@embarklabs/subspace": "^2.0.2",
+    "@embarklabs/subspace-react": "^1.0.2",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.3.2",
+    "@testing-library/user-event": "^7.1.2",
+    "gh-pages": "^2.2.0",
+    "grommet": "^2.11.1",
+    "grommet-icons": "^4.4.0",
+    "react": "^16.13.0",
+    "react-bootstrap": "^1.0.0-beta.17",
+    "react-dom": "^16.13.0",
+    "react-scripts": "3.4.0",
+    "rxjs": "^6.5.4",
+    "styled-components": "^5.0.1",
+    "web3": "^1.2.6"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
