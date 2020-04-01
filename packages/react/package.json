@@ -25,7 +25,8 @@
   },
   "license": "MIT",
   "types": "types/index.d.ts",
-  "main": "./lib/index.js",
+  "main": "./dist/index.js",
+  "browser": "./lib/index.js",
   "module": "./module/index.js",
   "scripts": {
     "clean": "rimraf lib; rimraf module;",
