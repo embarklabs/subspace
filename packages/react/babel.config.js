@@ -3,7 +3,7 @@ module.exports = api => {
 
   return {
     env: {
-      development: {
+      node: {
         presets: [
           [
             "@babel/preset-env",

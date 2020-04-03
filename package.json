@@ -17,15 +17,20 @@
     "@babel/preset-env": "^7.8.4",
     "babel-eslint": "^10.0.3",
     "babel-jest": "24.9.0",
+    "babel-loader": "^8.0.6",
     "cross-env": "^7.0.0",
     "eslint": "^6.8.0",
     "eslint-plugin-babel": "^5.3.0",
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-standard": "^4.0.1",
+    "find-up": "^4.1.0",
     "jest": "24.9.0",
     "npm-run-all": "^4.1.5",
     "rimraf": "^3.0.1",
-    "lerna": "^3.20.2"
+    "lerna": "^3.20.2",
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11",
+    "webpack-bundle-analyzer": "^3.4.1"
   },
   "dependencies": {
     "@babel/runtime": "^7.8.4",
@@ -33,10 +38,18 @@
     "core-js": "^3.6.4"
   },
   "scripts": {
-    "build": "lerna run --parallel 'build'",
+    "build": "run-s build:packages",
+    "build:packages": "lerna run --ignore subspace-docs --stream build",
+    "build:site": "lerna run --scope subspace-docs --stream build",
+    "clean": "lerna run --parallel clean",
     "lerna:bootstrap": "lerna bootstrap",
     "bootstrap": "npm-run-all lerna:bootstrap build",
-    "ganache": "ganache-cli -s 0 -b 5",
-    "lint": "cross-env eslint 'packages/**/*.js{,x}'"
+    "lint": "cross-env eslint 'packages/**/*.js{,x}'",
+    "test": "lerna run --stream test"
+  },
+  "engines": {
+    "node": ">=10.17.0",
+    "npm": ">=6.11.3",
+    "yarn": ">=1.19.1"
   }
 }

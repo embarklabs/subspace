@@ -24,17 +24,24 @@
     "url": "https://github.com/embarklabs/subspace/issues"
   },
   "license": "MIT",
-  "main": "./dist/index.js",
-  "browser": "./lib/index.js",
-  "module": "./module/index.js",
+  "main": "./dist/node/index.js",
+  "browser": "./dist/browser/index.js",
+  "module": "./dist/module/index.js",
   "types": "types/index.d.ts",
   "scripts": {
-    "clean": "rimraf dist; rimraf lib; rimraf module;",
-    "build:browser": "cross-env BABEL_ENV=browser babel ./src --out-dir ./lib --source-maps --copy-files",
-    "build:module": "cross-env BABEL_ENV=module babel ./src --out-dir ./module --source-maps --copy-files",
-    "build:node": "babel ./src --out-dir ./dist --source-maps --copy-files",
+    "analyze": "cross-env WEBPACK_ANALYZE=t npm run build:umd",
+    "clean": "rimraf dist;",
     "build": "npm-run-all clean build:*",
-    "test": "jest"
+    "build:browser": "cross-env BABEL_ENV=browser babel ./src --out-dir ./dist/browser --source-maps --copy-files",
+    "build:module": "cross-env BABEL_ENV=module babel ./src --out-dir ./dist/module --source-maps --copy-files",
+    "build:node": "cross-env BABEL_ENV=node babel ./src --out-dir ./dist/dist/node --source-maps --copy-files",
+    "build:umd": "cross-env BABEL_ENV=module webpack",
+    "test": "jest",
+    "watch": "yarn run-p watch:*",
+    "watch:node": "yarn run build:node -- --verbose --watch",
+    "watch:browser": "yarn run build:browser -- --verbose --watch",
+    "watch:module": "yarn run build:module -- --verbose --watch",
+    "watch:umd": "yarn run build:umd -- --info-verbosity verbose --watch"
   },
   "devDependencies": {
     "ganache-core": "^2.10.1",
@@ -70,5 +77,10 @@
         }
       ]
     }
+  },
+  "engines": {
+    "node": ">=10.17.0",
+    "npm": ">=6.11.3",
+    "yarn": ">=1.19.1"
   }
 }
