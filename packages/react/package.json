@@ -1,6 +1,6 @@
 {
   "name": "@embarklabs/subspace-react",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Library for Reactive Dapp Development with auto syncing and caching capabilities https://subspace.embarklabs.io",
   "homepage": "https://subspace.embarklabs.io",
   "author": "Status Research & Development GMBH",
