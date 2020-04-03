@@ -1,10 +1,11 @@
 import Web3 from "web3";
 import React from 'react';
-import Subspace from "@embarklabs/subspace"
+import Subspace, { SubspaceOptions } from "@embarklabs/subspace"
 
 export interface SubspaceProviderProps {
   web3: Web3;
   children: React.ReactNode;
+  options: SubspaceOptions;
 }
 
 export const SubspaceProvider: React.Component<SubspaceProviderProps>;

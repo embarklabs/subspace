@@ -3,6 +3,33 @@ module.exports = api => {
 
   return {
     env: {
+      development: {
+        presets: [
+          [
+            "@babel/preset-env",
+            {
+              corejs: 3,
+              shippedProposals: true,
+              targets: {node: "current"},
+              useBuiltIns: "usage"
+            }
+          ]
+        ],
+        plugins: [
+          [
+            "@babel/plugin-transform-runtime",
+            {
+              corejs: 3
+            }
+          ],
+          "@babel/plugin-proposal-export-default-from",
+          "@babel/plugin-proposal-class-properties",
+          "@babel/plugin-proposal-private-methods",
+          "@babel/plugin-proposal-nullish-coalescing-operator",
+          "@babel/plugin-proposal-optional-chaining",
+          "@babel/plugin-transform-react-jsx"
+        ]
+      },
       browser: {
         presets: [
           [
