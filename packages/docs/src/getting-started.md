@@ -7,11 +7,15 @@ title: Getting Started
 **Subspace** can be used in browser, node and native script environments. To get started install the package `@embarklabs/subspace` using `npm` or `yarn` by executing this command in your project directory:
 ```bash
 # Using npm
-npm install --save @embarklabs/subspace
+npm install --save @embarklabs/subspace web3 rxjs
 
 # Using yarn
-yarn add @embarklabs/subspace 
+yarn add @embarklabs/subspace  web3 rxjs
 ```
+
+<div class="c-notification">
+Notice that we also include <code>web3</code> and <code>rxjs</code>. These are required peer dependencies
+</div>
 
 ## Importing the library
 

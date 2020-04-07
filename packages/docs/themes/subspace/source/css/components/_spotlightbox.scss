@@ -1,11 +1,6 @@
 .c-spotlightbox {
   padding: get-inset-spacing(l) 0;
-  background: linear-gradient(180deg, #0A0F40 0%, rgba(4, 26, 57, 0) 100%), #041A39;
-  background-image: url(../images/circles.png);
-  background-position: center;
-  background-size: contain;
-  transition: background-size .5s;
-  transition-delay: .5s;
+  background: linear-gradient(180deg, #072f67 0%, rgba(4, 26, 57, 0) 100%), #041A39;
   color: get-color(unique, white);
 
   @include respond(large) {

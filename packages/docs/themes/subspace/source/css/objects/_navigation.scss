@@ -50,7 +50,7 @@
     position: fixed;
     top: 0;
     width: 320px;
-    z-index: get-index(navigationList);
+    z-index: 1000;
 
     @include respond(large) {
       align-items: center;

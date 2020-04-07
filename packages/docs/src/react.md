@@ -10,7 +10,7 @@ npm install --save @embarklabs/subspace-react web3 rxjs # RxJS and Web3.js are n
 ### Usage
 
 #### SubspaceProvider
-To use most of the `subspace-react` components, you need to wrap your app with the `<SubspaceProvider web3={web3} />` component. This will make Subspace available to any nested components that accesses it via the `useSubspace` hook or has been wrapped in the `withSubspace` higher order component. Any React component might use Subspace so it makes sense to add the provider near the top level of your dApp. The `SubspaceProvider` requires a web3 object
+To use most of the `subspace-react` components, you need to wrap your app with the `<SubspaceProvider web3={web3} />` component. This will make Subspace available to any nested components that accesses it via the `useSubspace` hook or has been wrapped in the `withSubspace` higher order component. Any React component might use Subspace so it makes sense to add the provider near the top level of your dApp. The `SubspaceProvider` requires a web3 object and can receive an `options` object to initialize Subspace (optional).
 
 ```js
 // index.js
@@ -23,7 +23,7 @@ const web3 = new Web3("ws://localhost:8545");
 
 const rootElement = document.getElementById('root')
 ReactDOM.render(
-  <SubspaceProvider web3={web3}>
+  <SubspaceProvider web3={web3} options={options}>
     <MyApp />
   </SubspaceProvider>,
   rootElement

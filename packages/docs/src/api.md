@@ -40,6 +40,8 @@ Track a contract event.
     - `fromBlock` - `Number` (optional): The block number from which to get events on.
     - `toBlock` - `Number` (optional): The block number to get events up to (Defaults to `"latest"`)
     - `topics` - `Array` (optional): This allows you to manually set the topics for the event filter. If given the filter property and event signature, (`topic[0]`) will not be set automatically.
+    - `saveToDb` - `Boolean` (optional): Store events into a local database for faster data retrievals.  (default: `true`)
+
 
 **Returns**
 `RxJS Observable` which will stream the event `returnValues`.
@@ -110,7 +112,8 @@ Track a contract event.
     - `filter` - `Object` (optional): Lets you filter events by indexed parameters, e.g. `{filter: {myNumber: [12,13]}}` means all events where `"myNumber"` is `12` or `13`.
     - `fromBlock` - `Number` (optional): The block number from which to get events on.
     - `toBlock` - `Number` (optional): The block number to get events up to (Defaults to `"latest"`)
-    - `topics` - `Array` (optional): This allows you to manually set the topics for the event filter. If given the filter property and event signature, (`topic[0]`) will not be set automatically.
+    - `topics` - `Array` (optional): This allows you to manually set the topics for the event filter. If given the filter property and event signature, (`topic[0]`) will not be set automatically.\
+    - `saveToDb` - `Boolean` (optional): Store events into a local database for faster data retrievals.  (default: `true`)
 
 **Returns**
 `RxJS Observable` which will stream the event `returnValues`.

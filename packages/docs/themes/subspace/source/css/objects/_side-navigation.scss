@@ -3,7 +3,6 @@
   display: none;
   left: 20px;
   overflow: auto;
-  position: fixed;
   top: 20px;
   border-radius: $global-border-radius;
   box-shadow: 0 0 20px rgba(0,0,0,.2);
@@ -17,7 +16,6 @@
     display: block;
     height: auto;
     padding: 40px 0;
-    position: sticky;
     width: 100%;
     z-index: 10;
     background: transparent;

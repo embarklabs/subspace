@@ -1,3 +1,5 @@
+<div id="stars"></div>
+<div id="stars2"></div>
 <header role="banner" class="o-header">
     <div class="o-header__container c-spotlightbox">
       <div class="o-constrained">
@@ -16,14 +18,15 @@
                 class="o-navigation__item <% if(is_current('getting-started.html')) { %>is-active<% } %>">
                 Getting started
               </a>
-              <a href="<%- url_for_lang('integrations-overview.html') %>" title="Getting started"
-                class="o-navigation__item <% if(is_current('integrations-overview.html')) { %>is-active<% } %>">
-                Integrations
-              </a>
-              <a href="<%- url_for_lang('api.html') %>" title="Getting started"
+              <a href="<%- url_for_lang('api.html') %>" title="API"
                 class="o-navigation__item <% if(is_current('api.html')) { %>is-active<% } %>">
                 API
               </a>
+              <a href="https://github.com/embarklabs/subspace" title="Github"
+                class="o-navigation__item">
+                Github
+              </a>
+              
             </div>
           </nav>
         </div>
