@@ -41,6 +41,8 @@ In addition to the provider, `Subspace` also accepts an `options` object with se
 - `callInterval` - Interval of time in milliseconds to query a contract/address to determine changes in state or balance. It's only used with HttpProviders (default: `undefined`. Obtains data every block using the average block time as an interval).
 - `refreshLastNBlocks` - Ignores last N blocks (from current block), stored in the local db and refresh them via a web3 subscription. Useful for possible reorgs (default: 12),
 - `disableSubscriptions` - Subspace by default will attempt to use websocket subscriptions if the current provider supports them, otherwise it will use polling because it asumes the provider is an HttpProvider. This functionality can be disabled by passing true to this option. (default: `undefined`)
+- `saveToDb` - `Boolean` (optional): Store events into a local database for faster data retrievals.  (default: `true`)
+- `snapshot` - `String` (optional): URL of a `.json` file with a snapshot of the database that can be used to avoid retrieving all the events from scratch the first time the &ETH;app is used.
 
 
 ## Enhancing your contract objects
@@ -224,4 +226,18 @@ subspace.close();
 <h3>What about subscriptions created with our observables?</h3>
 <code>close()</code> will dispose any web3 subscription created when using a Subspace tracking method, however any subscription to an observable must still be unsubscribed manually. The npm package <code>subsink</code> can be used to clear all the observables' subscriptions at once.
 </div>
+
+## Snapshots
+A way to speed up the loading of events is to use a snapshot of the database. This is done by providing the option `snapshot` in the `Subspace` constructor. This option should contain a json string containing the database of events used by the application.
+
+The content of the database can be obtained by executing the following function (assuming the DB already has data):
+
+```js
+subspace.snapshot();
+```
+
+It's also possible to load a snapshot on demand.
+```js
+await subspace.loadSnapshot(serializedDb);
+```
 

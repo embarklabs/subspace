@@ -10,8 +10,10 @@ Constructor.
 2. `options` - `Object` (optional): Options used to initialize Subspace
 	- `dbFilename` - `String` (optional): Name of the database where the information will be stored (default `'subspace.db'`)
     - `callInterval` - Interval of time in milliseconds to query a contract/address to determine changes in state or balance. It's only used with HttpProviders (default: `undefined`. Obtains data every block using the average block time as an interval).
-    - `refreshLastNBlocks` - Ignores last N blocks (from current block), stored in the local db and refresh them via a web3 subscription. Useful for possible reorgs (default: 12),
-    - `disableSubscriptions` - Subspace by default will attempt to use websocket subscriptions if the current provider supports them, otherwise it will use polling because it asumes the provider is an HttpProvider. This functionality can be disabled by passing true to this option. (default: undefined)
+    - `refreshLastNBlocks` - Ignores last N blocks (from current block), stored in the local db and refresh them via a web3 subscription. Useful for possible reorgs (default: `12`),
+    - `disableSubscriptions` - Subspace by default will attempt to use websocket subscriptions if the current provider supports them, otherwise it will use polling because it asumes the provider is an HttpProvider. This functionality can be disabled by passing true to this option. (default: `undefined`)
+    - `saveToDb` - `Boolean` (optional): Store events into a local database for faster data retrievals.  (default: `true`)
+    - `snapshot` - `String` (optional): URL of a `.json` file with a snapshot of the database that can be used to avoid retrieving all the events from scratch the first time the &ETH;app is used.
 
 
 ### `init()`
@@ -28,6 +30,23 @@ Adds a `track` method to the web3 contract objects. You can obtain this function
 
 **Returns**
 `web3.eth.Contract` object enhanced with `.track()` functions for methods and events.
+
+### `snapshot()`
+Return a serialized json string containing the events from the database.
+
+**Returns**
+`string`
+
+### `loadSnapshot(serializedDb)()`
+Restores the database with the content of a serialized json string.
+
+
+
+
+
+
+
+
 
 ## Contract methods
 
@@ -114,6 +133,7 @@ Track a contract event.
     - `toBlock` - `Number` (optional): The block number to get events up to (Defaults to `"latest"`)
     - `topics` - `Array` (optional): This allows you to manually set the topics for the event filter. If given the filter property and event signature, (`topic[0]`) will not be set automatically.\
     - `saveToDb` - `Boolean` (optional): Store events into a local database for faster data retrievals.  (default: `true`)
+    - `snapshot` - `String` (optional): URL of a `.json` file with a snapshot of the database that can be used to avoid retrieving all the events from scratch the first time the &ETH;app is used.
 
 **Returns**
 `RxJS Observable` which will stream the event `returnValues`.
