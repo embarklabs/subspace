@@ -56,7 +56,7 @@ Track a contract event.
 **Parameters**
 1. `options` - `Object` (optional): web3 filter options object to limit the number of events based on a block number range, or indexed filters
     - `filter` - `Object` (optional): Lets you filter events by indexed parameters, e.g. `{filter: {myNumber: [12,13]}}` means all events where `"myNumber"` is `12` or `13`.
-    - `fromBlock` - `Number` (optional): The block number from which to get events on.
+    - `fromBlock` - `Number` (optional): The block number from which to get events on (Defaults to `"0"`.  IMPORTANT: This means if you don't specify otherwise, the observable will start at block 0 and stream all events from all time.  For any long-lived active contract event, this could be a very larrge number of events).
     - `toBlock` - `Number` (optional): The block number to get events up to (Defaults to `"latest"`)
     - `topics` - `Array` (optional): This allows you to manually set the topics for the event filter. If given the filter property and event signature, (`topic[0]`) will not be set automatically.
     - `saveToDb` - `Boolean` (optional): Store events into a local database for faster data retrievals.  (default: `true`)
@@ -175,3 +175,44 @@ Tracks incoming logs, filtered by the given options.
 
 **Returns**
 `RxJS Observable` which will stream the logs. If the inputs ABI is included in the call, the logs will be automatically decoded.
+
+
+## Operators
+Dot operators for transforming raw Subspace observable event streams.  
+
+### `latest(num)`
+Returns an observable of the last 5 events from a given Observable.
+
+**Parameters*
+1. `num` - `Number`: The number of events from tne input observable to be returned.  
+
+**Returns**
+`RxJS Observable` which will stream the last 5 events from an input observable.  Typically used in conjunction with the RxJS `pipe` operator (e.g. `inputObservable.pipe($latest(5))`).
+
+### `max(cb)`
+Returns an observable that returns the maximum value in a stream of events in an input observable
+
+**Parameters*
+1. `cb` - `String/Function`(optional): An event identifier or function that transforms the data in the event to allow for simple comparison to determine the maximum value of a stream of events.
+
+**Returns**
+`RxJS Observable` which will stream the maximum value for a stream of events from an input observable, defined as either the simple arithmetic maximum value emitted by the input observable or the maximum value as defined by the comparison defined by `cb`
+
+### `min(cb)`
+Returns an observable that returns the maximum value in a stream of events in an input observabl
+
+**Parameters*
+1. `cb` - `String/Function`(optional): An event identifier or function that transforms the data in the event to allow for simple comparison to determine the minimum value of a stream of events.
+
+**Returns**
+`RxJS Observable` which will stream the minimum value for a stream of events from an input observable, defined as either the simple arithmetic minimum value emitted by the input observable or the minimum value as defined by the comparison defined by `cb`
+
+### `average(cb)`
+Returns an observable that returns the arithmetic average value of a stream of events in an input observable
+
+**Parameters*
+1. `cb` - `String/Function`(optional): An event identifier or function that transforms the data in the event to allow for computation of the average value of a stream of events.
+
+**Returns**
+`RxJS Observable` which will stream the average value for a stream of events from an input observable, defined as either the simple arithmetic average value of all events emitted by the input observable or the average value of all events transformed by `cb`.  In other words, for all events *X*, the return value will be the sum of all events *X* divided by the total number of events (i.e. (a+b)/2)
+
