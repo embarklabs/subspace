@@ -193,7 +193,7 @@ Returns an observable of the last 5 events from a given Observable.
 Returns an observable that returns the maximum value in a stream of events in an input observable
 
 **Parameters*
-1. `cb` - `String/Function`(optional): An event identifier or function that transforms the data in the event to allow for simple comparison to determine the maximum value of a stream of events.
+1. `cb` - `String/Function`(optional): An event attribute/property identifier (if of type `String`) or function that transforms the data in the event to allow for simple comparison to determine the maximum value of a stream of events.
 
 **Returns**
 `RxJS Observable` which will stream the maximum value for a stream of events from an input observable, defined as either the simple arithmetic maximum value emitted by the input observable or the maximum value as defined by the comparison defined by `cb`
@@ -202,7 +202,7 @@ Returns an observable that returns the maximum value in a stream of events in an
 Returns an observable that returns the maximum value in a stream of events in an input observabl
 
 **Parameters*
-1. `cb` - `String/Function`(optional): An event identifier or function that transforms the data in the event to allow for simple comparison to determine the minimum value of a stream of events.
+1. `cb` - `String/Function`(optional): An event attribute/property identifier (if of type `String`) or function that transforms the data in the event to allow for simple comparison to determine the minimum value of a stream of events.
 
 **Returns**
 `RxJS Observable` which will stream the minimum value for a stream of events from an input observable, defined as either the simple arithmetic minimum value emitted by the input observable or the minimum value as defined by the comparison defined by `cb`
@@ -211,7 +211,7 @@ Returns an observable that returns the maximum value in a stream of events in an
 Returns an observable that returns the arithmetic average value of a stream of events in an input observable
 
 **Parameters*
-1. `cb` - `String/Function`(optional): An event identifier or function that transforms the data in the event to allow for computation of the average value of a stream of events.
+1. `cb` - `String/Function`(optional): An event attribute/property identifier (if of type `String`) or function that transforms the data in the event to allow for computation of the average value of a stream of events.
 
 **Returns**
 `RxJS Observable` which will stream the average value for a stream of events from an input observable, defined as either the simple arithmetic average value of all events emitted by the input observable or the average value of all events transformed by `cb`.  In other words, for all events *X*, the return value will be the sum of all events *X* divided by the total number of events (i.e. (a+b)/2)
