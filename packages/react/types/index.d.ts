@@ -12,7 +12,7 @@ export const SubspaceProvider: React.Component<SubspaceProviderProps>;
 
 export class observe extends React.Component<P> {}
 
-export default function useSubspace(): Subspace;
+export function useSubspace(): Subspace;
 
 interface withSubspaceProps {
   subspace: Subspace;
